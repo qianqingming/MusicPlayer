@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MusicPlayer</string>
+    <string name="title_name">音乐播放器</string>
+    <string name="permission_title">权限申请</string>
+    <string name="permission_content">请允许访问权限，以便音乐播放器访问存储空间</string>
+    <string name="bottom_music_default_text">没有播放</string>
+</resources>
