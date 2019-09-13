@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.ArtistFragment">
+    android:padding="10dp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_singer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="艺术家" />
+        android:layout_height="match_parent"/>
 
-</FrameLayout>
+    <View
+        android:layout_width="10dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        android:layout_alignParentRight="true"/>
+</RelativeLayout>

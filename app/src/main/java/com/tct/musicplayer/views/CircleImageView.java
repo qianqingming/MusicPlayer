@@ -56,6 +56,7 @@ public class CircleImageView extends androidx.appcompat.widget.AppCompatImageVie
 
     @Override
     protected void onDraw(Canvas canvas) {
+
         Drawable drawable = getDrawable();
         if (drawable == null) {
             super.onDraw(canvas);

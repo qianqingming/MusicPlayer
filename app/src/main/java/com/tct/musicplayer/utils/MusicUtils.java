@@ -27,33 +27,36 @@ public class MusicUtils {
     private static long albumId;
     private static long id;
 
+    private static List<Song> list;
+
     /**
      * 获取歌曲列表
      * @param context
      * @return
      */
     public static List<Song> getMusicList(Context context) {
-        List<Song> list = new ArrayList<>();
-        Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null,
-                null, MediaStore.Audio.AudioColumns.IS_MUSIC);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                Song song = new Song();
-                name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME));
-                id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                singer = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
-                size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE));
-                albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                song.setName(name);
-                song.setSinger(singer);
-                song.setPath(path);
-                song.setDuration(duration);
-                song.setSize(size);
-                song.setId(id);
-                song.setAlbumId(albumId);
-                song.setAlbumBmp(getAlbumArt(context,albumId));
+        if (list == null) {
+            list = new ArrayList<>();
+            Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null,
+                    null, MediaStore.Audio.AudioColumns.IS_MUSIC);
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    Song song = new Song();
+                    name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME));
+                    id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+                    singer = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                    path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                    duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+                    size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE));
+                    albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                    song.setName(name);
+                    song.setSinger(singer);
+                    song.setPath(path);
+                    song.setDuration(duration);
+                    song.setSize(size);
+                    song.setId(id);
+                    song.setAlbumId(albumId);
+                    song.setAlbumBmp(getAlbumArt(context,albumId));
                 /*if (size > 1000 * 800) {
                     if (name.contains("-")) {
                         //把歌曲名字和歌手切割开
@@ -70,10 +73,11 @@ public class MusicUtils {
                     song.setName(name);
                     list.add(song);
                 }*/
-                list.add(song);
+                    list.add(song);
+                }
             }
+            cursor.close();
         }
-        cursor.close();
         return list;
     }
 

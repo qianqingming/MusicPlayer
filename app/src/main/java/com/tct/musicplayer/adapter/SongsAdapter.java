@@ -1,6 +1,8 @@
 package com.tct.musicplayer.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,8 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.domain.Song;
 import com.tct.musicplayer.utils.MusicUtils;
+import com.tct.musicplayer.utils.NotificationUtils;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
@@ -27,9 +30,16 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
     private MediaPlayer mMediaPlayer;
 
+    private List<Boolean> isClicked;
+
     public SongsAdapter(Context context, List<Song> list){
         this.context = context;
         this.list = list;
+
+        isClicked = new ArrayList<>();
+        for (int i=0;i<list.size();i++){
+            isClicked.add(i,false);
+        }
     }
 
     @NonNull
@@ -40,25 +50,24 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         holder.musicLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    /*holder.songName.setTextColor(getResources().getColor(R.color.colorSelected));
-                    holder.songSinger.setTextColor(getResources().getColor(R.color.colorSelected));
-                    holder.songTime.setTextColor(getResources().getColor(R.color.colorSelected));*/
+                //发送广播 播放音乐
+                Intent intent = new Intent(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
+                intent.putExtra("position",holder.getAdapterPosition());
+                context.sendBroadcast(intent);
 
-                /*try {
-                    mMediaPlayer = new MediaPlayer();
-                    mMediaPlayer.setDataSource(list.get(holder.getAdapterPosition()).getPath());
-                    mMediaPlayer.prepare();
-                    mMediaPlayer.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }*/
+                for (int i = 0; i < list.size(); i++) {
+                    isClicked.set(i,false);
+                }
+                isClicked.set(holder.getAdapterPosition(),true);
+
+                notifyDataSetChanged();
             }
         });
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         if (list != null){
             Song song = list.get(position);
             holder.songName.setText(song.getName());
@@ -66,12 +75,27 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             holder.songTime.setText(MusicUtils.formatTime(song.getDuration()));
             //holder.songImg.setImageDrawable(new BitmapDrawable(song.getAlbumBmp()));
             holder.songImg.setImageBitmap(song.getAlbumBmp());
+
+            if (isClicked.get(position)) {
+                holder.musicLayout.setBackgroundColor(context.getColor(R.color.colorSelected));
+            }else {
+                holder.musicLayout.setBackgroundColor(Color.parseColor("#ffffff"));
+            }
+
         }
     }
 
     @Override
     public int getItemCount() {
         return list.size();
+    }
+
+    public void setIsClicked(int position) {
+        for (int i = 0; i < list.size(); i++) {
+            isClicked.set(i,false);
+        }
+        isClicked.set(position,true);
+        notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

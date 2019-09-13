@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +20,17 @@ import android.widget.TextView;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.adapter.SongsAdapter;
-import com.tct.musicplayer.domain.Song;
 import com.tct.musicplayer.utils.MusicUtils;
 
-import java.util.List;
 
 /**
  * 歌曲
  */
 public class SongsFragment extends Fragment {
+
+    private SongsAdapter songsAdapter;
+    private RecyclerView recyclerView;
+
     public SongsFragment() {
         // Required empty public constructor
     }
@@ -37,11 +40,23 @@ public class SongsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_songs, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_view_songs);
+        recyclerView = view.findViewById(R.id.recycler_view_songs);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(new SongsAdapter(getActivity(), MainActivity.musicList));
+        songsAdapter = new SongsAdapter(getActivity(), MusicUtils.getMusicList(getActivity()));
+        recyclerView.setAdapter(songsAdapter);
         return view;
     }
 
+    public SongsAdapter getSongsAdapter() {
+        return songsAdapter;
+    }
+
+    public void setIsClicked(int position) {
+        songsAdapter.setIsClicked(position);
+    }
+
+    public void scrollToTop(int position) {
+        recyclerView.scrollToPosition(position);
+    }
 
 }

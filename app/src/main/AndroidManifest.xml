@@ -14,15 +14,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver
-            android:name=".NotificationControlReceiver"
+            android:name=".receiver.BaseReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="ACTION_CLOSE"/>
-                <action android:name="ACTION_PLAY_MUSIC"/>
-                <action android:name="ACTION_PAUSE_MUSIC"/>
-                <action android:name="ACTION_LAST_MUSIC"/>
-                <action android:name="ACTION_NEXT_MUSIC"/>
+                <action android:name="ACTION_CLOSE" />
+                <action android:name="ACTION_PLAY_MUSIC" />
+                <action android:name="ACTION_PAUSE_MUSIC" />
+                <action android:name="ACTION_LAST_MUSIC" />
+                <action android:name="ACTION_NEXT_MUSIC" />
+                <action android:name="ACTION_PLAY_SELECTED_MUSIC" />
             </intent-filter>
         </receiver>
 

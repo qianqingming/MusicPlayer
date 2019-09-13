@@ -30,10 +30,13 @@
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
         android:gravity="center">
-        <View
+        <ProgressBar
+            android:id="@+id/progress_bar_music"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#2C989E9E"/>
+            android:layout_height="2dp"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:max="100"
+            android:progress="20"/>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"

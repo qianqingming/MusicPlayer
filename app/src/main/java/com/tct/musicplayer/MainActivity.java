@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -25,8 +26,10 @@ import com.tct.musicplayer.fragment.AlbumFragment;
 import com.tct.musicplayer.fragment.ArtistFragment;
 import com.tct.musicplayer.fragment.FavoriteFragment;
 import com.tct.musicplayer.fragment.SongsFragment;
+import com.tct.musicplayer.receiver.BaseReceiver;
 import com.tct.musicplayer.service.MusicService;
 import com.tct.musicplayer.utils.MusicUtils;
+import com.tct.musicplayer.utils.NotificationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +49,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView bottomMusicBg;//底部图片
     private TextView bottomDefaultText,bottomMusicName,bottomMusicSinger;//底部默认文字、歌曲名字、歌手
 
-    public static List<Song> musicList;
+    private List<Song> musicList;
+
+    private MusicStateReceiver musicStateReceiver;
+
+
+    private SongsFragment songsFragment;
 
     private MusicService.MusicBinder musicBinder;
     public static MusicService musicService;
@@ -91,15 +99,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pauseMusicImg.setOnClickListener(this);
         nextMusicImg.setOnClickListener(this);
 
+        musicList = MusicUtils.getMusicList(this);
+
         //绑定TabLayout与ViewPager
         init();
 
-        musicList = MusicUtils.getMusicList(this);
-
         bindService(new Intent(this,MusicService.class),serviceConnection,BIND_AUTO_CREATE);
+
+        //注册广播
+        IntentFilter notificationFilter = new IntentFilter();
+        notificationFilter.addAction(NotificationUtils.ACTION_CLOSE);
+        notificationFilter.addAction(NotificationUtils.ACTION_PLAY_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_PAUSE_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_LAST_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_NEXT_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
+        musicStateReceiver = new MusicStateReceiver();
+        registerReceiver(musicStateReceiver,notificationFilter);
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(musicStateReceiver);
+    }
 
     /**
      * 初始化TabLayout、ViewPager，并绑定TabLayout与ViewPager
@@ -111,9 +134,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tab_title_list.add("艺术家");
         tab_title_list.add("专辑");
 
+        songsFragment = new SongsFragment();
+
         fragment_list = new ArrayList<>();
         fragment_list.add(new FavoriteFragment());
-        fragment_list.add(new SongsFragment());
+        fragment_list.add(songsFragment);
         fragment_list.add(new ArtistFragment());
         fragment_list.add(new AlbumFragment());
 
@@ -193,35 +218,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void playLastMusic() {
         musicService.playLastMusic();
-        changeBottomMusicImageAndText();
-
-        musicService.updateRemoteViews();
+        changeMusicImageAndText();
+        songsFragment.setIsClicked(musicService.getMusicIndex());
+        songsFragment.scrollToTop(musicService.getMusicIndex());
     }
 
     public void playNextMusic() {
         musicService.playNextMusic();
-        changeBottomMusicImageAndText();
-
-        musicService.updateRemoteViews();
+        changeMusicImageAndText();
+        songsFragment.setIsClicked(musicService.getMusicIndex());
+        songsFragment.scrollToTop(musicService.getMusicIndex());
     }
 
     public void playMusic() {
         musicService.playMusic();
-        playMusicImg.setVisibility(View.GONE);
-        pauseMusicImg.setVisibility(View.VISIBLE);
-        changeBottomMusicImageAndText();
-        musicService.updateRemoteViews();
+        changeMusicImageAndText();
+        songsFragment.setIsClicked(musicService.getMusicIndex());
     }
 
     public void pauseMusic() {
         musicService.pauseMusic();
-        pauseMusicImg.setVisibility(View.GONE);
-        playMusicImg.setVisibility(View.VISIBLE);
-        musicService.updateRemoteViews();
+        changeMusicImageAndText();
+        songsFragment.setIsClicked(musicService.getMusicIndex());
     }
 
+    public void playSelectedMusic(int index) {
+        musicService.playSelectedMusic(index);
+        changeMusicImageAndText();
+    }
 
-    private void changeBottomMusicImageAndText() {
+    private void changeMusicImageAndText() {
         Song song = musicList.get(musicService.getMusicIndex());
         bottomMusicBg.setImageBitmap(song.getAlbumBmp());
         bottomDefaultText.setVisibility(View.GONE);
@@ -229,8 +255,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bottomMusicSinger.setVisibility(View.VISIBLE);
         bottomMusicName.setText(song.getName());
         bottomMusicSinger.setText(song.getSinger());
+        NotificationUtils.updateRemoteViews(musicList,musicService.getMusicIndex(),musicService.isPlaying());
+        if (musicService.isPlaying()) {
+            playMusicImg.setVisibility(View.GONE);
+            pauseMusicImg.setVisibility(View.VISIBLE);
+        }else {
+            pauseMusicImg.setVisibility(View.GONE);
+            playMusicImg.setVisibility(View.VISIBLE);
+        }
     }
-
 
     private void initPopMenu() {
         PopupMenu popupMenu = new PopupMenu(MainActivity.this,moreImg);
@@ -257,4 +290,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    public class MusicStateReceiver extends BaseReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            super.onReceive(context, intent);
+            String action = intent.getAction();
+            switch (action){
+                case NotificationUtils.ACTION_CLOSE:
+                    musicService.stopForeground();
+                    bottomMusicBg.setImageResource(R.drawable.ic_default_bottom_music);
+                    bottomDefaultText.setVisibility(View.VISIBLE);
+                    bottomMusicName.setVisibility(View.GONE);
+                    bottomMusicSinger.setVisibility(View.GONE);
+                    pauseMusicImg.setVisibility(View.GONE);
+                    playMusicImg.setVisibility(View.VISIBLE);
+                    break;
+                case NotificationUtils.ACTION_LAST_MUSIC:
+                    playLastMusic();
+                    break;
+                case NotificationUtils.ACTION_NEXT_MUSIC:
+                    playNextMusic();
+                    break;
+                case NotificationUtils.ACTION_PLAY_MUSIC:
+                    playMusic();
+                    break;
+                case NotificationUtils.ACTION_PAUSE_MUSIC:
+                    pauseMusic();
+                    break;
+                case NotificationUtils.ACTION_PLAY_SELECTED_MUSIC:
+                    int index = intent.getIntExtra("position",0);
+                    playSelectedMusic(index);
+                    break;
+            }
+        }
+    }
 }
