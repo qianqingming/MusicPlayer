@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.domain.Song;
 import com.tct.musicplayer.utils.MusicUtils;
@@ -55,11 +56,13 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 intent.putExtra("position",holder.getAdapterPosition());
                 context.sendBroadcast(intent);
 
+                Intent intent1 = new Intent(context, MusicPlayActivity.class);
+                context.startActivity(intent1);
+
                 for (int i = 0; i < list.size(); i++) {
                     isClicked.set(i,false);
                 }
                 isClicked.set(holder.getAdapterPosition(),true);
-
                 notifyDataSetChanged();
             }
         });

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,6 +18,7 @@ import com.tct.musicplayer.R;
 import com.tct.musicplayer.adapter.ArtistAdapter;
 import com.tct.musicplayer.adapter.ItemLineDecoration;
 import com.tct.musicplayer.utils.MusicUtils;
+import com.tct.musicplayer.views.RightNavigationBar;
 
 import java.util.List;
 
@@ -42,6 +44,11 @@ public class ArtistFragment extends Fragment {
         recyclerView.setAdapter(artistAdapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),DividerItemDecoration.VERTICAL));
         //recyclerView.addItemDecoration(new ItemLineDecoration());
+
+        //为字母导航栏设置touch事件
+        RightNavigationBar rightNavigationBar = view.findViewById(R.id.right_navigation_bar);
+
+
         return view;
     }
 

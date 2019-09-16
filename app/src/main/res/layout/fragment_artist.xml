@@ -9,9 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <View
-        android:layout_width="10dp"
+    <com.tct.musicplayer.views.RightNavigationBar
+        android:id="@+id/right_navigation_bar"
+        android:layout_width="20dp"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
+        android:background="@color/gray"
         android:layout_alignParentRight="true"/>
 </RelativeLayout>

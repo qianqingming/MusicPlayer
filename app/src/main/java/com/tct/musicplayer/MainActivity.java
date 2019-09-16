@@ -1,6 +1,9 @@
 package com.tct.musicplayer;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
@@ -9,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -16,9 +20,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.tct.musicplayer.adapter.MyFragmentPagerAdapter;
 import com.tct.musicplayer.domain.Song;
@@ -33,7 +40,8 @@ import com.tct.musicplayer.utils.NotificationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -41,18 +49,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<String> tab_title_list;
     private List<Fragment> fragment_list;
 
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ImageView searchImg,settingsImg,moreImg;//顶部搜索、设置、更多
     private ImageView lastMusicImg,playMusicImg,pauseMusicImg,nextMusicImg;//底部上一曲、播放、暂停、下一曲
+    private ProgressBar progressBar;
 
     private ImageView bottomMusicBg;//底部图片
     private TextView bottomDefaultText,bottomMusicName,bottomMusicSinger;//底部默认文字、歌曲名字、歌手
 
+    private RelativeLayout bottomLayout;
+
     private List<Song> musicList;
 
     private MusicStateReceiver musicStateReceiver;
-
 
     private SongsFragment songsFragment;
 
@@ -63,6 +75,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             musicBinder = (MusicService.MusicBinder) iBinder;
             musicService = musicBinder.getMusicService();
+
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if (musicService.isPlaying()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setMax(musicService.getDuration());
+                                progressBar.setProgress(musicService.getCurrPosition());
+                            }
+                        });
+                    }
+                }
+            };
+            timer.schedule(timerTask,0,1000);
         }
 
         @Override
@@ -75,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.navigation_view);
+
         tabLayout = findViewById(R.id.tabs);
         viewPager = findViewById(R.id.view_pager);
 
@@ -85,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playMusicImg = findViewById(R.id.play_music_image_view);
         pauseMusicImg = findViewById(R.id.pause_music_image_view);
         nextMusicImg = findViewById(R.id.next_music_image_view);
+        progressBar = findViewById(R.id.progress_bar_music);
+        bottomLayout = findViewById(R.id.bottom_layout);
 
         bottomMusicBg = findViewById(R.id.music_bg_image_view);
         bottomDefaultText = findViewById(R.id.default_bottom_music_text);
@@ -98,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playMusicImg.setOnClickListener(this);
         pauseMusicImg.setOnClickListener(this);
         nextMusicImg.setOnClickListener(this);
+        bottomLayout.setOnClickListener(this);
 
         musicList = MusicUtils.getMusicList(this);
 
@@ -116,12 +151,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         notificationFilter.addAction(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
         musicStateReceiver = new MusicStateReceiver();
         registerReceiver(musicStateReceiver,notificationFilter);
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.scan_music:
+                        Toast.makeText(MainActivity.this,"扫描",Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.clock_stop_music:
+                        Toast.makeText(MainActivity.this,"定时",Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                //drawerLayout.closeDrawers();
+                return true;
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(musicStateReceiver);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(navigationView)) {
+            drawerLayout.closeDrawers();
+        }else {
+            super.onBackPressed();
+        }
     }
 
     /**
@@ -193,11 +253,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.menu_image_view:
+                drawerLayout.openDrawer(GravityCompat.START);
                 break;
             case R.id.search_image_view:
                 break;
             case R.id.more_image_view:
                 initPopMenu();
+                break;
+            case R.id.bottom_layout:
+                Intent intent = new Intent(this, MusicPlayActivity.class);
+                startActivity(intent);
                 break;
             case R.id.last_music_image_view:
                 playLastMusic();
@@ -215,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
 
     public void playLastMusic() {
         musicService.playLastMusic();
@@ -295,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
             super.onReceive(context, intent);
             String action = intent.getAction();
+            Log.d("qianqingming","MainActivity-----:"+action);
             switch (action){
                 case NotificationUtils.ACTION_CLOSE:
                     musicService.stopForeground();

@@ -1,0 +1,264 @@
+package com.tct.musicplayer;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import com.tct.musicplayer.domain.Song;
+import com.tct.musicplayer.receiver.BaseReceiver;
+import com.tct.musicplayer.service.MusicService;
+import com.tct.musicplayer.utils.MusicUtils;
+import com.tct.musicplayer.utils.NotificationUtils;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class MusicPlayActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private ImageView backImg,moreImg;
+    private TextView musicName,musicSinger;
+    private ImageView musicImg;
+    private TextView currTime,totalTime;
+    private ImageView playMusic,pauseMusic,lastMusic,nextMusic;
+    private SeekBar seekBar;
+
+    private MusicService musicService = MainActivity.musicService;
+    private RotateAnimation animation;//图片旋转动画
+    private ObjectAnimator objectAnimator;
+    private MusicStateReceiver musicStateReceiver;
+
+    private Timer timer;
+    private TimerTask timerTask;
+
+    private boolean isClosed = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_music_play);
+
+        //------------初始化控件，设置点击监听----------
+        backImg = findViewById(R.id.back_image_view);
+        moreImg = findViewById(R.id.more_image_view);
+        musicImg = findViewById(R.id.music_img);
+        musicName = findViewById(R.id.music_name);
+        musicSinger = findViewById(R.id.music_singer);
+        currTime = findViewById(R.id.music_curr_time);
+        totalTime = findViewById(R.id.music_total_time);
+        playMusic = findViewById(R.id.play_music);
+        pauseMusic = findViewById(R.id.pause_music);
+        lastMusic = findViewById(R.id.last_music);
+        nextMusic = findViewById(R.id.next_music);
+        seekBar = findViewById(R.id.seek_bar);
+
+        backImg.setOnClickListener(this);
+        moreImg.setOnClickListener(this);
+        playMusic.setOnClickListener(this);
+        pauseMusic.setOnClickListener(this);
+        lastMusic.setOnClickListener(this);
+        nextMusic.setOnClickListener(this);
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                //Log.d("qianqingming","fromUser:"+b);
+                //Log.d("qianqingming","i:"+i);
+                if (b) {
+                    //如果是用户拖动导致的进度改变
+                    if (musicService.getIsSetDataSource()) {
+                        //currTime.setText(MusicUtils.formatTime(musicService.getCurrPosition()));
+                        musicService.seekToPosition(i);
+                    }
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        //------------注册广播----------
+        IntentFilter notificationFilter = new IntentFilter();
+        notificationFilter.addAction(NotificationUtils.ACTION_CLOSE);
+        notificationFilter.addAction(NotificationUtils.ACTION_PLAY_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_PAUSE_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_LAST_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_NEXT_MUSIC);
+        musicStateReceiver = new MusicStateReceiver();
+        registerReceiver(musicStateReceiver,notificationFilter);
+
+        if (musicService != null) {
+            if (!musicService.isPlaying()) {
+                playMusic.setVisibility(View.VISIBLE);
+                pauseMusic.setVisibility(View.GONE);
+            }else {
+                playMusic.setVisibility(View.GONE);
+                pauseMusic.setVisibility(View.VISIBLE);
+            }
+
+            Song song = MusicUtils.getMusicList(this).get(musicService.getMusicIndex());
+            musicImg.setImageBitmap(song.getAlbumBmp());
+            musicName.setText(song.getName());
+            musicSinger.setText(song.getSinger());
+            totalTime.setText(MusicUtils.formatTime(song.getDuration()));
+            seekBar.setMax(song.getDuration());//设置进度条的最大值
+
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (musicService.getIsSetDataSource()) {
+                                //Log.d("qianqingming","time---"+musicService.getCurrPosition());
+                                currTime.setText(MusicUtils.formatTime(musicService.getCurrPosition()));
+                                seekBar.setProgress(musicService.getCurrPosition());//设置进度条位置
+                            }
+                        }
+                    });
+                }
+            };
+            timer.schedule(timerTask,0,1000);
+
+            //Animation animation = AnimationUtils.loadAnimation(this,R.anim.music_img_rotate_anim);
+            //musicImg.startAnimation(animation);
+            /*animation = new RotateAnimation(0f,360f,Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+            animation.setInterpolator(new LinearInterpolator());
+            animation.setDuration(song.getDuration() / 4);
+            animation.setRepeatCount(Animation.INFINITE);
+            //animation.setStartOffset(0);
+            musicImg.startAnimation(animation);*/
+
+            objectAnimator = ObjectAnimator.ofFloat(musicImg,"rotation",0f,360f);
+            objectAnimator.setInterpolator(new LinearInterpolator());
+            objectAnimator.setDuration(song.getDuration() / 4);
+            objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            objectAnimator.setRepeatMode(ValueAnimator.RESTART);
+            objectAnimator.start();
+
+            if (!musicService.isPlaying()){
+                objectAnimator.pause();
+            }
+        }
+    }
+
+
+    @Override
+    public void onClick(View view) {
+        Intent intent = null;
+        switch (view.getId()){
+            case R.id.back_image_view:
+                finish();
+                break;
+            case R.id.more_image_view:
+                break;
+            case R.id.play_music:
+                intent = new Intent(NotificationUtils.ACTION_PLAY_MUSIC);
+                sendBroadcast(intent);
+                break;
+            case R.id.pause_music:
+                intent = new Intent(NotificationUtils.ACTION_PAUSE_MUSIC);
+                sendBroadcast(intent);
+                break;
+            case R.id.last_music:
+                intent = new Intent(NotificationUtils.ACTION_LAST_MUSIC);
+                sendBroadcast(intent);
+                break;
+            case R.id.next_music:
+                intent = new Intent(NotificationUtils.ACTION_NEXT_MUSIC);
+                sendBroadcast(intent);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(musicStateReceiver);
+    }
+
+    public class MusicStateReceiver extends BaseReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            super.onReceive(context, intent);
+            String action = intent.getAction();
+            Log.d("qianqingming","musicPlayActivity:"+action);
+            switch (action){
+                case NotificationUtils.ACTION_LAST_MUSIC:
+                case NotificationUtils.ACTION_NEXT_MUSIC:
+                    Song song = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                    musicImg.setImageBitmap(song.getAlbumBmp());
+                    musicName.setText(song.getName());
+                    musicSinger.setText(song.getSinger());
+                    totalTime.setText(MusicUtils.formatTime(song.getDuration()));
+                    if (musicService.isPlaying()) {
+                        playMusic.setVisibility(View.GONE);
+                        pauseMusic.setVisibility(View.VISIBLE);
+                    }else {
+                        pauseMusic.setVisibility(View.GONE);
+                        playMusic.setVisibility(View.VISIBLE);
+                    }
+                    seekBar.setMax(song.getDuration());
+                    objectAnimator.resume();
+                    break;
+                case NotificationUtils.ACTION_PLAY_MUSIC:
+                    //timer.schedule(timerTask,0,1000);
+                    playMusic.setVisibility(View.GONE);
+                    pauseMusic.setVisibility(View.VISIBLE);
+                    objectAnimator.resume();
+                    if (isClosed){
+                        //通知栏点击关闭后的处理
+                        Song song1 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                        totalTime.setText(MusicUtils.formatTime(song1.getDuration()));
+                        musicImg.setImageBitmap(song1.getAlbumBmp());
+                        musicName.setText(song1.getName());
+                        musicSinger.setText(song1.getSinger());
+                        isClosed = false;
+                        seekBar.setMax(song1.getDuration());
+                    }
+                    break;
+                case NotificationUtils.ACTION_PAUSE_MUSIC:
+                    playMusic.setVisibility(View.VISIBLE);
+                    pauseMusic.setVisibility(View.GONE);
+                    objectAnimator.pause();
+                    break;
+                case NotificationUtils.ACTION_CLOSE:
+                    //timer.cancel();
+                    playMusic.setVisibility(View.VISIBLE);
+                    pauseMusic.setVisibility(View.GONE);
+                    objectAnimator.pause();
+                    currTime.setText(R.string.default_time);
+                    totalTime.setText(R.string.default_time);
+                    musicImg.setImageResource(R.drawable.ic_default_music);
+                    musicName.setText(R.string.bottom_music_default_text);
+                    musicSinger.setText("");
+                    isClosed = true;
+                    seekBar.setProgress(0);
+                    break;
+            }
+        }
+    }
+}

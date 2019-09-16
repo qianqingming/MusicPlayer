@@ -24,8 +24,15 @@ public class MusicService extends Service {
     private int musicIndex;
 
     private boolean isStartForeground = false;
+    private boolean isSetDataSource = false;
 
     public MusicService() {
+
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
         mediaPlayer = new MediaPlayer();
         musicList = MusicUtils.getMusicList(this);
         musicIndex = 0;
@@ -35,11 +42,17 @@ public class MusicService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
+        isSetDataSource = true;
+        //音乐播放完的监听事件
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                if (isSetDataSource){
+                    Intent intent = new Intent(NotificationUtils.ACTION_NEXT_MUSIC);
+                    sendBroadcast(intent);
+                }
+            }
+        });
     }
 
     @Override
@@ -51,9 +64,19 @@ public class MusicService extends Service {
         if (!isStartForeground) {
             startForeground();
         }
+        if (!isSetDataSource) {
+            try {
+                mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            isSetDataSource = true;
+        }
         if (!isPlaying()) {
             mediaPlayer.start();
         }
+
     }
 
     public void pauseMusic() {
@@ -79,6 +102,7 @@ public class MusicService extends Service {
                 }
                 mediaPlayer.prepare();
                 mediaPlayer.start();
+                isSetDataSource = true;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -96,6 +120,7 @@ public class MusicService extends Service {
                 mediaPlayer.setDataSource(musicList.get(--musicIndex).getPath());
                 mediaPlayer.prepare();
                 mediaPlayer.start();
+                isSetDataSource = true;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -106,6 +131,12 @@ public class MusicService extends Service {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.reset();
+        }
+    }
+
+    public void seekToPosition(int position) {
+        if (mediaPlayer != null) {
+            mediaPlayer.seekTo(position);
         }
     }
 
@@ -121,12 +152,12 @@ public class MusicService extends Service {
                 musicIndex = index;
                 mediaPlayer.prepare();
                 mediaPlayer.start();
+                isSetDataSource = true;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-
 
     public boolean isPlaying() {
         if (mediaPlayer == null){
@@ -134,6 +165,25 @@ public class MusicService extends Service {
         }
         return mediaPlayer.isPlaying();
     }
+
+    public int getDuration() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying() && isSetDataSource) {
+            return mediaPlayer.getDuration();
+        }
+        return 0;
+    }
+
+    public int getCurrPosition() {
+        if (mediaPlayer != null && isSetDataSource) {
+            return mediaPlayer.getCurrentPosition();
+        }
+        return 0;
+    }
+
+    public boolean getIsSetDataSource() {
+        return isSetDataSource;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -157,6 +207,7 @@ public class MusicService extends Service {
         stopForeground(true);
         stopMusic();
         isStartForeground = false;
+        isSetDataSource = false;
     }
 
 

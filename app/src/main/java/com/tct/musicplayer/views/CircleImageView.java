@@ -2,17 +2,26 @@ package com.tct.musicplayer.views;
 
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
+
+import com.tct.musicplayer.R;
 
 public class CircleImageView extends androidx.appcompat.widget.AppCompatImageView {
+
+    private static final int DEFAULT_BORDER_COLOR = Color.TRANSPARENT;
+    private static final int DEFAULT_BORDER_WIDTH = 0;
 
     private float width;
     private float height;
@@ -20,32 +29,40 @@ public class CircleImageView extends androidx.appcompat.widget.AppCompatImageVie
     private Paint paint;
     private Matrix matrix;
 
-    public CircleImageView(Context context) {
-        super(context);
-        init();
-    }
+    private Paint mBorderPaint;
+    private int mBorderColor;
+    private int mBorderWidth;
+
+
 
     public CircleImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context,attrs);
     }
 
     public CircleImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(context,attrs);
     }
 
-    private void init() {
+    private void init(Context context,AttributeSet attrs) {
         paint = new Paint();
-        paint.setAntiAlias(true);   //设置抗锯齿
-        matrix = new Matrix();      //初始化缩放矩阵
+        paint.setAntiAlias(true);
+        matrix = new Matrix();
+
+        //读取XML中的参数
+        /*TypedArray typedArray = context.obtainStyledAttributes(attrs,R.styleable.CircleImageView);
+        mBorderColor = typedArray.getColor(R.styleable.CircleImageView_borderColor, DEFAULT_BORDER_COLOR);
+        mBorderWidth = typedArray.getDimensionPixelSize(R.styleable.CircleImageView_borderWidth, DEFAULT_BORDER_WIDTH);
+        typedArray.recycle();
+
+        mBorderPaint = new Paint();
+        mBorderPaint.setAntiAlias(true);
+        mBorderPaint.setStyle(Paint.Style.FILL);
+        mBorderPaint.setColor(mBorderColor);
+        mBorderPaint.setStrokeWidth(mBorderWidth);*/
     }
 
-    /**
-     * 测量控件的宽高，并获取其内切圆的半径
-     * @param widthMeasureSpec
-     * @param heightMeasureSpec
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -56,7 +73,6 @@ public class CircleImageView extends androidx.appcompat.widget.AppCompatImageVie
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         Drawable drawable = getDrawable();
         if (drawable == null) {
             super.onDraw(canvas);
@@ -64,20 +80,18 @@ public class CircleImageView extends androidx.appcompat.widget.AppCompatImageVie
         }
         if (drawable instanceof BitmapDrawable) {
             paint.setShader(initBitmapShader((BitmapDrawable) drawable));//将着色器设置给画笔
+            //canvas.drawCircle(radius,radius,radius+mBorderWidth,mBorderPaint);//画边框
             canvas.drawCircle(width / 2, height / 2, radius, paint);//使用画笔在画布上画圆
             return;
         }
         super.onDraw(canvas);
     }
 
-    /**
-     * 获取ImageView中资源图片的Bitmap，利用Bitmap初始化图片着色器,通过缩放矩阵将原资源图片缩放到铺满整个绘制区域，避免边界填充
-     */
     private BitmapShader initBitmapShader(BitmapDrawable drawable) {
         Bitmap bitmap = drawable.getBitmap();
         BitmapShader bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         float scale = Math.max(width / bitmap.getWidth(), height / bitmap.getHeight());
-        matrix.setScale(scale, scale);//将图片宽高等比例缩放，避免拉伸
+        matrix.setScale(scale, scale);
         bitmapShader.setLocalMatrix(matrix);
         return bitmapShader;
     }

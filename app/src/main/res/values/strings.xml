@@ -4,4 +4,5 @@
     <string name="permission_title">权限申请</string>
     <string name="permission_content">请允许访问权限，以便音乐播放器访问存储空间</string>
     <string name="bottom_music_default_text">没有播放</string>
+    <string name="default_time">00:00</string>
 </resources>
