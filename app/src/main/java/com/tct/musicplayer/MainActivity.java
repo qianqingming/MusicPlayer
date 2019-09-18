@@ -7,17 +7,20 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -28,6 +31,7 @@ import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.tct.musicplayer.adapter.MyFragmentPagerAdapter;
+import com.tct.musicplayer.domain.Album;
 import com.tct.musicplayer.domain.Song;
 import com.tct.musicplayer.fragment.AlbumFragment;
 import com.tct.musicplayer.fragment.ArtistFragment;
@@ -62,9 +66,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private RelativeLayout bottomLayout;
 
-    private List<Song> musicList;
+    public static List<Song> musicList;
 
     private MusicStateReceiver musicStateReceiver;
+    private ObjectAnimator objectAnimator;
+    private boolean hasPlayedMusic = false;
 
     private SongsFragment songsFragment;
 
@@ -104,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
 
@@ -136,8 +143,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         musicList = MusicUtils.getMusicList(this);
 
+//        MyTask myTask = new MyTask();
+//        myTask.execute();
+
         //绑定TabLayout与ViewPager
         init();
+
 
         bindService(new Intent(this,MusicService.class),serviceConnection,BIND_AUTO_CREATE);
 
@@ -167,6 +178,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             }
         });
+
+        objectAnimator = ObjectAnimator.ofFloat(bottomMusicBg,"rotation",0f,360f);
+        objectAnimator.setInterpolator(new LinearInterpolator());
+        objectAnimator.setDuration(20000);
+        objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        objectAnimator.setRepeatMode(ValueAnimator.RESTART);
+        //objectAnimator.start();
     }
 
     @Override
@@ -286,31 +304,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         musicService.playLastMusic();
         changeMusicImageAndText();
         songsFragment.setIsClicked(musicService.getMusicIndex());
-        songsFragment.scrollToTop(musicService.getMusicIndex());
+        songsFragment.scrollToPosition(musicService.getMusicIndex());
+        objectAnimator.start();
+        hasPlayedMusic = true;
     }
 
     public void playNextMusic() {
         musicService.playNextMusic();
         changeMusicImageAndText();
         songsFragment.setIsClicked(musicService.getMusicIndex());
-        songsFragment.scrollToTop(musicService.getMusicIndex());
+        songsFragment.scrollToPosition(musicService.getMusicIndex());
+        objectAnimator.start();
+        hasPlayedMusic = true;
     }
 
     public void playMusic() {
         musicService.playMusic();
         changeMusicImageAndText();
         songsFragment.setIsClicked(musicService.getMusicIndex());
+        if (hasPlayedMusic){
+            objectAnimator.resume();
+        }else {
+            objectAnimator.start();
+            hasPlayedMusic = true;
+        }
     }
 
     public void pauseMusic() {
         musicService.pauseMusic();
         changeMusicImageAndText();
         songsFragment.setIsClicked(musicService.getMusicIndex());
+        objectAnimator.pause();
     }
 
     public void playSelectedMusic(int index) {
         musicService.playSelectedMusic(index);
         changeMusicImageAndText();
+        objectAnimator.start();
+        hasPlayedMusic = true;
     }
 
     private void changeMusicImageAndText() {
@@ -365,12 +396,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (action){
                 case NotificationUtils.ACTION_CLOSE:
                     musicService.stopForeground();
-                    bottomMusicBg.setImageResource(R.drawable.ic_default_bottom_music);
+                    bottomMusicBg.setImageResource(R.drawable.ic_default_music);
                     bottomDefaultText.setVisibility(View.VISIBLE);
                     bottomMusicName.setVisibility(View.GONE);
                     bottomMusicSinger.setVisibility(View.GONE);
                     pauseMusicImg.setVisibility(View.GONE);
                     playMusicImg.setVisibility(View.VISIBLE);
+                    objectAnimator.pause();
+                    hasPlayedMusic = false;
                     break;
                 case NotificationUtils.ACTION_LAST_MUSIC:
                     playLastMusic();
@@ -389,6 +422,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     playSelectedMusic(index);
                     break;
             }
+        }
+    }
+
+    class MyTask extends AsyncTask<Void,Void,Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            musicList = MusicUtils.getMusicList(MainActivity.this);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //songsFragment.notifyData();
         }
     }
 }

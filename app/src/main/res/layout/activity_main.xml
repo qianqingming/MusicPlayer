@@ -44,20 +44,21 @@
             <RelativeLayout
                 android:id="@+id/bottom_layout"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
+                android:layout_height="60dp"
                 android:padding="10dp">
                 <com.tct.musicplayer.views.CircleImageView
                     android:id="@+id/music_bg_image_view"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/ic_default_bottom_music"
+                    android:src="@drawable/ic_default_music"
                     android:layout_alignParentLeft="true"/>
                 <TextView
                     android:id="@+id/default_bottom_music_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/music_bg_image_view"
+                    android:layout_marginLeft="5dp"
                     android:layout_centerVertical="true"
                     android:text="@string/bottom_music_default_text"/>
                 <TextView
@@ -66,6 +67,7 @@
                     android:layout_height="wrap_content"
                     android:singleLine="true"
                     android:visibility="gone"
+                    android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@id/music_bg_image_view"
                     android:layout_toLeftOf="@id/bottom_music_control_layout"/>
                 <TextView
@@ -74,6 +76,7 @@
                     android:layout_height="wrap_content"
                     android:visibility="gone"
                     android:singleLine="true"
+                    android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@id/music_bg_image_view"
                     android:layout_below="@id/bottom_music_name"
                     android:layout_toLeftOf="@id/bottom_music_control_layout"/>
@@ -84,31 +87,35 @@
                     android:layout_alignParentRight="true">
                     <ImageView
                         android:id="@+id/last_music_image_view"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="@dimen/bottomImgWidth"
+                        android:layout_height="@dimen/bottomImgWidth"
                         android:layout_gravity="center"
+                        android:background="@drawable/image_view_press_bg"
                         android:src="@drawable/ic_pre_music"/>
                     <ImageView
                         android:id="@+id/play_music_image_view"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="@dimen/bottomImgWidth"
+                        android:layout_height="@dimen/bottomImgWidth"
                         android:layout_gravity="center"
+                        android:background="@drawable/image_view_press_bg"
                         android:layout_marginLeft="20dp"
                         android:src="@drawable/ic_play_music"/>
                     <ImageView
                         android:id="@+id/pause_music_image_view"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="@dimen/bottomImgWidth"
+                        android:layout_height="@dimen/bottomImgWidth"
                         android:layout_gravity="center"
                         android:layout_marginLeft="20dp"
                         android:src="@drawable/ic_pause_music"
+                        android:background="@drawable/image_view_press_bg"
                         android:visibility="gone"/>
                     <ImageView
                         android:id="@+id/next_music_image_view"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="@dimen/bottomImgWidth"
+                        android:layout_height="@dimen/bottomImgWidth"
                         android:layout_gravity="center"
                         android:layout_marginLeft="20dp"
+                        android:background="@drawable/image_view_press_bg"
                         android:src="@drawable/ic_next_music"/>
                 </LinearLayout>
             </RelativeLayout>

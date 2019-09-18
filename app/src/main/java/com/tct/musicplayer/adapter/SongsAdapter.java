@@ -51,19 +51,19 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         holder.musicLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //发送广播 播放音乐
-                Intent intent = new Intent(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
-                intent.putExtra("position",holder.getAdapterPosition());
-                context.sendBroadcast(intent);
-
-                Intent intent1 = new Intent(context, MusicPlayActivity.class);
-                context.startActivity(intent1);
-
-                for (int i = 0; i < list.size(); i++) {
-                    isClicked.set(i,false);
+                /*Intent intent1 = new Intent(context, MusicPlayActivity.class);
+                context.startActivity(intent1);*/
+                if (holder.getAdapterPosition() != -1){
+                    for (int i = 0; i < list.size(); i++) {
+                        isClicked.set(i,false);
+                    }
+                    //发送广播 播放音乐
+                    Intent intent = new Intent(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
+                    intent.putExtra("position",holder.getAdapterPosition());
+                    context.sendBroadcast(intent);
+                    isClicked.set(holder.getAdapterPosition(),true);
+                    notifyDataSetChanged();
                 }
-                isClicked.set(holder.getAdapterPosition(),true);
-                notifyDataSetChanged();
             }
         });
         return holder;
@@ -84,7 +84,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             }else {
                 holder.musicLayout.setBackgroundColor(Color.parseColor("#ffffff"));
             }
-
         }
     }
 

@@ -10,8 +10,9 @@ public class Song {
     private String path;//歌曲地址
     private long  albumId;//图片id
     private long id;//歌曲id
+    private String albumName;//专辑名称
 
-    private Bitmap albumBmp;
+    private Bitmap albumBmp;//专辑图片
 
     public String getName() {
         return name;
@@ -77,6 +78,14 @@ public class Song {
         this.albumBmp = albumBmp;
     }
 
+    public String getAlbumName() {
+        return albumName;
+    }
+
+    public void setAlbumName(String albumName) {
+        this.albumName = albumName;
+    }
+
     @Override
     public String toString() {
         return "Song{" +
@@ -87,6 +96,7 @@ public class Song {
                 ", path='" + path + '\'' +
                 ", albumId=" + albumId +
                 ", id=" + id +
+                ", albumName='" + albumName + '\'' +
                 '}';
     }
 }

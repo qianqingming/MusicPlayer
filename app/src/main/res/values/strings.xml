@@ -5,4 +5,7 @@
     <string name="permission_content">请允许访问权限，以便音乐播放器访问存储空间</string>
     <string name="bottom_music_default_text">没有播放</string>
     <string name="default_time">00:00</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

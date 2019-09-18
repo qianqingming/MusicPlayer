@@ -30,14 +30,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#000000"
-            android:singleLine="true"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textSize="16sp"/>
 
         <TextView
             android:id="@+id/tv_song_singer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:singleLine="true"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textSize="12sp"/>
     </LinearLayout>
 

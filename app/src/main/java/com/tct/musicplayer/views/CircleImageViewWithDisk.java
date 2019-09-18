@@ -4,21 +4,20 @@ package com.tct.musicplayer.views;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.tct.musicplayer.R;
 
-public class CircleImageView extends androidx.appcompat.widget.AppCompatImageView {
+public class CircleImageViewWithDisk extends androidx.appcompat.widget.AppCompatImageView {
 
     private static final int DEFAULT_BORDER_COLOR = Color.TRANSPARENT;
     private static final int DEFAULT_BORDER_WIDTH = 0;
@@ -30,17 +29,16 @@ public class CircleImageView extends androidx.appcompat.widget.AppCompatImageVie
     private Matrix matrix;
 
     private Paint mBorderPaint;
-    private int mBorderColor;
-    private int mBorderWidth;
+    private Bitmap diskBitmap;
 
 
 
-    public CircleImageView(Context context, AttributeSet attrs) {
+    public CircleImageViewWithDisk(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context,attrs);
     }
 
-    public CircleImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CircleImageViewWithDisk(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context,attrs);
     }
@@ -50,17 +48,11 @@ public class CircleImageView extends androidx.appcompat.widget.AppCompatImageVie
         paint.setAntiAlias(true);
         matrix = new Matrix();
 
-        //读取XML中的参数
-        /*TypedArray typedArray = context.obtainStyledAttributes(attrs,R.styleable.CircleImageView);
-        mBorderColor = typedArray.getColor(R.styleable.CircleImageView_borderColor, DEFAULT_BORDER_COLOR);
-        mBorderWidth = typedArray.getDimensionPixelSize(R.styleable.CircleImageView_borderWidth, DEFAULT_BORDER_WIDTH);
-        typedArray.recycle();
+        diskBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_disk);
 
         mBorderPaint = new Paint();
         mBorderPaint.setAntiAlias(true);
         mBorderPaint.setStyle(Paint.Style.STROKE);
-        mBorderPaint.setColor(mBorderColor);
-        mBorderPaint.setStrokeWidth(mBorderWidth);*/
     }
 
     @Override
@@ -80,9 +72,8 @@ public class CircleImageView extends androidx.appcompat.widget.AppCompatImageVie
         }
         if (drawable instanceof BitmapDrawable) {
             paint.setShader(initBitmapShader((BitmapDrawable) drawable));//将着色器设置给画笔
-            //canvas.drawCircle(width/2,height/2,radius-10,mBorderPaint);//画边框
-            //canvas.drawCircle(width / 2, height / 2, radius-20, paint);//使用画笔在画布上画圆
-            canvas.drawCircle(width / 2, height / 2, radius, paint);//使用画笔在画布上画圆
+            canvas.drawBitmap(diskBitmap,0,0,mBorderPaint);
+            canvas.drawCircle(width / 2, height / 2, radius-150, paint);//使用画笔在画布上画圆
             return;
         }
         super.onDraw(canvas);

@@ -5,14 +5,22 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+
+import java.util.Collections;
 
 public class RightNavigationBar extends View {
 
     private Paint textPaint = new Paint();
+
+    private TextView textView;
+
+    private OnTouchLetterListener listener;
 
     private String[] letter = {
             "A","B","C","D","E","F","G","H","I","J","K","L","M","N",
@@ -69,10 +77,46 @@ public class RightNavigationBar extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        /*switch (event.getAction()) {
+        int index = (int) (event.getY() / getHeight() * letter.length);
+        if (index >= letter.length) {
+            index = letter.length - 1;
+        }else if (index < 0){
+            index = 0;
+        }
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE:
+                setBackgroundColor(Color.GRAY);
+                choose = index;
+                if (textView != null) {
+                    textView.setVisibility(VISIBLE);
+                    textView.setText(letter[index]);
+                }
+                if (listener != null){
+                    listener.touchLetter(letter[index]);
+                }
+                invalidate();
                 break;
-        }*/
-        return super.onTouchEvent(event);
+            default:
+                setBackgroundColor(Color.TRANSPARENT);
+                if (textView != null) {
+                    textView.setVisibility(GONE);
+                }
+                invalidate();
+                break;
+        }
+        return true;
+    }
+
+    public void setListener(OnTouchLetterListener onTouchLetterListener) {
+        this.listener = onTouchLetterListener;
+    }
+
+    public interface OnTouchLetterListener {
+        void touchLetter(String s);
+    }
+
+    public void setTextView(TextView textView) {
+        this.textView = textView;
     }
 }

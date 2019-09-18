@@ -4,11 +4,11 @@
     android:useLevel="false">
 
     <solid
-        android:color="#ff00ff"/>
+        android:color="#8B8A8A"/>
 
     <stroke
-        android:width="1dp"
-        android:color="#ffffff"/>
+        android:width="10dp"
+        android:color="#8B8A8A"/>
 
     <size
         android:width="60dp"

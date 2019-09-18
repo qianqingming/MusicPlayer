@@ -2,6 +2,7 @@ package com.tct.musicplayer.fragment;
 
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -30,12 +31,13 @@ public class SongsFragment extends Fragment {
 
     private SongsAdapter songsAdapter;
     private RecyclerView recyclerView;
+    private TextView textView;
+
+    private boolean isFirst = true;
 
     public SongsFragment() {
         // Required empty public constructor
-
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,19 +47,34 @@ public class SongsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         songsAdapter = new SongsAdapter(getActivity(), MusicUtils.getMusicList(getActivity()));
         recyclerView.setAdapter(songsAdapter);
+//        Log.d("qianqingming","onCreateView");
+//        isFirst = true;
         return view;
     }
 
-    public SongsAdapter getSongsAdapter() {
-        return songsAdapter;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        /*if (isFirst) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            songsAdapter = new SongsAdapter(getActivity(), MusicUtils.getMusicList(getActivity()));
+            recyclerView.setAdapter(songsAdapter);
+            isFirst = false;
+        }*/
     }
 
     public void setIsClicked(int position) {
         songsAdapter.setIsClicked(position);
     }
 
-    public void scrollToTop(int position) {
+    public void scrollToPosition(int position) {
         recyclerView.scrollToPosition(position);
     }
+
+    public void notifyData() {
+        songsAdapter.notifyDataSetChanged();
+    }
+
 
 }

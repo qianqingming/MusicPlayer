@@ -10,8 +10,11 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import com.tct.musicplayer.utils.MusicUtils;
 
 public class PermissionActivity extends AppCompatActivity {
 
@@ -63,4 +66,5 @@ public class PermissionActivity extends AppCompatActivity {
                 break;
         }
     }
+
 }

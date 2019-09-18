@@ -1,21 +1,26 @@
 package com.tct.musicplayer.adapter;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.tct.musicplayer.R;
 
 public class ItemLineDecoration extends RecyclerView.ItemDecoration {
 
     private Paint paint;
 
-    public ItemLineDecoration() {
+    public ItemLineDecoration(Context context) {
         paint = new Paint();
-        paint.setColor(Color.RED);
+        paint.setColor(ContextCompat.getColor(context,R.color.gray));
     }
 
     /**
@@ -34,23 +39,17 @@ public class ItemLineDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         super.onDraw(c, parent, state);
-        //c.drawRect(5,100,400,200,paint);
-        //c.drawLine();
         if (parent != null){
             int itemCount = parent.getAdapter().getItemCount();
+            //Log.d("qianqingming","count:"+itemCount);
             for (int i = 0; i < itemCount; i++) {
                 View view = parent.getChildAt(i);
-                c.drawRect(10,view.getTop(),parent.getWidth()-10,view.getTop()+5,paint);
+                if (view != null) {
+                    c.drawRect(10,view.getBottom(),view.getWidth(),view.getBottom()+5,paint);
+                }
             }
         }
 
     }
 
-    /**
-     * 绘制前景
-     */
-    @Override
-    public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-        super.onDrawOver(c, parent, state);
-    }
 }

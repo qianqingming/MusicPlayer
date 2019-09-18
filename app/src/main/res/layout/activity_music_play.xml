@@ -5,6 +5,7 @@
     android:padding="10dp">
 
     <RelativeLayout
+        android:id="@+id/top_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_alignParentTop="true">
@@ -22,13 +23,19 @@
             android:orientation="vertical">
             <TextView
                 android:id="@+id/music_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_width="300dp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:ellipsize="end"/>
 
             <TextView
                 android:id="@+id/music_singer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLines="1"
+                android:ellipsize="end" />
         </LinearLayout>
 
         <ImageView
@@ -40,11 +47,20 @@
             android:src="@drawable/ic_more"/>
     </RelativeLayout>
 
-    <com.tct.musicplayer.views.CircleImageView
+
+    <com.tct.musicplayer.views.CircleImageViewWithDisk
         android:id="@+id/music_img"
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_centerInParent="true"/>
+
+    <ImageView
+        android:id="@+id/needle_image_view"
+        android:layout_width="100dp"
+        android:layout_height="240dp"
+        android:layout_marginLeft="150dp"
+        android:layout_below="@id/top_layout"
+        android:src="@drawable/ic_needle"/>
 
     <RelativeLayout
         android:id="@+id/bottom_progress_layout"

@@ -6,13 +6,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.tct.musicplayer.R;
+import com.tct.musicplayer.domain.Album;
 import com.tct.musicplayer.domain.Song;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MusicUtils {
 
@@ -23,8 +27,11 @@ public class MusicUtils {
     private static long size;
     private static long albumId;
     private static long id;
+    private static String album;
 
     private static List<Song> list;
+    private static List<String> singerList;
+    private static List<Album> albumList;
 
     /**
      * 获取歌曲列表
@@ -46,6 +53,9 @@ public class MusicUtils {
                     duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
                     size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE));
                     albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                    album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));//专辑名称
+                    //String year = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));//歌曲的发行时间
+                    //Log.d("qianqingming","year--"+year);
                     song.setName(name);
                     song.setSinger(singer);
                     song.setPath(path);
@@ -53,6 +63,7 @@ public class MusicUtils {
                     song.setSize(size);
                     song.setId(id);
                     song.setAlbumId(albumId);
+                    song.setAlbumName(album);
                     //去掉歌曲名字后缀.mp3
                     if (name.contains(".")) {
                         int lastIndex = name.lastIndexOf(".");
@@ -64,17 +75,15 @@ public class MusicUtils {
                     if (size > 1000 * 800) {
                         if (name.contains("-")) {
                             //把歌曲名字和歌手切割开
-                            String[] str = name.split("-");
-                            singer = str[0].replaceAll(" ","");//去掉空格
-                            song.setSinger(singer);
-                            name = str[1].replaceAll(" ","");//去掉空格
-                            song.setName(name);
+                            String[] str = name.split("\\-");
+                            //song.setSinger(str[0].trim());
+                            song.setName(str[1].trim());
                         }
                         list.add(song);
                     }
                 }
+                cursor.close();
             }
-            cursor.close();
         }
         return list;
     }
@@ -145,4 +154,54 @@ public class MusicUtils {
         return bm;
     }
 
+
+    /**
+     * 获取歌手列表
+     * @return
+     */
+    public static List<String> getSingerList() {
+        if (list != null) {
+            if (singerList == null) {
+                singerList = new ArrayList<>();
+                for (int i = 0; i < list.size(); i++) {
+                    if (!singerList.contains(list.get(i).getSinger())){
+                        singerList.add(list.get(i).getSinger());
+                    }
+                }
+            }
+            return singerList;
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * 获取专辑列表
+     * @return
+     */
+    public static List<Album> getAlbumList() {
+        if (list != null) {
+            if (albumList == null) {
+                albumList = new ArrayList<>();
+                for (int i = 0; i < list.size(); i++) {
+                    Song song = list.get(i);
+                    String albumName = song.getAlbumName();
+                    String singer = song.getSinger();
+                    Album album = new Album(albumName,singer);
+                    if (!albumList.contains(album)) {
+                        //如果专辑列表中没有存在
+                        album.getSongList().add(song);
+                        albumList.add(album);
+                    }else {
+                        //如果专辑列表中存在，将歌曲添加到专辑中
+                        int index = albumList.indexOf(album);
+                        albumList.get(index).getSongList().add(song);
+                    }
+                }
+            }
+            return albumList;
+        }else {
+            return null;
+        }
+    }
 }

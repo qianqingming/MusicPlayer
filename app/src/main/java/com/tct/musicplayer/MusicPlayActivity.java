@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -35,6 +34,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
     private TextView currTime,totalTime;
     private ImageView playMusic,pauseMusic,lastMusic,nextMusic;
     private SeekBar seekBar;
+    private ImageView needleImg;
 
     private MusicService musicService = MainActivity.musicService;
     private RotateAnimation animation;//图片旋转动画
@@ -45,6 +45,9 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
     private TimerTask timerTask;
 
     private boolean isClosed = false;
+    private int needleLeft, needleTop;
+
+    private RotateAnimation playAnimation,pauseAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +67,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         lastMusic = findViewById(R.id.last_music);
         nextMusic = findViewById(R.id.next_music);
         seekBar = findViewById(R.id.seek_bar);
+        needleImg = findViewById(R.id.needle_image_view);
 
         backImg.setOnClickListener(this);
         moreImg.setOnClickListener(this);
@@ -107,10 +111,30 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         musicStateReceiver = new MusicStateReceiver();
         registerReceiver(musicStateReceiver,notificationFilter);
 
+        //------------初始化Needle距离父控件的left和top----------
+        needleLeft = needleImg.getLeft();
+        needleTop = needleImg.getTop();
+
+        //------------初始化Needle的播放和暂停动画----------
+        playAnimation = new RotateAnimation(-15f,0f,needleLeft, needleTop);
+        playAnimation.setInterpolator(new LinearInterpolator());
+        playAnimation.setDuration(500);
+        playAnimation.setFillAfter(true);
+
+        pauseAnimation = new RotateAnimation(0,-15f,needleLeft, needleTop);
+        pauseAnimation.setInterpolator(new LinearInterpolator());
+        pauseAnimation.setDuration(500);
+        pauseAnimation.setFillAfter(true);
+
         if (musicService != null) {
             if (!musicService.isPlaying()) {
                 playMusic.setVisibility(View.VISIBLE);
                 pauseMusic.setVisibility(View.GONE);
+                RotateAnimation animation = new RotateAnimation(0,-15f,needleLeft, needleTop);
+                animation.setInterpolator(new LinearInterpolator());
+                animation.setDuration(100);
+                animation.setFillAfter(true);
+                needleImg.startAnimation(animation);
             }else {
                 playMusic.setVisibility(View.GONE);
                 pauseMusic.setVisibility(View.VISIBLE);
@@ -161,6 +185,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 objectAnimator.pause();
             }
         }
+
     }
 
 
@@ -209,6 +234,9 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
             switch (action){
                 case NotificationUtils.ACTION_LAST_MUSIC:
                 case NotificationUtils.ACTION_NEXT_MUSIC:
+                    if (playMusic.getVisibility() == View.VISIBLE) {
+                        needleImg.startAnimation(playAnimation);
+                    }
                     Song song = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
                     musicImg.setImageBitmap(song.getAlbumBmp());
                     musicName.setText(song.getName());
@@ -222,13 +250,13 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                         playMusic.setVisibility(View.VISIBLE);
                     }
                     seekBar.setMax(song.getDuration());
-                    objectAnimator.resume();
+                    objectAnimator.start();
                     break;
                 case NotificationUtils.ACTION_PLAY_MUSIC:
                     //timer.schedule(timerTask,0,1000);
+                    needleImg.startAnimation(playAnimation);
                     playMusic.setVisibility(View.GONE);
                     pauseMusic.setVisibility(View.VISIBLE);
-                    objectAnimator.resume();
                     if (isClosed){
                         //通知栏点击关闭后的处理
                         Song song1 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
@@ -239,14 +267,34 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                         isClosed = false;
                         seekBar.setMax(song1.getDuration());
                     }
+                    playAnimation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            objectAnimator.resume();
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
                     break;
                 case NotificationUtils.ACTION_PAUSE_MUSIC:
+                    needleImg.startAnimation(pauseAnimation);
                     playMusic.setVisibility(View.VISIBLE);
                     pauseMusic.setVisibility(View.GONE);
                     objectAnimator.pause();
                     break;
                 case NotificationUtils.ACTION_CLOSE:
                     //timer.cancel();
+                    if (musicService.isPlaying()){
+                        needleImg.startAnimation(pauseAnimation);
+                    }
                     playMusic.setVisibility(View.VISIBLE);
                     pauseMusic.setVisibility(View.GONE);
                     objectAnimator.pause();
