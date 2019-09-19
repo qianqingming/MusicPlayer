@@ -37,6 +37,7 @@ public class SongsFragment extends Fragment {
 
     public SongsFragment() {
         // Required empty public constructor
+        Log.d("qianqingming","songsFragment");
     }
 
     @Override
@@ -49,6 +50,7 @@ public class SongsFragment extends Fragment {
         recyclerView.setAdapter(songsAdapter);
 //        Log.d("qianqingming","onCreateView");
 //        isFirst = true;
+        Log.d("qianqingming","songsFragment--onCreateView");
         return view;
     }
 
@@ -64,16 +66,22 @@ public class SongsFragment extends Fragment {
         }*/
     }
 
-    public void setIsClicked(int position) {
-        songsAdapter.setIsClicked(position);
+    public void setSelectedPos(int pos) {
+        if (songsAdapter != null) {
+            songsAdapter.setSelectedPos(pos);
+        }
     }
 
     public void scrollToPosition(int position) {
-        recyclerView.scrollToPosition(position);
+        if (recyclerView != null) {
+            recyclerView.scrollToPosition(position);
+        }
     }
 
     public void notifyData() {
-        songsAdapter.notifyDataSetChanged();
+        if (songsAdapter != null) {
+            songsAdapter.notifyDataSetChanged();
+        }
     }
 
 

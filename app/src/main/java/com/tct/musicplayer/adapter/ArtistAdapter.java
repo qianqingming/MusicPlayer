@@ -1,7 +1,6 @@
 package com.tct.musicplayer.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tct.musicplayer.R;
-import com.tct.musicplayer.domain.Song;
 import com.tct.musicplayer.utils.CharacterUtils;
 
 import java.util.List;
@@ -29,7 +27,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.artist_list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.recycler_view_item_artist, parent, false);
         ViewHolder holder = new ViewHolder(view);
         return holder;
     }
@@ -43,7 +41,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        return singerList.size();
+        return singerList == null ? 0 : singerList.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -68,5 +66,9 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
             }
         }
         return -1;
+    }
+
+    public void setSingerList(List<String> singerList) {
+        this.singerList = singerList;
     }
 }

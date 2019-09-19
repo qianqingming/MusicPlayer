@@ -21,7 +21,7 @@ public class MusicService extends Service {
 
     private MediaPlayer mediaPlayer;
     private List<Song> musicList;
-    private int musicIndex;
+    private int musicIndex = -1;
 
     private boolean isStartForeground = false;
     private boolean isSetDataSource = false;
@@ -35,14 +35,14 @@ public class MusicService extends Service {
         super.onCreate();
         mediaPlayer = new MediaPlayer();
         musicList = MusicUtils.getMusicList(this);
-        musicIndex = 0;
-        try {
-            mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        isSetDataSource = true;
+//        musicIndex = 0;
+//        try {
+//            mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
+//            mediaPlayer.prepare();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        isSetDataSource = true;
         //音乐播放完的监听事件
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -63,6 +63,9 @@ public class MusicService extends Service {
     public void playMusic() {
         if (!isStartForeground) {
             startForeground();
+        }
+        if (musicIndex == -1) {
+            musicIndex = 0;
         }
         if (!isSetDataSource) {
             try {
@@ -112,6 +115,9 @@ public class MusicService extends Service {
     public void playLastMusic() {
         if (!isStartForeground) {
             startForeground();
+        }
+        if (musicIndex == -1) {
+            musicIndex = 0;
         }
         if (mediaPlayer != null && musicIndex > 0) {
             mediaPlayer.stop();

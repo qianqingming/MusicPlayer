@@ -73,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean hasPlayedMusic = false;
 
     private SongsFragment songsFragment;
+    private FavoriteFragment favoriteFragment;
+    private ArtistFragment artistFragment;
+    private AlbumFragment albumFragment;
 
     private MusicService.MusicBinder musicBinder;
     public static MusicService musicService;
@@ -110,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.d("qianqingming","onCreate--Main");
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
@@ -141,14 +145,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         nextMusicImg.setOnClickListener(this);
         bottomLayout.setOnClickListener(this);
 
-        musicList = MusicUtils.getMusicList(this);
+        //musicList = MusicUtils.getMusicList(this);
+        musicList = MusicUtils.getTenMuscList(this);
 
-//        MyTask myTask = new MyTask();
-//        myTask.execute();
+        MyTask myTask = new MyTask();
+        myTask.execute();
 
         //绑定TabLayout与ViewPager
         init();
-
 
         bindService(new Intent(this,MusicService.class),serviceConnection,BIND_AUTO_CREATE);
 
@@ -195,10 +199,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(navigationView)) {
+        /*if (drawerLayout.isDrawerOpen(navigationView)) {
             drawerLayout.closeDrawers();
         }else {
             super.onBackPressed();
+        }*/
+        if (drawerLayout.isDrawerOpen(navigationView)) {
+            drawerLayout.closeDrawers();
+        }else {
+            moveTaskToBack(true);
         }
     }
 
@@ -212,13 +221,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tab_title_list.add("艺术家");
         tab_title_list.add("专辑");
 
+        favoriteFragment = new FavoriteFragment();
         songsFragment = new SongsFragment();
+        artistFragment = new ArtistFragment();
+        albumFragment = new AlbumFragment();
 
         fragment_list = new ArrayList<>();
-        fragment_list.add(new FavoriteFragment());
+        fragment_list.add(favoriteFragment);
         fragment_list.add(songsFragment);
-        fragment_list.add(new ArtistFragment());
-        fragment_list.add(new AlbumFragment());
+        fragment_list.add(artistFragment);
+        fragment_list.add(albumFragment);
 
         tabLayout.addTab(tabLayout.newTab().setText(tab_title_list.get(0)));
         tabLayout.addTab(tabLayout.newTab().setText(tab_title_list.get(1)));
@@ -303,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void playLastMusic() {
         musicService.playLastMusic();
         changeMusicImageAndText();
-        songsFragment.setIsClicked(musicService.getMusicIndex());
+        songsFragment.setSelectedPos(musicService.getMusicIndex());
         songsFragment.scrollToPosition(musicService.getMusicIndex());
         objectAnimator.start();
         hasPlayedMusic = true;
@@ -312,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void playNextMusic() {
         musicService.playNextMusic();
         changeMusicImageAndText();
-        songsFragment.setIsClicked(musicService.getMusicIndex());
+        songsFragment.setSelectedPos(musicService.getMusicIndex());
         songsFragment.scrollToPosition(musicService.getMusicIndex());
         objectAnimator.start();
         hasPlayedMusic = true;
@@ -321,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void playMusic() {
         musicService.playMusic();
         changeMusicImageAndText();
-        songsFragment.setIsClicked(musicService.getMusicIndex());
+        songsFragment.setSelectedPos(musicService.getMusicIndex());
         if (hasPlayedMusic){
             objectAnimator.resume();
         }else {
@@ -333,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void pauseMusic() {
         musicService.pauseMusic();
         changeMusicImageAndText();
-        songsFragment.setIsClicked(musicService.getMusicIndex());
+        //songsFragment.setSelectedPos(musicService.getMusicIndex());
         objectAnimator.pause();
     }
 
@@ -436,7 +448,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            //songsFragment.notifyData();
+            if (songsFragment != null){
+                songsFragment.notifyData();
+            }
+            if (artistFragment != null) {
+                artistFragment.notifyData();
+            }
+            if (albumFragment != null) {
+                albumFragment.notifyData();
+            }
         }
     }
 }

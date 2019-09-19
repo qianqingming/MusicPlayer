@@ -8,7 +8,6 @@
         android:id="@+id/notification_music_img"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/ic_default_bottom_music"
         android:scaleType="fitXY"/>
 
     <LinearLayout

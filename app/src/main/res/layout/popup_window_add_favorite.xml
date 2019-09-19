@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/popupWindowHeight"
+    android:orientation="vertical"
+    android:paddingTop="20dp"
+    android:paddingLeft="20dp"
+    android:id="@+id/popup_window_layout"
+    android:background="@drawable/bg_popup_window">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="@dimen/addFavoriteSize"
+            android:layout_height="@dimen/addFavoriteSize"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_favorite_add"/>
+        <TextView
+            android:id="@+id/add_favorite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:textColor="@color/black"
+            android:layout_gravity="center_vertical"
+            android:textSize="@dimen/addFavoriteTextSize"
+            android:text="@string/add_favorite"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="@dimen/addFavoriteSize"
+            android:layout_height="@dimen/addFavoriteSize"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_trash"/>
+        <TextView
+            android:id="@+id/remove_from_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="@dimen/addFavoriteTextSize"
+            android:textColor="@color/black"
+            android:text="@string/remove_from_list"/>
+    </LinearLayout>
+</LinearLayout>

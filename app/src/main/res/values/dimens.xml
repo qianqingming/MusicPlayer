@@ -3,4 +3,7 @@
     <dimen name="defaultHeight">20dp</dimen>
     <dimen name="albumImgWidth">135dp</dimen>
     <dimen name="bottomImgWidth">35dp</dimen>
+    <dimen name="popupWindowHeight">100dp</dimen>
+    <dimen name="addFavoriteSize">20dp</dimen>
+    <dimen name="addFavoriteTextSize">16sp</dimen>
 </resources>

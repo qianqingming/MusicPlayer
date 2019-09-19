@@ -1,5 +1,7 @@
 package com.tct.musicplayer.utils;
 
+import android.util.Log;
+
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
@@ -53,7 +55,7 @@ public class CharacterUtils {
             if (curChar > 128) {
                 try {
                     String[] temp = PinyinHelper.toHanyuPinyinStringArray(curChar, defaultFormat);
-                    if (temp != null) {
+                    if (temp != null && temp.length > 0) {
                         pinYinBF.append(temp[0].charAt(0));
                     }
                 } catch (BadHanyuPinyinOutputFormatCombination e) {

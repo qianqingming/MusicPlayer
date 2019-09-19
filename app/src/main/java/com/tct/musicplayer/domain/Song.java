@@ -12,6 +12,8 @@ public class Song {
     private long id;//歌曲id
     private String albumName;//专辑名称
 
+    private boolean favorite = false;
+
     private Bitmap albumBmp;//专辑图片
 
     public String getName() {
@@ -84,6 +86,14 @@ public class Song {
 
     public void setAlbumName(String albumName) {
         this.albumName = albumName;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 
     @Override

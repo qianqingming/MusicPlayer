@@ -15,4 +15,15 @@
             android:icon="@drawable/ic_navigation"/>
     </group>
 
+    <group android:id="@+id/group3">
+        <item
+            android:id="@+id/change_background"
+            android:title="修改背景"
+            android:icon="@drawable/ic_navigation"/>
+    </group>
+
+    <group android:id="@+id/group4">
+        <item
+            android:title=""/>
+    </group>
 </menu>

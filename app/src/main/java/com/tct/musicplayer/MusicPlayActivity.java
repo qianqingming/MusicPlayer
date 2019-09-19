@@ -45,6 +45,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
     private TimerTask timerTask;
 
     private boolean isClosed = false;
+    private boolean isFirst = false;
     private int needleLeft, needleTop;
 
     private RotateAnimation playAnimation,pauseAnimation;
@@ -140,12 +141,34 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 pauseMusic.setVisibility(View.VISIBLE);
             }
 
-            Song song = MusicUtils.getMusicList(this).get(musicService.getMusicIndex());
-            musicImg.setImageBitmap(song.getAlbumBmp());
-            musicName.setText(song.getName());
-            musicSinger.setText(song.getSinger());
-            totalTime.setText(MusicUtils.formatTime(song.getDuration()));
-            seekBar.setMax(song.getDuration());//设置进度条的最大值
+
+            if (musicService.getMusicIndex() == -1) {
+                currTime.setText(R.string.default_time);
+                totalTime.setText(R.string.default_time);
+                musicImg.setImageResource(R.drawable.ic_default_music);
+                musicName.setText(R.string.bottom_music_default_text);
+                musicSinger.setText("");
+                isFirst = true;
+            }else {
+                Song song = MusicUtils.getMusicList(this).get(musicService.getMusicIndex());
+                musicImg.setImageBitmap(song.getAlbumBmp());
+                musicName.setText(song.getName());
+                musicSinger.setText(song.getSinger());
+                totalTime.setText(MusicUtils.formatTime(song.getDuration()));
+                seekBar.setMax(song.getDuration());//设置进度条的最大值
+                isFirst = false;
+            }
+
+            objectAnimator = ObjectAnimator.ofFloat(musicImg,"rotation",0f,360f);
+            objectAnimator.setInterpolator(new LinearInterpolator());
+            objectAnimator.setDuration(60000);//1min
+            objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            objectAnimator.setRepeatMode(ValueAnimator.RESTART);
+            objectAnimator.start();
+
+            if (!musicService.isPlaying()){
+                objectAnimator.pause();
+            }
 
             timer = new Timer();
             timerTask = new TimerTask() {
@@ -164,28 +187,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 }
             };
             timer.schedule(timerTask,0,1000);
-
-            //Animation animation = AnimationUtils.loadAnimation(this,R.anim.music_img_rotate_anim);
-            //musicImg.startAnimation(animation);
-            /*animation = new RotateAnimation(0f,360f,Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
-            animation.setInterpolator(new LinearInterpolator());
-            animation.setDuration(song.getDuration() / 4);
-            animation.setRepeatCount(Animation.INFINITE);
-            //animation.setStartOffset(0);
-            musicImg.startAnimation(animation);*/
-
-            objectAnimator = ObjectAnimator.ofFloat(musicImg,"rotation",0f,360f);
-            objectAnimator.setInterpolator(new LinearInterpolator());
-            objectAnimator.setDuration(song.getDuration() / 4);
-            objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            objectAnimator.setRepeatMode(ValueAnimator.RESTART);
-            objectAnimator.start();
-
-            if (!musicService.isPlaying()){
-                objectAnimator.pause();
-            }
         }
-
     }
 
 
@@ -234,6 +236,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
             switch (action){
                 case NotificationUtils.ACTION_LAST_MUSIC:
                 case NotificationUtils.ACTION_NEXT_MUSIC:
+                    objectAnimator.pause();
                     if (playMusic.getVisibility() == View.VISIBLE) {
                         needleImg.startAnimation(playAnimation);
                     }
@@ -254,6 +257,14 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                     break;
                 case NotificationUtils.ACTION_PLAY_MUSIC:
                     //timer.schedule(timerTask,0,1000);
+                    if (isFirst) {
+                        Song song2 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                        musicImg.setImageBitmap(song2.getAlbumBmp());
+                        musicName.setText(song2.getName());
+                        musicSinger.setText(song2.getSinger());
+                        totalTime.setText(MusicUtils.formatTime(song2.getDuration()));
+                        seekBar.setMax(song2.getDuration());
+                    }
                     needleImg.startAnimation(playAnimation);
                     playMusic.setVisibility(View.GONE);
                     pauseMusic.setVisibility(View.VISIBLE);

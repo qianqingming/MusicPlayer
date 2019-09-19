@@ -3,25 +3,25 @@ package com.tct.musicplayer.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.MediaPlayer;
-import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.domain.Song;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
@@ -29,43 +29,57 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     private List<Song> list;
     private Context context;
 
-    private MediaPlayer mMediaPlayer;
+    private int selectedPos;
+    private int lastSelectedPos;
+    private boolean isFirst = true;
 
-    private List<Boolean> isClicked;
+    private PopupWindow addFavoritePopupWindow;
+    private PopupWindow removeFavoritePopupWindow;
+    private int longClickPos;
 
     public SongsAdapter(Context context, List<Song> list){
         this.context = context;
         this.list = list;
 
-        isClicked = new ArrayList<>();
-        for (int i=0;i<list.size();i++){
-            isClicked.add(i,false);
-        }
+        initAddPopupWindow();
+        initRemovePopupWindow();
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.songs_list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.recycler_view_item_songs, parent, false);
         final ViewHolder holder = new ViewHolder(view);
         holder.musicLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Intent intent1 = new Intent(context, MusicPlayActivity.class);
-                context.startActivity(intent1);*/
-                if (holder.getAdapterPosition() != -1){
-                    for (int i = 0; i < list.size(); i++) {
-                        isClicked.set(i,false);
-                    }
-                    //发送广播 播放音乐
-                    Intent intent = new Intent(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
-                    intent.putExtra("position",holder.getAdapterPosition());
-                    context.sendBroadcast(intent);
-                    isClicked.set(holder.getAdapterPosition(),true);
-                    notifyDataSetChanged();
-                }
+                //跳转Activity
+                //Intent intent1 = new Intent(context, MusicPlayActivity.class);
+                //context.startActivity(intent1);
+                //设置选中项并更新
+                setSelectedPos(holder.getAdapterPosition());
+                //发送广播，播放音乐
+                Intent intent = new Intent(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
+                intent.putExtra("position",holder.getAdapterPosition());
+                context.sendBroadcast(intent);
             }
         });
+
+        holder.musicLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (list.get(holder.getAdapterPosition()).isFavorite()) {
+                    removeFavoritePopupWindow.showAtLocation(view, Gravity.BOTTOM,0,0);
+                }else {
+                    addFavoritePopupWindow.showAtLocation(view, Gravity.BOTTOM,0,0);
+                }
+                longClickPos = holder.getAdapterPosition();
+                //list.get(holder.getAdapterPosition()).setFavorite(true);
+                //notifyItemChanged(holder.getAdapterPosition());
+                return true;
+            }
+        });
+
         return holder;
     }
 
@@ -79,10 +93,18 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             //holder.songImg.setImageDrawable(new BitmapDrawable(song.getAlbumBmp()));
             holder.songImg.setImageBitmap(song.getAlbumBmp());
 
-            if (isClicked.get(position)) {
-                holder.musicLayout.setBackgroundColor(context.getColor(R.color.colorSelected));
+            if (song.isFavorite()){
+                holder.favorite.setVisibility(View.VISIBLE);
             }else {
-                holder.musicLayout.setBackgroundColor(Color.parseColor("#ffffff"));
+                holder.favorite.setVisibility(View.GONE);
+            }
+
+            if (!isFirst) {
+                if (position == selectedPos) {
+                    holder.musicLayout.setBackgroundColor(context.getColor(R.color.colorSelected));
+                }else {
+                    holder.musicLayout.setBackgroundColor(Color.parseColor("#ffffff"));
+                }
             }
         }
     }
@@ -92,12 +114,18 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         return list.size();
     }
 
-    public void setIsClicked(int position) {
-        for (int i = 0; i < list.size(); i++) {
-            isClicked.set(i,false);
+
+    public void setSelectedPos(int pos){
+        if (isFirst) {
+            selectedPos = pos;
+            notifyItemChanged(selectedPos);
+            lastSelectedPos = selectedPos;
+            isFirst = false;
         }
-        isClicked.set(position,true);
-        notifyDataSetChanged();
+        notifyItemChanged(lastSelectedPos);
+        selectedPos = pos;
+        notifyItemChanged(selectedPos);
+        lastSelectedPos = selectedPos;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -107,14 +135,102 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         TextView songName;
         TextView songSinger;
         TextView songTime;
+        ImageView favorite;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             musicLayout = itemView.findViewById(R.id.music_layout);
             songImg = itemView.findViewById(R.id.iv_song_pic);
             songName = itemView.findViewById(R.id.tv_song_name);
             songSinger = itemView.findViewById(R.id.tv_song_singer);
             songTime = itemView.findViewById(R.id.tv_song_time);
+            favorite = itemView.findViewById(R.id.iv_favorite);
         }
+    }
+
+    /**
+     * 添加到收藏--Window初始化
+     */
+    private void initAddPopupWindow() {
+        View view = LayoutInflater.from(context).inflate(R.layout.popup_window_add_favorite,null);
+        addFavoritePopupWindow = new PopupWindow(view,ViewGroup.LayoutParams.MATCH_PARENT,300);
+        addFavoritePopupWindow.setOutsideTouchable(true);//点击外部消失
+        //popupWindow.setTouchable(true);
+        addFavoritePopupWindow.setFocusable(true);
+
+        //监听Back键
+        view.findViewById(R.id.popup_window_layout).setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+                    addFavoritePopupWindow.dismiss();
+                }
+                return false;
+            }
+        });
+
+        //添加到收藏
+        view.findViewById(R.id.add_favorite).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                list.get(longClickPos).setFavorite(true);
+                notifyItemChanged(longClickPos);
+                addFavoritePopupWindow.dismiss();
+            }
+        });
+
+        //从库中移除
+        view.findViewById(R.id.remove_from_list).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context,"click-remove",Toast.LENGTH_SHORT).show();
+                addFavoritePopupWindow.dismiss();
+            }
+        });
+
+        //addFavoritePopupWindow.showAtLocation(view, Gravity.BOTTOM,0,0);
+    }
+
+    /**
+     * 从收藏中移除--Window初始化
+     */
+    private void initRemovePopupWindow() {
+        View view = LayoutInflater.from(context).inflate(R.layout.popup_window_remove_favorite,null);
+        removeFavoritePopupWindow = new PopupWindow(view,ViewGroup.LayoutParams.MATCH_PARENT,300);
+        removeFavoritePopupWindow.setOutsideTouchable(true);//点击外部消失
+        //popupWindow.setTouchable(true);
+        removeFavoritePopupWindow.setFocusable(true);
+
+        //监听Back键
+        view.findViewById(R.id.popup_window_layout).setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+                    removeFavoritePopupWindow.dismiss();
+                }
+                return false;
+            }
+        });
+
+        //从收藏中移除
+        view.findViewById(R.id.remove_favorite).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                list.get(longClickPos).setFavorite(false);
+                notifyItemChanged(longClickPos);
+                removeFavoritePopupWindow.dismiss();
+            }
+        });
+
+        //从库中移除
+        view.findViewById(R.id.remove_from_list).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context,"click-remove",Toast.LENGTH_SHORT).show();
+                removeFavoritePopupWindow.dismiss();
+            }
+        });
+
+        //removeFavoritePopupWindow.showAtLocation(view, Gravity.BOTTOM,0,0);
     }
 }

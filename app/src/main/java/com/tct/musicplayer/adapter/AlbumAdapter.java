@@ -1,7 +1,6 @@
 package com.tct.musicplayer.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.domain.Album;
-import com.tct.musicplayer.utils.CharacterUtils;
 
 import java.util.List;
 
@@ -30,7 +28,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.album_list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.recycler_view_item_album, parent, false);
         ViewHolder holder = new ViewHolder(view);
         return holder;
     }
@@ -39,7 +37,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (albumList != null) {
             Album album = albumList.get(position);
-            Log.d("qianqingming","songlist:"+album.getSongList());
+            //Log.d("qianqingming","songlist:"+album.getSongList());
             holder.albumImg.setImageBitmap(album.getSongList().get(0).getAlbumBmp());
             holder.albumName.setText(album.getAlbumName());
             holder.songCount.setText(""+album.getSongList().size());
@@ -49,7 +47,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return albumList.size();
+        return albumList == null ? 0 : albumList.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -66,6 +64,10 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
             songCount = itemView.findViewById(R.id.tv_song_count);
             singerName = itemView.findViewById(R.id.tv_singer);
         }
+    }
+
+    public void setAlbumList(List<Album> albumList) {
+        this.albumList = albumList;
     }
 
 }

@@ -53,6 +53,64 @@ public class ArtistFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //sortList();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        if (view == null){
+            view = inflater.inflate(R.layout.fragment_artist, container, false);
+            recyclerView = view.findViewById(R.id.recycler_view_singer);
+            textView = view.findViewById(R.id.tv_letter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+            //数据初始化
+            artistAdapter = new ArtistAdapter(getActivity(),singerList);
+            recyclerView.setAdapter(artistAdapter);
+            recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),DividerItemDecoration.VERTICAL));
+            //recyclerView.addItemDecoration(new ItemLineDecoration(getActivity()));
+            recyclerView.addItemDecoration(new TitleDecoration(getActivity(), new TitleDecoration.TitleDecorationCallBack() {
+                @Override
+                public String getSingerName(int position) {
+                    return singerList.get(position);
+                }
+
+                @Override
+                public int getSingerListSize() {
+                    return singerList.size();
+                }
+            }));
+            //为字母导航栏设置touch事件
+            RightNavigationBar rightNavigationBar = view.findViewById(R.id.right_navigation_bar);
+            rightNavigationBar.setTextView(textView);
+            rightNavigationBar.setListener(new RightNavigationBar.OnTouchLetterListener() {
+                @Override
+                public void touchLetter(String s) {
+                    int selectPosition = artistAdapter.getSelectPosition(s);
+                    if (selectPosition != -1){
+                        recyclerView.scrollToPosition(selectPosition);
+                        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                        layoutManager.scrollToPositionWithOffset(selectPosition,0);
+                    }
+                }
+            });
+        }
+        return view;
+    }
+
+
+    public void notifyData() {
+        if (artistAdapter != null) {
+            sortList();
+            artistAdapter.setSingerList(singerList);
+            artistAdapter.notifyDataSetChanged();
+        }
+    }
+
+
+    private void sortList() {
         //排序
         MusicUtils.getMusicList(getActivity());
         singerList = MusicUtils.getSingerList();
@@ -62,8 +120,7 @@ public class ArtistFragment extends Fragment {
             if (s.matches("[\\u4E00-\\u9FA5]+")) {
                 s = CharacterUtils.getFirstSpell(singerList.get(i)) + "&" + singerList.get(i);
                 singerList.set(i,s);
-            }
-            if (s.equals("<")){
+            }else if (s.equals("<")){
                 //如果是<unknown>
                 s = "zzzzzzz" + "&" + singerList.get(i);
                 singerList.set(i,s);
@@ -81,23 +138,17 @@ public class ArtistFragment extends Fragment {
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        if (view == null){
-            view = inflater.inflate(R.layout.fragment_artist, container, false);
-            recyclerView = view.findViewById(R.id.recycler_view_singer);
-            textView = view.findViewById(R.id.tv_letter);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        }
-        isFirst = true;
-        return view;
-    }
 
-    @Override
+
+
+
+
+
+
+    /*@Override
     public void onResume() {
         super.onResume();
-        if (isFirst) {
+        //if (isFirst) {
             //数据初始化
             artistAdapter = new ArtistAdapter(getActivity(),singerList);
             recyclerView.setAdapter(artistAdapter);
@@ -129,6 +180,6 @@ public class ArtistFragment extends Fragment {
                 }
             });
             isFirst = false;
-        }
-    }
+        //}
+    }*/
 }
