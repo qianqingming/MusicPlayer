@@ -13,7 +13,9 @@
         android:roundIcon="@drawable/ic_default_music"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MusicPlayActivity"></activity>
+        <activity android:name=".ArtistActivity"></activity>
+        <activity android:name=".AlbumActivity" />
+        <activity android:name=".MusicPlayActivity" />
 
         <receiver
             android:name=".receiver.BaseReceiver"
@@ -26,6 +28,9 @@
                 <action android:name="ACTION_LAST_MUSIC" />
                 <action android:name="ACTION_NEXT_MUSIC" />
                 <action android:name="ACTION_PLAY_SELECTED_MUSIC" />
+                <action android:name="ACTION_ADD_FAVORITE" />
+                <action android:name="ACTION_REMOVE_FAVORITE" />
+                <action android:name="ACTION_PLAY_COMPLETED" />
             </intent-filter>
         </receiver>
 
@@ -41,8 +46,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
-            android:launchMode="singleTask"/>
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask" />
     </application>
 
 </manifest>

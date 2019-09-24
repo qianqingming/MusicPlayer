@@ -5,24 +5,31 @@
         <item
             android:id="@+id/scan_music"
             android:title="扫描"
-            android:icon="@drawable/ic_navigation"/>
+            android:icon="@drawable/ic_scan"/>
     </group>
 
     <group android:id="@+id/group2">
         <item
             android:id="@+id/clock_stop_music"
             android:title="定时停止播放"
-            android:icon="@drawable/ic_navigation"/>
+            android:icon="@drawable/ic_timer"/>
     </group>
 
     <group android:id="@+id/group3">
         <item
             android:id="@+id/change_background"
-            android:title="修改背景"
-            android:icon="@drawable/ic_navigation"/>
+            android:title="换肤"
+            android:icon="@drawable/ic_change_skin"/>
     </group>
 
     <group android:id="@+id/group4">
+        <item
+            android:id="@+id/exit"
+            android:title="退出"
+            android:icon="@drawable/ic_exit"/>
+    </group>
+
+    <group android:id="@+id/group5">
         <item
             android:title=""/>
     </group>

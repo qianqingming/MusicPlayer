@@ -48,7 +48,7 @@ public class NotificationUtils {
         NotificationUtils.generateRemoteViews(packageName,context);
 
         notification = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_default_music)
                 .setCustomContentView(remoteViews)
                 .build();
         return notification;

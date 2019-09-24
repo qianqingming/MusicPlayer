@@ -9,17 +9,23 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -31,7 +37,6 @@ import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.tct.musicplayer.adapter.MyFragmentPagerAdapter;
-import com.tct.musicplayer.domain.Album;
 import com.tct.musicplayer.domain.Song;
 import com.tct.musicplayer.fragment.AlbumFragment;
 import com.tct.musicplayer.fragment.ArtistFragment;
@@ -39,8 +44,10 @@ import com.tct.musicplayer.fragment.FavoriteFragment;
 import com.tct.musicplayer.fragment.SongsFragment;
 import com.tct.musicplayer.receiver.BaseReceiver;
 import com.tct.musicplayer.service.MusicService;
+import com.tct.musicplayer.utils.CharacterUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
+import com.tct.musicplayer.views.TimerDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,8 +120,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d("qianqingming","onCreate--Main");
-
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
 
@@ -143,7 +148,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playMusicImg.setOnClickListener(this);
         pauseMusicImg.setOnClickListener(this);
         nextMusicImg.setOnClickListener(this);
-        bottomLayout.setOnClickListener(this);
+        bottomMusicBg.setOnClickListener(this);
+        bottomDefaultText.setOnClickListener(this);
+        bottomMusicName.setOnClickListener(this);
+        bottomMusicSinger.setOnClickListener(this);
 
         //musicList = MusicUtils.getMusicList(this);
         musicList = MusicUtils.getTenMuscList(this);
@@ -164,6 +172,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         notificationFilter.addAction(NotificationUtils.ACTION_LAST_MUSIC);
         notificationFilter.addAction(NotificationUtils.ACTION_NEXT_MUSIC);
         notificationFilter.addAction(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
+        notificationFilter.addAction("ACTION_ADD_FAVORITE");
+        notificationFilter.addAction("ACTION_REMOVE_FAVORITE");
+        notificationFilter.addAction("ACTION_PLAY_COMPLETED");
         musicStateReceiver = new MusicStateReceiver();
         registerReceiver(musicStateReceiver,notificationFilter);
 
@@ -175,7 +186,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Toast.makeText(MainActivity.this,"扫描",Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.clock_stop_music:
+                        drawerLayout.closeDrawers();
                         Toast.makeText(MainActivity.this,"定时",Toast.LENGTH_SHORT).show();
+                        //TimerDialog dialog = new TimerDialog(MainActivity.this);
+                        //dialog.show();
+                        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_timer,null);
+                        final android.app.AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).setView(view).create();
+                        //dialog.setCanceledOnTouchOutside(false);
+                        dialog.show();
+                        Window window = dialog.getWindow();
+                        if (window != null){
+                            window.setGravity(Gravity.CENTER);
+                            window.setBackgroundDrawable(null);
+                        }
+                        break;
+                    case R.id.change_background:
+                        Toast.makeText(MainActivity.this,"换肤",Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.exit:
+                        //Toast.makeText(MainActivity.this,"退出",Toast.LENGTH_SHORT).show();
+                        finish();
                         break;
                 }
                 //drawerLayout.closeDrawers();
@@ -195,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(musicStateReceiver);
+        unbindService(serviceConnection);
     }
 
     @Override
@@ -238,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tabLayout.addTab(tabLayout.newTab().setText(tab_title_list.get(3)));
 
         //预加载
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(3);
 
         //给ViewPager添加适配器
         viewPager.setAdapter(new MyFragmentPagerAdapter(getSupportFragmentManager(),tab_title_list,fragment_list));
@@ -290,7 +321,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.more_image_view:
                 initPopMenu();
                 break;
-            case R.id.bottom_layout:
+            case R.id.music_bg_image_view:
+            case R.id.default_bottom_music_text:
+            case R.id.bottom_music_name:
+            case R.id.bottom_music_singer:
                 Intent intent = new Intent(this, MusicPlayActivity.class);
                 startActivity(intent);
                 break;
@@ -352,6 +386,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void playSelectedMusic(int index) {
         musicService.playSelectedMusic(index);
         changeMusicImageAndText();
+        objectAnimator.start();
+        hasPlayedMusic = true;
+    }
+
+    public void playCompleted() {
+        changeMusicImageAndText();
+        songsFragment.setSelectedPos(musicService.getMusicIndex());
+        songsFragment.scrollToPosition(musicService.getMusicIndex());
         objectAnimator.start();
         hasPlayedMusic = true;
     }
@@ -433,6 +475,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int index = intent.getIntExtra("position",0);
                     playSelectedMusic(index);
                     break;
+                case "ACTION_ADD_FAVORITE":
+                case "ACTION_REMOVE_FAVORITE":
+                    favoriteFragment.notifyData();
+                    songsFragment.notifyData();
+                    break;
+                case "ACTION_PLAY_COMPLETED":
+                    playCompleted();
+                    break;
             }
         }
     }
@@ -456,6 +506,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             if (albumFragment != null) {
                 albumFragment.notifyData();
+            }
+            if (favoriteFragment != null) {
+                favoriteFragment.notifyData();
             }
         }
     }

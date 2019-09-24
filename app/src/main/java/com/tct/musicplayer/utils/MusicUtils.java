@@ -1,26 +1,38 @@
 package com.tct.musicplayer.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.domain.Album;
+import com.tct.musicplayer.domain.Artist;
 import com.tct.musicplayer.domain.Song;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MusicUtils {
 
+    public static final int PLAY_MODE_IN_ORDER = 0;//顺序播放
+    public static final int PLAY_MODE_SINGLE_CYCLE = 1;//单曲循环
+    public static final int PLAY_MODE_RANDOM = 2;//随机播放
+
+    public static int playMode;
+
+
     private static List<Song> list;
     private static List<String> singerList;
     private static List<Album> albumList;
+    private static List<Artist> artistList;
+    private static List<Song> favoriteList;
 
     private static boolean isFirst = true;
 
@@ -40,7 +52,7 @@ public class MusicUtils {
             String albumName;
             int count = 0;
             while (cursor.moveToNext()) {
-                if (count == 5) {
+                if (count == 8) {
                     break;
                 }
                 Song song = new Song();
@@ -70,10 +82,16 @@ public class MusicUtils {
                 }
                 //设置专辑图片
                 song.setAlbumBmp(getAlbumArt(context,albumId));
+                //是否被收藏
+                SharedPreferences preferences = context.getSharedPreferences("favorite", Context.MODE_PRIVATE);
+                int favorite = preferences.getInt("" + id, -1);
+                if (favorite != -1) {
+                    song.setFavorite(true);
+                }
                 if (size > 1000 * 800) {
                     if (name.contains("-")) {
                         //把歌曲名字和歌手切割开
-                        String[] str = name.split("\\-");
+                        String[] str = name.split("-");
                         //song.setSinger(str[0].trim());
                         song.setName(str[1].trim());
                     }
@@ -134,10 +152,16 @@ public class MusicUtils {
                     }
                     //设置专辑图片
                     song.setAlbumBmp(getAlbumArt(context,albumId));
+                    //是否被收藏
+                    SharedPreferences preferences = context.getSharedPreferences("favorite", Context.MODE_PRIVATE);
+                    int favorite = preferences.getInt("" + id, -1);
+                    if (favorite != -1) {
+                        song.setFavorite(true);
+                    }
                     if (size > 1000 * 800) {
                         if (name.contains("-")) {
                             //把歌曲名字和歌手切割开
-                            String[] str = name.split("\\-");
+                            String[] str = name.split("-");
                             //song.setSinger(str[0].trim());
                             song.setName(str[1].trim());
                         }
@@ -184,6 +208,7 @@ public class MusicUtils {
     }
 
 
+
     /**
      * 获取专辑封面
      * @param context
@@ -205,10 +230,16 @@ public class MusicUtils {
         if (album_art != null) {
             //还需要判断该路径下的文件是否存在
             File file = new File(album_art);
+            /*BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            options.inSampleSize = 2;
+            options.inJustDecodeBounds = false;*/
             if (file.exists()){
                 bm = BitmapFactory.decodeFile(album_art);
+                //bm = BitmapFactory.decodeFile(album_art,options);
             }else {
                 bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_default_music);
+                //bm = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_default_music,options);
             }
         } else {
             bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_default_music);
@@ -216,12 +247,81 @@ public class MusicUtils {
         return bm;
     }
 
+    /**
+     * 获取艺术家列表
+     * @return
+     */
+    public static List<Artist> getSingerList() {
+        if (list != null) {
+            if (artistList == null) {
+                artistList = new ArrayList<>();
+                for (int i = 0; i < list.size(); i++) {
+                    Song song = list.get(i);
+                    Artist artist = new Artist();
+                    artist.setSinger(song.getSinger());
+                    if (!artistList.contains(artist)) {
+                        artist.getSongList().add(song);
+                        artistList.add(artist);
+                    }else {
+                        int index = artistList.indexOf(artist);
+                        artistList.get(index).getSongList().add(song);
+                    }
+                }
+            }
+            return artistList;
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * 获取排好序的艺术家列表
+     * @return
+     */
+    public static List<Artist> getSortedSingerList() {
+        artistList = getSingerList();
+        List<Artist> sortArtistList = artistList;
+        if (sortArtistList != null) {
+            //排序
+            //在中文字符前加上---中文的每个字的拼音的首字母和“&”
+            for (int i = 0; i < sortArtistList.size(); i++) {
+                String s = sortArtistList.get(i).getSinger().substring(0,1);
+                if (s.matches("[\\u4E00-\\u9FA5]+")) {
+                    //中文
+                    s = CharacterUtils.getEachFirstSpell(sortArtistList.get(i).getSinger()) + "&" + sortArtistList.get(i).getSinger();
+                }else if (s.charAt(0) >= 'a' && s.charAt(0) <= 'z' || s.charAt(0) >= 'A' && s.charAt(0) <= 'Z'){
+                    //字母
+                    s = sortArtistList.get(i).getSinger();
+                }else {
+                    //其他 < 等
+                    s = "zzzzzzz" + "&" + sortArtistList.get(i).getSinger();
+                }
+                sortArtistList.get(i).setSinger(s);
+            }
+            Collections.sort(sortArtistList, new Comparator<Artist>() {
+                @Override
+                public int compare(Artist artist, Artist t1) {
+                    return artist.getSinger().compareToIgnoreCase(t1.getSinger());
+                }
+            });
+            //排完序去掉拼音首字母和“&”
+            for (int i = 0; i < artistList.size(); i++) {
+                String s = artistList.get(i).getSinger();
+                if (s.contains("&")){
+                    s = s.split("&")[1];
+                    artistList.get(i).setSinger(s);
+                }
+            }
+        }
+        return sortArtistList;
+    }
+
 
     /**
      * 获取歌手列表
      * @return
      */
-    public static List<String> getSingerList() {
+    /*public static List<String> getSingerList() {
         if (list != null) {
             if (singerList == null) {
                 singerList = new ArrayList<>();
@@ -235,7 +335,41 @@ public class MusicUtils {
         }else {
             return null;
         }
-    }
+    }*/
+
+    /**
+     * 获取排好序的歌手列表
+     */
+    /*public static List<String> getSortedSingerList() {
+        singerList = getSingerList();
+        List<String> sortSingerList = singerList;
+        if (sortSingerList != null) {
+            //排序
+            //在中文字符前加上---中文的每个字的拼音的首字母和“&”
+            for (int i = 0; i < sortSingerList.size(); i++) {
+                String s = sortSingerList.get(i).substring(0,1);
+                if (s.matches("[\\u4E00-\\u9FA5]+")) {
+                    s = CharacterUtils.getEachFirstSpell(sortSingerList.get(i)) + "&" + sortSingerList.get(i);
+                    sortSingerList.set(i,s);
+                }else if (s.equals("<")){
+                    //如果是<unknown>
+                    s = "zzzzzzz" + "&" + sortSingerList.get(i);
+                    sortSingerList.set(i,s);
+                }
+            }
+            Comparator<Object> com = Collator.getInstance(java.util.Locale.CHINA);
+            sortSingerList.sort(com);
+            //排完序去掉拼音首字母和“&”
+            for (int i = 0; i < sortSingerList.size(); i++) {
+                String s = sortSingerList.get(i);
+                if (s.contains("&")){
+                    s = s.split("&")[1];
+                    sortSingerList.set(i,s);
+                }
+            }
+        }
+        return sortSingerList;
+    }*/
 
     /**
      * 获取专辑列表
@@ -265,5 +399,73 @@ public class MusicUtils {
         }else {
             return null;
         }
+    }
+
+    /**
+     * 获取排好序的专辑列表
+     * @return
+     */
+    public static List<Album> getSortedAlbumList() {
+        albumList = getAlbumList();
+        List<Album> sortAlbumList = albumList;
+        if (sortAlbumList != null) {
+            for (int i = 0; i < sortAlbumList.size(); i++) {
+                String s = sortAlbumList.get(i).getAlbumName().substring(0,1);
+                if (s.matches("[\\u4E00-\\u9FA5]+")) {
+                    //中文
+                    s = CharacterUtils.getEachFirstSpell(sortAlbumList.get(i).getAlbumName()) + "&" + sortAlbumList.get(i).getAlbumName();
+                }else if (s.matches("^[-\\+]?[\\d]*$")) {
+                    //数字
+                    s = "zzz" + "&" + sortAlbumList.get(i).getAlbumName();
+                }else if (s.charAt(0) >= 'a' && s.charAt(0) <= 'z' || s.charAt(0) >= 'A' && s.charAt(0) <= 'Z'){
+                    //字母
+                    s = sortAlbumList.get(i).getAlbumName();
+                }else {
+                    //其他 【 《 等
+                    s = "zzzzzzz" + "&" + sortAlbumList.get(i).getAlbumName();
+                }
+                sortAlbumList.get(i).setAlbumName(s);
+            }
+            //Comparator<Object> com = Collator.getInstance(java.util.Locale.CHINA);
+            //albumList.sort(com);
+            Collections.sort(sortAlbumList, new Comparator<Album>() {
+                @Override
+                public int compare(Album album, Album t1) {
+                    return album.getAlbumName().compareToIgnoreCase(t1.getAlbumName());
+                }
+            });
+
+            //排完序去掉拼音首字母和“&”
+            for (int i = 0; i < sortAlbumList.size(); i++) {
+                String s = sortAlbumList.get(i).getAlbumName();
+                if (s.contains("&")){
+                    s = s.split("&")[1];
+                    sortAlbumList.get(i).setAlbumName(s);
+                }
+            }
+        }
+        return sortAlbumList;
+    }
+
+    public static List<Song> getFavoriteList() {
+        if (favoriteList == null) {
+            favoriteList = new ArrayList<>();
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).isFavorite()) {
+                    favoriteList.add(list.get(i));
+                }
+            }
+        }
+        return favoriteList;
+    }
+
+    public static void initPlayMode(Context context) {
+        //获取播放模式
+        SharedPreferences preferences = context.getSharedPreferences("playMode", Context.MODE_PRIVATE);
+        playMode = preferences.getInt("play_mode",MusicUtils.PLAY_MODE_IN_ORDER);
+    }
+
+    public static void setPlayMode(int mode) {
+        playMode = mode;
     }
 }

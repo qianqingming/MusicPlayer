@@ -8,5 +8,23 @@
     <string name="add_favorite">添加到收藏</string>
     <string name="remove_from_list">从库中移除</string>
     <string name="remove_favorite">从收藏中移除</string>
+    <string name="add_favorite_success">已添加到收藏</string>
+    <string name="remove_favorite_success">已从收藏中移除</string>
     <string name="no_favorite">没有收藏的文件</string>
+    <string name="loading">加载中,请稍后&#8230;</string>
+    <string name="timer_title">定时停止播放</string>
+    <string name="timer_no">不开启</string>
+    <string name="timer_time_1">10分钟后</string>
+    <string name="timer_time_2">20分钟后</string>
+    <string name="timer_time_3">30分钟后</string>
+    <string name="timer_time_4">45分钟后</string>
+    <string name="timer_time_5">60分钟后</string>
+    <string name="timer_time_customer">自定义</string>
+    <string name="timer_play_until_finish">计时结束后播放完当前歌曲再停止</string>
+    <string name="play_in_order">已切换到顺序播放</string>
+    <string name="play_single_cycle">已切换到单曲循环</string>
+    <string name="play_random">已切换到随机播放</string>
+    <string name="delete_from_device">从设备中删除</string>
+    <string name="cancel">取消</string>
+    <string name="delete">移除</string>
 </resources>

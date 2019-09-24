@@ -7,22 +7,37 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.tct.musicplayer.domain.Song;
 import com.tct.musicplayer.receiver.BaseReceiver;
 import com.tct.musicplayer.service.MusicService;
+import com.tct.musicplayer.utils.BlurUtil;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
+import com.tct.musicplayer.utils.ToastUtils;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,8 +48,12 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
     private ImageView musicImg;
     private TextView currTime,totalTime;
     private ImageView playMusic,pauseMusic,lastMusic,nextMusic;
+    private ImageView addFavorite,removeFavorite;
+    private ImageView playingList;
+    private ImageView playInOrder,playSingleCycle,playRandom;
     private SeekBar seekBar;
     private ImageView needleImg;
+    private RelativeLayout layout;
 
     private MusicService musicService = MainActivity.musicService;
     private RotateAnimation animation;//图片旋转动画
@@ -55,6 +74,12 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_play);
 
+        //通知栏透明
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        }
+
         //------------初始化控件，设置点击监听----------
         backImg = findViewById(R.id.back_image_view);
         moreImg = findViewById(R.id.more_image_view);
@@ -69,6 +94,13 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         nextMusic = findViewById(R.id.next_music);
         seekBar = findViewById(R.id.seek_bar);
         needleImg = findViewById(R.id.needle_image_view);
+        addFavorite = findViewById(R.id.add_favorite);
+        removeFavorite = findViewById(R.id.remove_favorite);
+        //playingList = findViewById(R.id.playing_list);
+        layout = findViewById(R.id.layout);
+        playInOrder = findViewById(R.id.play_in_order);
+        playSingleCycle = findViewById(R.id.play_single_cycle);
+        playRandom = findViewById(R.id.play_random);
 
         backImg.setOnClickListener(this);
         moreImg.setOnClickListener(this);
@@ -76,6 +108,12 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         pauseMusic.setOnClickListener(this);
         lastMusic.setOnClickListener(this);
         nextMusic.setOnClickListener(this);
+        addFavorite.setOnClickListener(this);
+        removeFavorite.setOnClickListener(this);
+        playInOrder.setOnClickListener(this);
+        playSingleCycle.setOnClickListener(this);
+        playRandom.setOnClickListener(this);
+        //playingList.setOnClickListener(this);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -109,6 +147,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         notificationFilter.addAction(NotificationUtils.ACTION_PAUSE_MUSIC);
         notificationFilter.addAction(NotificationUtils.ACTION_LAST_MUSIC);
         notificationFilter.addAction(NotificationUtils.ACTION_NEXT_MUSIC);
+        notificationFilter.addAction("ACTION_PLAY_COMPLETED");
         musicStateReceiver = new MusicStateReceiver();
         registerReceiver(musicStateReceiver,notificationFilter);
 
@@ -150,12 +189,20 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 musicSinger.setText("");
                 isFirst = true;
             }else {
-                Song song = MusicUtils.getMusicList(this).get(musicService.getMusicIndex());
+                //Song song = MusicUtils.getMusicList(this).get(musicService.getMusicIndex());
+                Song song = musicService.getMusicList().get(musicService.getMusicIndex());
                 musicImg.setImageBitmap(song.getAlbumBmp());
                 musicName.setText(song.getName());
                 musicSinger.setText(song.getSinger());
                 totalTime.setText(MusicUtils.formatTime(song.getDuration()));
                 seekBar.setMax(song.getDuration());//设置进度条的最大值
+                if (song.isFavorite()) {
+                    addFavorite.setVisibility(View.GONE);
+                    removeFavorite.setVisibility(View.VISIBLE);
+                }
+                //高斯模糊
+                //Bitmap bitmap = BlurUtil.doBlur(song.getAlbumBmp(),300,200);
+                //layout.setBackground(new BitmapDrawable(getResources(),bitmap));
                 isFirst = false;
             }
 
@@ -188,17 +235,73 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
             };
             timer.schedule(timerTask,0,1000);
         }
+
+        //初始化播放模式
+        MusicUtils.initPlayMode(this);
+        switch (MusicUtils.playMode) {
+            case MusicUtils.PLAY_MODE_IN_ORDER:
+                break;
+            case MusicUtils.PLAY_MODE_SINGLE_CYCLE:
+                playInOrder.setVisibility(View.GONE);
+                playSingleCycle.setVisibility(View.VISIBLE);
+                break;
+            case MusicUtils.PLAY_MODE_RANDOM:
+                playInOrder.setVisibility(View.GONE);
+                playRandom.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 
 
     @Override
     public void onClick(View view) {
         Intent intent = null;
+        SharedPreferences.Editor editor = getSharedPreferences("playMode",Context.MODE_PRIVATE).edit();
+        Song song = musicService.getMusicList().get(musicService.getMusicIndex());
+        List<Song> favoriteList = MusicUtils.getFavoriteList();
+        SharedPreferences.Editor editor1 = getSharedPreferences("favorite",Context.MODE_PRIVATE).edit();
         switch (view.getId()){
             case R.id.back_image_view:
                 finish();
                 break;
             case R.id.more_image_view:
+                break;
+            case R.id.add_favorite:
+                addFavorite.setVisibility(View.GONE);
+                removeFavorite.setVisibility(View.VISIBLE);
+
+                song.setFavorite(true);
+
+                editor1.putInt(""+song.getId(),1);
+                editor1.apply();
+
+                favoriteList.add(song);
+
+                intent = new Intent("ACTION_ADD_FAVORITE");
+                sendBroadcast(intent);
+
+                ToastUtils.showToast(this,this.getResources().getString(R.string.add_favorite_success));
+                break;
+            case R.id.remove_favorite:
+                removeFavorite.setVisibility(View.GONE);
+                addFavorite.setVisibility(View.VISIBLE);
+
+                song.setFavorite(false);
+
+                editor1.remove(""+song.getId());
+                editor1.apply();
+
+                for (int i = 0; i < favoriteList.size(); i++) {
+                    if (favoriteList.get(i).getId() == song.getId()) {
+                        favoriteList.remove(i);
+                        break;
+                    }
+                }
+
+                intent = new Intent("ACTION_REMOVE_FAVORITE");
+                sendBroadcast(intent);
+
+                ToastUtils.showToast(this,this.getResources().getString(R.string.remove_favorite_success));
                 break;
             case R.id.play_music:
                 intent = new Intent(NotificationUtils.ACTION_PLAY_MUSIC);
@@ -215,6 +318,33 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
             case R.id.next_music:
                 intent = new Intent(NotificationUtils.ACTION_NEXT_MUSIC);
                 sendBroadcast(intent);
+                break;
+            case R.id.play_in_order:
+                playInOrder.setVisibility(View.GONE);
+                playSingleCycle.setVisibility(View.VISIBLE);
+                ToastUtils.showToast(MusicPlayActivity.this,getResources().getString(R.string.play_single_cycle));
+
+                editor.putInt("play_mode",MusicUtils.PLAY_MODE_SINGLE_CYCLE);
+                editor.apply();
+                MusicUtils.setPlayMode(MusicUtils.PLAY_MODE_SINGLE_CYCLE);
+                break;
+            case R.id.play_single_cycle:
+                playSingleCycle.setVisibility(View.GONE);
+                playRandom.setVisibility(View.VISIBLE);
+                ToastUtils.showToast(MusicPlayActivity.this,getResources().getString(R.string.play_random));
+
+                editor.putInt("play_mode",MusicUtils.PLAY_MODE_RANDOM);
+                editor.apply();
+                MusicUtils.setPlayMode(MusicUtils.PLAY_MODE_RANDOM);
+                break;
+            case R.id.play_random:
+                playRandom.setVisibility(View.GONE);
+                playInOrder.setVisibility(View.VISIBLE);
+                ToastUtils.showToast(MusicPlayActivity.this,getResources().getString(R.string.play_in_order));
+
+                editor.putInt("play_mode",MusicUtils.PLAY_MODE_IN_ORDER);
+                editor.apply();
+                MusicUtils.setPlayMode(MusicUtils.PLAY_MODE_IN_ORDER);
                 break;
             default:
                 break;
@@ -236,15 +366,21 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
             switch (action){
                 case NotificationUtils.ACTION_LAST_MUSIC:
                 case NotificationUtils.ACTION_NEXT_MUSIC:
+                case "ACTION_PLAY_COMPLETED":
                     objectAnimator.pause();
                     if (playMusic.getVisibility() == View.VISIBLE) {
                         needleImg.startAnimation(playAnimation);
                     }
-                    Song song = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                    //Song song = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                    Song song = musicService.getMusicList().get(musicService.getMusicIndex());
                     musicImg.setImageBitmap(song.getAlbumBmp());
                     musicName.setText(song.getName());
                     musicSinger.setText(song.getSinger());
                     totalTime.setText(MusicUtils.formatTime(song.getDuration()));
+                    //---高斯模糊
+                    //Bitmap bitmap = BlurUtil.doBlur(song.getAlbumBmp(),300,200);
+                    //layout.setBackground(new BitmapDrawable(getResources(),bitmap));
+                    //---
                     if (musicService.isPlaying()) {
                         playMusic.setVisibility(View.GONE);
                         pauseMusic.setVisibility(View.VISIBLE);
@@ -252,13 +388,23 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                         pauseMusic.setVisibility(View.GONE);
                         playMusic.setVisibility(View.VISIBLE);
                     }
+
+                    if (song.isFavorite()) {
+                        addFavorite.setVisibility(View.GONE);
+                        removeFavorite.setVisibility(View.VISIBLE);
+                    }else {
+                        removeFavorite.setVisibility(View.GONE);
+                        addFavorite.setVisibility(View.VISIBLE);
+                    }
+
                     seekBar.setMax(song.getDuration());
                     objectAnimator.start();
                     break;
                 case NotificationUtils.ACTION_PLAY_MUSIC:
                     //timer.schedule(timerTask,0,1000);
                     if (isFirst) {
-                        Song song2 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                        //Song song2 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                        Song song2 = musicService.getMusicList().get(musicService.getMusicIndex());
                         musicImg.setImageBitmap(song2.getAlbumBmp());
                         musicName.setText(song2.getName());
                         musicSinger.setText(song2.getSinger());
@@ -270,7 +416,8 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                     pauseMusic.setVisibility(View.VISIBLE);
                     if (isClosed){
                         //通知栏点击关闭后的处理
-                        Song song1 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                        //Song song1 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
+                        Song song1 = musicService.getMusicList().get(musicService.getMusicIndex());
                         totalTime.setText(MusicUtils.formatTime(song1.getDuration()));
                         musicImg.setImageBitmap(song1.getAlbumBmp());
                         musicName.setText(song1.getName());

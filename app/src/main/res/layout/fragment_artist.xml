@@ -4,12 +4,28 @@
     android:layout_height="match_parent"
     android:padding="10dp">
 
+    <ImageView
+        android:id="@+id/loading_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:src="@drawable/ic_no_favorite"/>
+
+    <TextView
+        android:id="@+id/loading_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="200dp"
+        android:gravity="center"
+        android:text="@string/loading"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_singer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
+        android:visibility="gone"
         android:layout_toLeftOf="@id/right_navigation_bar"/>
 
     <TextView

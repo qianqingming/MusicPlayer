@@ -1,11 +1,12 @@
 package com.tct.musicplayer.domain;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Album {
+public class Album implements Serializable {
     private String albumName;//专辑名称
     private String singer;//歌手
 
@@ -54,5 +55,14 @@ public class Album {
     @Override
     public int hashCode() {
         return Objects.hash(albumName, singer);
+    }
+
+    @Override
+    public String toString() {
+        return "Album{" +
+                "albumName='" + albumName + '\'' +
+                ", singer='" + singer + '\'' +
+                ", songList=" + songList +
+                '}';
     }
 }

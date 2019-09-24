@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/layout_title_detail"
+        android:id="@+id/title_layout"/>
+
+    <TextView
+        android:id="@+id/music"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_layout"
+        android:textSize="18sp"
+        android:layout_marginLeft="10dp"
+        android:text="歌曲"/>
+
+    <ImageView
+        android:id="@+id/album_bmp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitXY"
+        android:layout_below="@id/music"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_music_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_above="@id/bottom_layout"
+        android:layout_below="@id/album_bmp"/>
+
+    <include layout="@layout/layout_bottom"
+        android:id="@+id/bottom_layout"/>
+</RelativeLayout>

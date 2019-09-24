@@ -37,7 +37,6 @@ public class SongsFragment extends Fragment {
 
     public SongsFragment() {
         // Required empty public constructor
-        Log.d("qianqingming","songsFragment");
     }
 
     @Override
@@ -50,7 +49,6 @@ public class SongsFragment extends Fragment {
         recyclerView.setAdapter(songsAdapter);
 //        Log.d("qianqingming","onCreateView");
 //        isFirst = true;
-        Log.d("qianqingming","songsFragment--onCreateView");
         return view;
     }
 

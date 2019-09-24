@@ -60,7 +60,7 @@
                     android:layout_toRightOf="@id/music_bg_image_view"
                     android:layout_centerVertical="true"
                     android:text="@string/bottom_music_default_text"/>
-                <TextView
+                <com.tct.musicplayer.views.MarqueeTextView
                     android:id="@+id/bottom_music_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
                     android:textColor="@color/black"
                     android:layout_toRightOf="@id/music_bg_image_view"
                     android:layout_toLeftOf="@id/bottom_music_control_layout"/>
-                <TextView
+                <com.tct.musicplayer.views.MarqueeTextView
                     android:id="@+id/bottom_music_singer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -89,14 +89,14 @@
                         android:layout_width="@dimen/bottomImgWidth"
                         android:layout_height="@dimen/bottomImgWidth"
                         android:layout_gravity="center"
-                        android:background="@drawable/bg_image_view_press"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_pre_music"/>
                     <ImageView
                         android:id="@+id/play_music_image_view"
                         android:layout_width="@dimen/bottomImgWidth"
                         android:layout_height="@dimen/bottomImgWidth"
                         android:layout_gravity="center"
-                        android:background="@drawable/bg_image_view_press"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:layout_marginLeft="20dp"
                         android:src="@drawable/ic_play_music"/>
                     <ImageView
@@ -106,7 +106,7 @@
                         android:layout_gravity="center"
                         android:layout_marginLeft="20dp"
                         android:src="@drawable/ic_pause_music"
-                        android:background="@drawable/bg_image_view_press"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:visibility="gone"/>
                     <ImageView
                         android:id="@+id/next_music_image_view"
@@ -114,7 +114,7 @@
                         android:layout_height="@dimen/bottomImgWidth"
                         android:layout_gravity="center"
                         android:layout_marginLeft="20dp"
-                        android:background="@drawable/bg_image_view_press"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_next_music"/>
                 </LinearLayout>
             </RelativeLayout>

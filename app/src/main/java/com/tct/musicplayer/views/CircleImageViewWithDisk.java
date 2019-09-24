@@ -73,7 +73,7 @@ public class CircleImageViewWithDisk extends androidx.appcompat.widget.AppCompat
         if (drawable instanceof BitmapDrawable) {
             paint.setShader(initBitmapShader((BitmapDrawable) drawable));//将着色器设置给画笔
             canvas.drawBitmap(diskBitmap,0,0,mBorderPaint);
-            canvas.drawCircle(width / 2, height / 2, radius-150, paint);//使用画笔在画布上画圆
+            canvas.drawCircle(width / 2, height / 2, radius-160, paint);//使用画笔在画布上画圆
             return;
         }
         super.onDraw(canvas);

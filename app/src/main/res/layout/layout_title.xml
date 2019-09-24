@@ -10,7 +10,7 @@
         android:layout_height="30dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:background="@drawable/bg_image_view_press"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_menu"/>
 
     <TextView
@@ -34,7 +34,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
-            android:background="@drawable/bg_image_view_press"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_search"/>
 
         <ImageView
@@ -43,7 +43,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginLeft="10dp"
-            android:background="@drawable/bg_image_view_press"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_more"/>
     </LinearLayout>
 </RelativeLayout>

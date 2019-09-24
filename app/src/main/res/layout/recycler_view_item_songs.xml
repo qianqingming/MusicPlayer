@@ -4,6 +4,8 @@
     android:id="@+id/music_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground"
     android:padding="10dp">
 
     <com.tct.musicplayer.views.CircleImageView
@@ -25,21 +27,17 @@
         android:layout_marginRight="5dp"
         android:layout_centerVertical="true"
         android:orientation="vertical">
-        <TextView
+        <com.tct.musicplayer.views.MarqueeTextView
             android:id="@+id/tv_song_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#000000"
-            android:maxLines="1"
-            android:ellipsize="end"
             android:textSize="16sp"/>
 
-        <TextView
+        <com.tct.musicplayer.views.MarqueeTextView
             android:id="@+id/tv_song_singer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:ellipsize="end"
             android:textSize="12sp"/>
     </LinearLayout>
 

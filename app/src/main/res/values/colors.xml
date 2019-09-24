@@ -6,6 +6,9 @@
     <color name="colorSelected">#11D3EC</color>
     <color name="tabIndicatorColor">#11D3EC</color>
     <color name="gray">#696969</color>
+    <color name="gray_default">#FF888888</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
+    <color name="timer_color">#000000</color>
+    <color name="dialog_delete_text_color">#393DD5</color>
 </resources>

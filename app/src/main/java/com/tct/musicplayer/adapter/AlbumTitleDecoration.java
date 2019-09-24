@@ -46,10 +46,18 @@ public class AlbumTitleDecoration extends RecyclerView.ItemDecoration {
         //Log.d("qianqingming","position:"+position+"--"+CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase());
         if (position == 0) {
             outRect.set(0,titleHeight,0,0);
-        }else{
+        }else if (position < callBack.getPreMapSize()){
             String str1 = CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase();
             String str2 = CharacterUtils.getPingYin(callBack.getSingerName(position - 1)).substring(0,1).toUpperCase();
             if (!str1.equals(str2)) {
+                outRect.set(0,titleHeight,0,0);
+            }else {
+                if (callBack.isSecond(position)){
+                    outRect.set(0,titleHeight,0,0);
+                }
+            }
+        }else{
+            if (position == callBack.getPreMapSize() || position == callBack.getPreMapSize()+1){
                 outRect.set(0,titleHeight,0,0);
             }
         }
@@ -72,51 +80,25 @@ public class AlbumTitleDecoration extends RecyclerView.ItemDecoration {
             if (position == 0) {
                 c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
                 c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase(),left,child.getTop()-36, textPaint);
-            }else if (position == callBack.getSingerListSize() - 1){
-                c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
-                c.drawText("#",left,child.getTop()-36, textPaint);
-            }else {
+            }else if(position > 0 && position < callBack.getPreMapSize()) {
                 String str1 = CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase();
                 String str2 = CharacterUtils.getPingYin(callBack.getSingerName(position - 1)).substring(0,1).toUpperCase();
                 if (!str1.equals(str2)) {
                     c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
                     c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase(),left,child.getTop()-36, textPaint);
                 }
+            }else if (position == callBack.getPreMapSize()){
+                c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
+                c.drawText("#",left,child.getTop()-36, textPaint);
             }
         }
     }
 
-    /**
-     * 绘制前景
-     */
-    @Override
-    public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-        super.onDrawOver(c, parent, state);
-        /*c.drawRect(0,0,parent.getWidth() - parent.getPaddingRight(),titleHeight,bgPaint);
-        int left = parent.getPaddingLeft();
-        int right = parent.getWidth() - parent.getPaddingRight();
-        int childCount = parent.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = parent.getChildAt(i);
-            int position = parent.getChildAdapterPosition(child);
-            if (position == 0) {
-                c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase(),left,titleHeight-36, textPaint);
-            }else {
-                if (child.getTop() < 0) {
-                    String str1 = CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase();
-                    String str2 = CharacterUtils.getPingYin(callBack.getSingerName(position - 1)).substring(0,1).toUpperCase();
-                    if (str1.equals(str2)) {
-                        c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position - 1)).substring(0,1).toUpperCase(),left,titleHeight-36, textPaint);
-                    }else {
-                        c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase(),left,titleHeight-36, textPaint);
-                    }
-                }
-            }
-        }*/
-    }
 
     public interface TitleDecorationCallBack {
         String getSingerName(int position);
         int getSingerListSize();
+        boolean isSecond(int position);
+        int getPreMapSize();
     }
 }

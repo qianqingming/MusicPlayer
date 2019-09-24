@@ -45,7 +45,7 @@ public class CharacterUtils {
      * @param chinese
      * @return
      */
-    public static String getFirstSpell(String chinese) {
+    public static String getEachFirstSpell(String chinese) {
         StringBuffer pinYinBF = new StringBuffer();
         char[] arr = chinese.toCharArray();
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();
@@ -66,5 +66,27 @@ public class CharacterUtils {
             }
         }
         return pinYinBF.toString().replaceAll("\\W", "").trim();
+    }
+
+    /**
+     * 获取中文第一个字的首字母
+     * @param input
+     * @return
+     */
+    public static String getFirst(String input) {
+        String str = input.trim().substring(0,1);
+        if (str.matches("[\\u4E00-\\u9FA5]+")) {
+            HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
+            format.setCaseType(HanyuPinyinCaseType.UPPERCASE);
+            format.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+            format.setVCharType(HanyuPinyinVCharType.WITH_V);
+            try {
+                String[] arr = PinyinHelper.toHanyuPinyinStringArray(str.charAt(0), format);
+                return Character.toString(arr[0].charAt(0));
+            } catch (BadHanyuPinyinOutputFormatCombination e) {
+                e.printStackTrace();
+            }
+        }
+        return str;
     }
 }

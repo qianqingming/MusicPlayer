@@ -2,6 +2,7 @@ package com.tct.musicplayer.fragment;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -15,14 +16,17 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.adapter.ArtistAdapter;
 import com.tct.musicplayer.adapter.ItemLineDecoration;
 import com.tct.musicplayer.adapter.TitleDecoration;
+import com.tct.musicplayer.domain.Artist;
 import com.tct.musicplayer.utils.CharacterUtils;
 import com.tct.musicplayer.utils.MusicUtils;
+import com.tct.musicplayer.utils.NotificationUtils;
 import com.tct.musicplayer.views.RightNavigationBar;
 
 import org.w3c.dom.Text;
@@ -40,21 +44,14 @@ public class ArtistFragment extends Fragment {
 
     private View view;
     private RecyclerView recyclerView;
-    private TextView textView;
+    private ImageView loadImg;
+    private TextView loadText;
     private ArtistAdapter artistAdapter;
-    private List<String> singerList;
+    private List<Artist> singerList;
 
-    private boolean isFirst = true;
 
     public ArtistFragment() {
 
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        //sortList();
     }
 
     @Override
@@ -63,7 +60,9 @@ public class ArtistFragment extends Fragment {
         if (view == null){
             view = inflater.inflate(R.layout.fragment_artist, container, false);
             recyclerView = view.findViewById(R.id.recycler_view_singer);
-            textView = view.findViewById(R.id.tv_letter);
+            TextView textView = view.findViewById(R.id.tv_letter);
+            loadImg = view.findViewById(R.id.loading_img);
+            loadText = view.findViewById(R.id.loading_text);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
             //数据初始化
@@ -74,7 +73,7 @@ public class ArtistFragment extends Fragment {
             recyclerView.addItemDecoration(new TitleDecoration(getActivity(), new TitleDecoration.TitleDecorationCallBack() {
                 @Override
                 public String getSingerName(int position) {
-                    return singerList.get(position);
+                    return singerList.get(position).getSinger();
                 }
 
                 @Override
@@ -88,11 +87,13 @@ public class ArtistFragment extends Fragment {
             rightNavigationBar.setListener(new RightNavigationBar.OnTouchLetterListener() {
                 @Override
                 public void touchLetter(String s) {
-                    int selectPosition = artistAdapter.getSelectPosition(s);
-                    if (selectPosition != -1){
-                        recyclerView.scrollToPosition(selectPosition);
-                        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                        layoutManager.scrollToPositionWithOffset(selectPosition,0);
+                    if (artistAdapter != null) {
+                        int selectPosition = artistAdapter.getSelectPosition(s);
+                        if (selectPosition != -1){
+                            recyclerView.scrollToPosition(selectPosition);
+                            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                            layoutManager.scrollToPositionWithOffset(selectPosition,0);
+                        }
                     }
                 }
             });
@@ -103,45 +104,18 @@ public class ArtistFragment extends Fragment {
 
     public void notifyData() {
         if (artistAdapter != null) {
-            sortList();
-            artistAdapter.setSingerList(singerList);
-            artistAdapter.notifyDataSetChanged();
-        }
-    }
-
-
-    private void sortList() {
-        //排序
-        MusicUtils.getMusicList(getActivity());
-        singerList = MusicUtils.getSingerList();
-        //在中文字符前加上---中文的每个字的拼音的首字母和“&”
-        for (int i = 0; i < singerList.size(); i++) {
-            String s = singerList.get(i).substring(0,1);
-            if (s.matches("[\\u4E00-\\u9FA5]+")) {
-                s = CharacterUtils.getFirstSpell(singerList.get(i)) + "&" + singerList.get(i);
-                singerList.set(i,s);
-            }else if (s.equals("<")){
-                //如果是<unknown>
-                s = "zzzzzzz" + "&" + singerList.get(i);
-                singerList.set(i,s);
-            }
-        }
-        Comparator<Object> com = Collator.getInstance(java.util.Locale.CHINA);
-        singerList.sort(com);
-        //排完序去掉拼音首字母和“&”
-        for (int i = 0; i < singerList.size(); i++) {
-            String s = singerList.get(i);
-            if (s.contains("&")){
-                s = s.split("&")[1];
-                singerList.set(i,s);
+            singerList = MusicUtils.getSortedSingerList();
+            if (singerList == null || singerList.size() == 0) {
+                loadText.setText("没有歌曲文件");
+            } else {
+                loadImg.setVisibility(View.GONE);
+                loadText.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+                artistAdapter.setSingerList(singerList);
+                artistAdapter.notifyDataSetChanged();
             }
         }
     }
-
-
-
-
-
 
 
 

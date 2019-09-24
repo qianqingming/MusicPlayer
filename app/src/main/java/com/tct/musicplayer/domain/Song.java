@@ -2,7 +2,9 @@ package com.tct.musicplayer.domain;
 
 import android.graphics.Bitmap;
 
-public class Song {
+import java.io.Serializable;
+
+public class Song implements Serializable {
     private String name;//歌曲名
     private String singer;//歌手
     private long size;//歌曲所占空间大小

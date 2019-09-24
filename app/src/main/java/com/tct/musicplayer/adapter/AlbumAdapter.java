@@ -1,18 +1,23 @@
 package com.tct.musicplayer.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tct.musicplayer.AlbumActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.domain.Album;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> {
@@ -29,7 +34,15 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.recycler_view_item_album, parent, false);
-        ViewHolder holder = new ViewHolder(view);
+        final ViewHolder holder = new ViewHolder(view);
+        holder.layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, AlbumActivity.class);
+                intent.putExtra("position",holder.getAdapterPosition());
+                context.startActivity(intent);
+            }
+        });
         return holder;
     }
 
@@ -37,7 +50,6 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (albumList != null) {
             Album album = albumList.get(position);
-            //Log.d("qianqingming","songlist:"+album.getSongList());
             holder.albumImg.setImageBitmap(album.getSongList().get(0).getAlbumBmp());
             holder.albumName.setText(album.getAlbumName());
             holder.songCount.setText(""+album.getSongList().size());
@@ -56,6 +68,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
         TextView albumName;
         TextView songCount;
         TextView singerName;
+        LinearLayout layout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,6 +76,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
             albumName = itemView.findViewById(R.id.tv_album_name);
             songCount = itemView.findViewById(R.id.tv_song_count);
             singerName = itemView.findViewById(R.id.tv_singer);
+            layout = itemView.findViewById(R.id.layout);
         }
     }
 

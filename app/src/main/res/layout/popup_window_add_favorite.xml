@@ -16,7 +16,7 @@
             android:layout_width="@dimen/addFavoriteSize"
             android:layout_height="@dimen/addFavoriteSize"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_favorite_add"/>
+            android:src="@drawable/ic_favorite_add_black"/>
         <TextView
             android:id="@+id/add_favorite"
             android:layout_width="match_parent"
