@@ -9,9 +9,9 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.tct.musicplayer.R;
-import com.tct.musicplayer.domain.Album;
-import com.tct.musicplayer.domain.Artist;
-import com.tct.musicplayer.domain.Song;
+import com.tct.musicplayer.entity.Album;
+import com.tct.musicplayer.entity.Artist;
+import com.tct.musicplayer.entity.Song;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,16 +25,31 @@ public class MusicUtils {
     public static final int PLAY_MODE_SINGLE_CYCLE = 1;//单曲循环
     public static final int PLAY_MODE_RANDOM = 2;//随机播放
 
+    /**
+     * 播放模式
+     */
     public static int playMode;
 
-
+    /**
+     * 歌曲列表
+     */
     private static List<Song> list;
-    private static List<String> singerList;
-    private static List<Album> albumList;
-    private static List<Artist> artistList;
+
+    /**
+     * 收藏列表
+     */
     private static List<Song> favoriteList;
 
-    private static boolean isFirst = true;
+    /**
+     * 艺术家列表
+     */
+    private static List<Artist> artistList;
+
+    /**
+     * 专辑列表
+     */
+    private static List<Album> albumList;
+
 
 
     public static List<Song> getTenMuscList(Context context) {
@@ -81,7 +96,7 @@ public class MusicUtils {
                     song.setName(name);
                 }
                 //设置专辑图片
-                song.setAlbumBmp(getAlbumArt(context,albumId));
+                song.setAlbumBmp(getAlbumArtBmp(context,albumId));
                 //是否被收藏
                 SharedPreferences preferences = context.getSharedPreferences("favorite", Context.MODE_PRIVATE);
                 int favorite = preferences.getInt("" + id, -1);
@@ -151,7 +166,7 @@ public class MusicUtils {
                         song.setName(name);
                     }
                     //设置专辑图片
-                    song.setAlbumBmp(getAlbumArt(context,albumId));
+                    song.setAlbumBmp(getAlbumArtBmp(context,albumId));
                     //是否被收藏
                     SharedPreferences preferences = context.getSharedPreferences("favorite", Context.MODE_PRIVATE);
                     int favorite = preferences.getInt("" + id, -1);
@@ -208,14 +223,7 @@ public class MusicUtils {
     }
 
 
-
-    /**
-     * 获取专辑封面
-     * @param context
-     * @param album_id
-     * @return
-     */
-    private static Bitmap getAlbumArt(Context context, long album_id) {
+    private static String getAlbumArtPath(Context context, long album_id) {
         String mUriAlbums = "content://media/external/audio/albums";
         String[] projection = new String[]{"album_art"};
         Cursor cur = context.getContentResolver().query(Uri.parse(mUriAlbums + "/" + album_id), projection, null, null, null);
@@ -223,9 +231,19 @@ public class MusicUtils {
         if (cur.getCount() > 0 && cur.getColumnCount() > 0) {
             cur.moveToNext();
             album_art = cur.getString(0);
-            //Log.d("qianqingming---",albumId + "***"+album_art);
         }
         cur.close();
+        return album_art;
+    }
+
+    /**
+     * 获取专辑封面
+     * @param context
+     * @param album_id
+     * @return
+     */
+    private static Bitmap getAlbumArtBmp(Context context, long album_id) {
+        String album_art = getAlbumArtPath(context,album_id);
         Bitmap bm;
         if (album_art != null) {
             //还需要判断该路径下的文件是否存在
@@ -283,20 +301,30 @@ public class MusicUtils {
         List<Artist> sortArtistList = artistList;
         if (sortArtistList != null) {
             //排序
-            //在中文字符前加上---中文的每个字的拼音的首字母和“&”
+            //在中文字符前加上---中文的每个字的拼音和“&”
+            String singer;
+            String s;
+            Artist artist;
+            String pinyin;
             for (int i = 0; i < sortArtistList.size(); i++) {
-                String s = sortArtistList.get(i).getSinger().substring(0,1);
+                artist = sortArtistList.get(i);
+                singer = artist.getSinger();
+                s = singer.substring(0,1);
                 if (s.matches("[\\u4E00-\\u9FA5]+")) {
                     //中文
-                    s = CharacterUtils.getEachFirstSpell(sortArtistList.get(i).getSinger()) + "&" + sortArtistList.get(i).getSinger();
-                }else if (s.charAt(0) >= 'a' && s.charAt(0) <= 'z' || s.charAt(0) >= 'A' && s.charAt(0) <= 'Z'){
+                    pinyin = CharacterUtils.getPingYin(singer);
+                    artist.setFirstLetter(pinyin.substring(0,1).toUpperCase());
+                    s = pinyin + "&" + singer;
+                }else if (s.matches("[a-zA-Z]")){
                     //字母
-                    s = sortArtistList.get(i).getSinger();
+                    artist.setFirstLetter(s.toUpperCase());
+                    s = singer;
                 }else {
                     //其他 < 等
-                    s = "zzzzzzz" + "&" + sortArtistList.get(i).getSinger();
+                    artist.setFirstLetter("#");
+                    s = "zzzzzzz" + "&" + singer;
                 }
-                sortArtistList.get(i).setSinger(s);
+                artist.setSinger(s);
             }
             Collections.sort(sortArtistList, new Comparator<Artist>() {
                 @Override
@@ -306,7 +334,8 @@ public class MusicUtils {
             });
             //排完序去掉拼音首字母和“&”
             for (int i = 0; i < artistList.size(); i++) {
-                String s = artistList.get(i).getSinger();
+                s = artistList.get(i).getSinger();
+                //Log.d("qianqingming","first---"+artistList.get(i).getFirstLetter());
                 if (s.contains("&")){
                     s = s.split("&")[1];
                     artistList.get(i).setSinger(s);
@@ -318,60 +347,6 @@ public class MusicUtils {
 
 
     /**
-     * 获取歌手列表
-     * @return
-     */
-    /*public static List<String> getSingerList() {
-        if (list != null) {
-            if (singerList == null) {
-                singerList = new ArrayList<>();
-                for (int i = 0; i < list.size(); i++) {
-                    if (!singerList.contains(list.get(i).getSinger())){
-                        singerList.add(list.get(i).getSinger());
-                    }
-                }
-            }
-            return singerList;
-        }else {
-            return null;
-        }
-    }*/
-
-    /**
-     * 获取排好序的歌手列表
-     */
-    /*public static List<String> getSortedSingerList() {
-        singerList = getSingerList();
-        List<String> sortSingerList = singerList;
-        if (sortSingerList != null) {
-            //排序
-            //在中文字符前加上---中文的每个字的拼音的首字母和“&”
-            for (int i = 0; i < sortSingerList.size(); i++) {
-                String s = sortSingerList.get(i).substring(0,1);
-                if (s.matches("[\\u4E00-\\u9FA5]+")) {
-                    s = CharacterUtils.getEachFirstSpell(sortSingerList.get(i)) + "&" + sortSingerList.get(i);
-                    sortSingerList.set(i,s);
-                }else if (s.equals("<")){
-                    //如果是<unknown>
-                    s = "zzzzzzz" + "&" + sortSingerList.get(i);
-                    sortSingerList.set(i,s);
-                }
-            }
-            Comparator<Object> com = Collator.getInstance(java.util.Locale.CHINA);
-            sortSingerList.sort(com);
-            //排完序去掉拼音首字母和“&”
-            for (int i = 0; i < sortSingerList.size(); i++) {
-                String s = sortSingerList.get(i);
-                if (s.contains("&")){
-                    s = s.split("&")[1];
-                    sortSingerList.set(i,s);
-                }
-            }
-        }
-        return sortSingerList;
-    }*/
-
-    /**
      * 获取专辑列表
      * @return
      */
@@ -379,11 +354,15 @@ public class MusicUtils {
         if (list != null) {
             if (albumList == null) {
                 albumList = new ArrayList<>();
+                Song song;
+                String albumName;
+                String singer;
+                Album album;
                 for (int i = 0; i < list.size(); i++) {
-                    Song song = list.get(i);
-                    String albumName = song.getAlbumName();
-                    String singer = song.getSinger();
-                    Album album = new Album(albumName,singer);
+                    song = list.get(i);
+                    albumName = song.getAlbumName();
+                    singer = song.getSinger();
+                    album = new Album(albumName,singer);
                     if (!albumList.contains(album)) {
                         //如果专辑列表中没有存在
                         album.getSongList().add(song);
@@ -409,22 +388,33 @@ public class MusicUtils {
         albumList = getAlbumList();
         List<Album> sortAlbumList = albumList;
         if (sortAlbumList != null) {
+            String albumName;
+            String s;
+            Album album;
             for (int i = 0; i < sortAlbumList.size(); i++) {
-                String s = sortAlbumList.get(i).getAlbumName().substring(0,1);
+                album = sortAlbumList.get(i);
+                albumName = album.getAlbumName();
+                s = albumName.substring(0,1);
+                String pinyin;
                 if (s.matches("[\\u4E00-\\u9FA5]+")) {
                     //中文
-                    s = CharacterUtils.getEachFirstSpell(sortAlbumList.get(i).getAlbumName()) + "&" + sortAlbumList.get(i).getAlbumName();
-                }else if (s.matches("^[-\\+]?[\\d]*$")) {
+                    pinyin = CharacterUtils.getPingYin(albumName);
+                    album.setFirstLetter(pinyin.substring(0,1).toUpperCase());
+                    s = pinyin + "&" + albumName;
+                }else if (s.matches("[0-9]")) {
                     //数字
-                    s = "zzz" + "&" + sortAlbumList.get(i).getAlbumName();
-                }else if (s.charAt(0) >= 'a' && s.charAt(0) <= 'z' || s.charAt(0) >= 'A' && s.charAt(0) <= 'Z'){
+                    album.setFirstLetter("#");
+                    s = "zzz" + "&" + albumName;
+                }else if (s.matches("[a-zA-Z]")){
                     //字母
-                    s = sortAlbumList.get(i).getAlbumName();
+                    album.setFirstLetter(s.toUpperCase());
+                    s = albumName;
                 }else {
                     //其他 【 《 等
-                    s = "zzzzzzz" + "&" + sortAlbumList.get(i).getAlbumName();
+                    album.setFirstLetter("#");
+                    s = "zzzzzzz" + "&" + albumName;
                 }
-                sortAlbumList.get(i).setAlbumName(s);
+                album.setAlbumName(s);
             }
             //Comparator<Object> com = Collator.getInstance(java.util.Locale.CHINA);
             //albumList.sort(com);
@@ -437,7 +427,8 @@ public class MusicUtils {
 
             //排完序去掉拼音首字母和“&”
             for (int i = 0; i < sortAlbumList.size(); i++) {
-                String s = sortAlbumList.get(i).getAlbumName();
+                //Log.d("qianqingming","first---"+sortAlbumList.get(i).getFirstLetter());
+                s = sortAlbumList.get(i).getAlbumName();
                 if (s.contains("&")){
                     s = s.split("&")[1];
                     sortAlbumList.get(i).setAlbumName(s);
@@ -447,6 +438,10 @@ public class MusicUtils {
         return sortAlbumList;
     }
 
+    /**
+     * 获取收藏列表
+     * @return
+     */
     public static List<Song> getFavoriteList() {
         if (favoriteList == null) {
             favoriteList = new ArrayList<>();
@@ -459,6 +454,10 @@ public class MusicUtils {
         return favoriteList;
     }
 
+    /**
+     * 初始化播放模式
+     * @param context
+     */
     public static void initPlayMode(Context context) {
         //获取播放模式
         SharedPreferences preferences = context.getSharedPreferences("playMode", Context.MODE_PRIVATE);

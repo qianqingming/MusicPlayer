@@ -1,4 +1,4 @@
-package com.tct.musicplayer.domain;
+package com.tct.musicplayer.entity;
 
 import android.graphics.Bitmap;
 

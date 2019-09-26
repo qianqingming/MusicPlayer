@@ -14,7 +14,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.R;
-import com.tct.musicplayer.domain.Song;
+import com.tct.musicplayer.entity.Song;
 
 import java.util.List;
 

@@ -50,8 +50,8 @@ public class TitleDecoration extends RecyclerView.ItemDecoration {
         if (position == 0) {
             outRect.set(0,titleHeight,0,0);
         }else{
-            String str1 = CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase();
-            String str2 = CharacterUtils.getPingYin(callBack.getSingerName(position - 1)).substring(0,1).toUpperCase();
+            String str1 = callBack.getSingerFirstLetter(position);
+            String str2 = callBack.getSingerFirstLetter(position - 1);
             if (!str1.equals(str2)) {
                 outRect.set(0,titleHeight,0,0);
             }
@@ -74,16 +74,16 @@ public class TitleDecoration extends RecyclerView.ItemDecoration {
             int position = parent.getChildAdapterPosition(child);
             if (position == 0) {
                 c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
-                c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase(),left,child.getTop()-36, textPaint);
+                c.drawText(callBack.getSingerFirstLetter(position),left,child.getTop()-36, textPaint);
             }else if (position == callBack.getSingerListSize() - 1){
                 c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
                 c.drawText("#",left,child.getTop()-36, textPaint);
             }else {
-                String str1 = CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase();
-                String str2 = CharacterUtils.getPingYin(callBack.getSingerName(position - 1)).substring(0,1).toUpperCase();
+                String str1 = callBack.getSingerFirstLetter(position);
+                String str2 = callBack.getSingerFirstLetter(position - 1);
                 if (!str1.equals(str2)) {
                     c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
-                    c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase(),left,child.getTop()-36, textPaint);
+                    c.drawText(str1,left,child.getTop()-36, textPaint);
                 }
             }
         }
@@ -119,7 +119,7 @@ public class TitleDecoration extends RecyclerView.ItemDecoration {
     }
 
     public interface TitleDecorationCallBack {
-        String getSingerName(int position);
+        String getSingerFirstLetter(int position);
         int getSingerListSize();
     }
 }

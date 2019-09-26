@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.adapter.SongsAdapter;
-import com.tct.musicplayer.domain.Song;
+import com.tct.musicplayer.entity.Song;
 import com.tct.musicplayer.utils.MusicUtils;
 
 import java.util.List;

@@ -1,6 +1,5 @@
 package com.tct.musicplayer.utils;
 
-import android.util.Log;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
@@ -68,25 +67,4 @@ public class CharacterUtils {
         return pinYinBF.toString().replaceAll("\\W", "").trim();
     }
 
-    /**
-     * 获取中文第一个字的首字母
-     * @param input
-     * @return
-     */
-    public static String getFirst(String input) {
-        String str = input.trim().substring(0,1);
-        if (str.matches("[\\u4E00-\\u9FA5]+")) {
-            HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
-            format.setCaseType(HanyuPinyinCaseType.UPPERCASE);
-            format.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-            format.setVCharType(HanyuPinyinVCharType.WITH_V);
-            try {
-                String[] arr = PinyinHelper.toHanyuPinyinStringArray(str.charAt(0), format);
-                return Character.toString(arr[0].charAt(0));
-            } catch (BadHanyuPinyinOutputFormatCombination e) {
-                e.printStackTrace();
-            }
-        }
-        return str;
-    }
 }

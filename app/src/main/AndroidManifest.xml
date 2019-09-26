@@ -15,7 +15,8 @@
         android:theme="@style/AppTheme">
         <activity android:name=".ArtistActivity"></activity>
         <activity android:name=".AlbumActivity" />
-        <activity android:name=".MusicPlayActivity" />
+        <activity android:name=".MusicPlayActivity"
+            android:launchMode="singleTask"/>
 
         <receiver
             android:name=".receiver.BaseReceiver"

@@ -47,8 +47,8 @@ public class AlbumTitleDecoration extends RecyclerView.ItemDecoration {
         if (position == 0) {
             outRect.set(0,titleHeight,0,0);
         }else if (position < callBack.getPreMapSize()){
-            String str1 = CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase();
-            String str2 = CharacterUtils.getPingYin(callBack.getSingerName(position - 1)).substring(0,1).toUpperCase();
+            String str1 = callBack.getAlbumFirstLetter(position);
+            String str2 = callBack.getAlbumFirstLetter(position - 1);
             if (!str1.equals(str2)) {
                 outRect.set(0,titleHeight,0,0);
             }else {
@@ -79,13 +79,13 @@ public class AlbumTitleDecoration extends RecyclerView.ItemDecoration {
             int position = parent.getChildAdapterPosition(child);
             if (position == 0) {
                 c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
-                c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase(),left,child.getTop()-36, textPaint);
+                c.drawText(callBack.getAlbumFirstLetter(position),left,child.getTop()-36, textPaint);
             }else if(position > 0 && position < callBack.getPreMapSize()) {
-                String str1 = CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase();
-                String str2 = CharacterUtils.getPingYin(callBack.getSingerName(position - 1)).substring(0,1).toUpperCase();
+                String str1 = callBack.getAlbumFirstLetter(position);
+                String str2 = callBack.getAlbumFirstLetter(position - 1);
                 if (!str1.equals(str2)) {
                     c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
-                    c.drawText(CharacterUtils.getPingYin(callBack.getSingerName(position)).substring(0,1).toUpperCase(),left,child.getTop()-36, textPaint);
+                    c.drawText(str1,left,child.getTop()-36, textPaint);
                 }
             }else if (position == callBack.getPreMapSize()){
                 c.drawRect(0,child.getTop()-titleHeight,right,child.getTop(),bgPaint);
@@ -96,8 +96,7 @@ public class AlbumTitleDecoration extends RecyclerView.ItemDecoration {
 
 
     public interface TitleDecorationCallBack {
-        String getSingerName(int position);
-        int getSingerListSize();
+        String getAlbumFirstLetter(int position);
         boolean isSecond(int position);
         int getPreMapSize();
     }

@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,7 @@ import android.widget.TextView;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.adapter.AlbumAdapter;
 import com.tct.musicplayer.adapter.AlbumTitleDecoration;
-import com.tct.musicplayer.domain.Album;
+import com.tct.musicplayer.entity.Album;
 import com.tct.musicplayer.utils.CharacterUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.views.RightNavigationBar;
@@ -60,7 +59,7 @@ public class AlbumFragment extends Fragment {
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                String key = CharacterUtils.getPingYin(albumList.get(position).getAlbumName()).substring(0, 1).toUpperCase();
+                String key = albumList.get(position).getFirstLetter();
                 char ch = key.charAt(0);
                 if (!(ch >= 'A' && ch <= 'Z')) {
                     key = "#";
@@ -91,22 +90,13 @@ public class AlbumFragment extends Fragment {
 
         recyclerView.addItemDecoration(new AlbumTitleDecoration(getActivity(), new AlbumTitleDecoration.TitleDecorationCallBack() {
             @Override
-            public String getSingerName(int position) {
-                return albumList.get(position).getAlbumName();
-            }
-
-            @Override
-            public int getSingerListSize() {
-                return albumList.size();
+            public String getAlbumFirstLetter(int position) {
+                return albumList.get(position).getFirstLetter();
             }
 
             @Override
             public boolean isSecond(int position) {
-                String key = CharacterUtils.getPingYin(albumList.get(position).getAlbumName()).substring(0, 1).toUpperCase();
-                char ch = key.charAt(0);
-                if (!(ch >= 'A' && ch <= 'Z')) {
-                    key = "#";
-                }
+                char ch = albumList.get(position).getFirstLetter().charAt(0);
                 int preSize = 0;
                 ch = (char) (ch - 1);
                 while (ch >= 'A'){
@@ -124,8 +114,7 @@ public class AlbumFragment extends Fragment {
 
             @Override
             public int getPreMapSize() {
-                int lastSize = map.get("#");
-                return albumList.size() - lastSize;
+                return albumList.size() - map.get("#");
             }
         }));
 
@@ -154,16 +143,6 @@ public class AlbumFragment extends Fragment {
         return view;
     }
 
-    /*@Override
-    public void onResume() {
-        super.onResume();
-        if (isFirst) {
-            recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
-            albumAdapter = new AlbumAdapter(getActivity(),albumList);
-            recyclerView.setAdapter(albumAdapter);
-            isFirst = false;
-        }
-    }*/
 
     public void notifyData() {
         if (albumAdapter != null) {
@@ -183,12 +162,9 @@ public class AlbumFragment extends Fragment {
 
     private void initLetterMap() {
         map = new HashMap<>();
+        String key;
         for (int i = 0; i < albumList.size(); i++) {
-            String key = CharacterUtils.getPingYin(albumList.get(i).getAlbumName()).substring(0, 1).toUpperCase();
-            char ch = key.charAt(0);
-            if (!(ch >= 'A' && ch <= 'Z')) {
-                key = "#";
-            }
+            key = albumList.get(i).getFirstLetter();
             if (map.containsKey(key)){
                 map.put(key,map.get(key)+1);
             }else {

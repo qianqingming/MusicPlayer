@@ -2,7 +2,6 @@ package com.tct.musicplayer.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tct.musicplayer.AlbumActivity;
 import com.tct.musicplayer.R;
-import com.tct.musicplayer.domain.Album;
+import com.tct.musicplayer.entity.Album;
 
-import java.io.Serializable;
 import java.util.List;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> {

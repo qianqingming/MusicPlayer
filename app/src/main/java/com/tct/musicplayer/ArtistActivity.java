@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tct.musicplayer.adapter.SongsAdapter;
-import com.tct.musicplayer.domain.Artist;
+import com.tct.musicplayer.entity.Artist;
 import com.tct.musicplayer.utils.MusicUtils;
 
 public class ArtistActivity extends AppCompatActivity implements View.OnClickListener {

@@ -12,8 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.tct.musicplayer.adapter.SongsAdapter;
-import com.tct.musicplayer.domain.Album;
-import com.tct.musicplayer.domain.Song;
+import com.tct.musicplayer.entity.Album;
+import com.tct.musicplayer.entity.Song;
 import com.tct.musicplayer.service.MusicService;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;

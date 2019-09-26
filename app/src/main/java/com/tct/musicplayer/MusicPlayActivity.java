@@ -1,78 +1,70 @@
 package com.tct.musicplayer;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.tct.musicplayer.domain.Song;
+import com.tct.musicplayer.entity.Song;
+import com.tct.musicplayer.fragment.LyricsFragment;
+import com.tct.musicplayer.fragment.MusicPlayFragment;
+import com.tct.musicplayer.fragment.PlayListFragment;
 import com.tct.musicplayer.receiver.BaseReceiver;
 import com.tct.musicplayer.service.MusicService;
-import com.tct.musicplayer.utils.BlurUtil;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 import com.tct.musicplayer.utils.ToastUtils;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MusicPlayActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private View circleView1,circleView2,circleView3;
+    private ViewPager viewPager;
+    private List<Fragment> fragment_list;
+    private PlayListFragment playListFragment;
+    private MusicPlayFragment musicPlayFragment;
+    private LyricsFragment lyricsFragment;
+
     private ImageView backImg,moreImg;
     private TextView musicName,musicSinger;
-    private ImageView musicImg;
     private TextView currTime,totalTime;
     private ImageView playMusic,pauseMusic,lastMusic,nextMusic;
     private ImageView addFavorite,removeFavorite;
-    private ImageView playingList;
-    private ImageView playInOrder,playSingleCycle,playRandom;
     private SeekBar seekBar;
-    private ImageView needleImg;
-    private RelativeLayout layout;
+    private ImageView playInOrder,playSingleCycle,playRandom;
 
     private MusicService musicService = MainActivity.musicService;
-    private RotateAnimation animation;//图片旋转动画
-    private ObjectAnimator objectAnimator;
-    private MusicStateReceiver musicStateReceiver;
 
-    private Timer timer;
-    private TimerTask timerTask;
+    private MusicStateReceiver musicStateReceiver;
 
     private boolean isClosed = false;
     private boolean isFirst = false;
-    private int needleLeft, needleTop;
-
-    private RotateAnimation playAnimation,pauseAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_play);
+
 
         //通知栏透明
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -80,118 +72,30 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         }
 
-        //------------初始化控件，设置点击监听----------
-        backImg = findViewById(R.id.back_image_view);
-        moreImg = findViewById(R.id.more_image_view);
-        musicImg = findViewById(R.id.music_img);
-        musicName = findViewById(R.id.music_name);
-        musicSinger = findViewById(R.id.music_singer);
-        currTime = findViewById(R.id.music_curr_time);
-        totalTime = findViewById(R.id.music_total_time);
-        playMusic = findViewById(R.id.play_music);
-        pauseMusic = findViewById(R.id.pause_music);
-        lastMusic = findViewById(R.id.last_music);
-        nextMusic = findViewById(R.id.next_music);
-        seekBar = findViewById(R.id.seek_bar);
-        needleImg = findViewById(R.id.needle_image_view);
-        addFavorite = findViewById(R.id.add_favorite);
-        removeFavorite = findViewById(R.id.remove_favorite);
-        //playingList = findViewById(R.id.playing_list);
-        layout = findViewById(R.id.layout);
-        playInOrder = findViewById(R.id.play_in_order);
-        playSingleCycle = findViewById(R.id.play_single_cycle);
-        playRandom = findViewById(R.id.play_random);
+        initViews();
 
-        backImg.setOnClickListener(this);
-        moreImg.setOnClickListener(this);
-        playMusic.setOnClickListener(this);
-        pauseMusic.setOnClickListener(this);
-        lastMusic.setOnClickListener(this);
-        nextMusic.setOnClickListener(this);
-        addFavorite.setOnClickListener(this);
-        removeFavorite.setOnClickListener(this);
-        playInOrder.setOnClickListener(this);
-        playSingleCycle.setOnClickListener(this);
-        playRandom.setOnClickListener(this);
-        //playingList.setOnClickListener(this);
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                //Log.d("qianqingming","fromUser:"+b);
-                //Log.d("qianqingming","i:"+i);
-                if (b) {
-                    //如果是用户拖动导致的进度改变
-                    if (musicService.getIsSetDataSource()) {
-                        //currTime.setText(MusicUtils.formatTime(musicService.getCurrPosition()));
-                        musicService.seekToPosition(i);
-                    }
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        //------------注册广播----------
-        IntentFilter notificationFilter = new IntentFilter();
-        notificationFilter.addAction(NotificationUtils.ACTION_CLOSE);
-        notificationFilter.addAction(NotificationUtils.ACTION_PLAY_MUSIC);
-        notificationFilter.addAction(NotificationUtils.ACTION_PAUSE_MUSIC);
-        notificationFilter.addAction(NotificationUtils.ACTION_LAST_MUSIC);
-        notificationFilter.addAction(NotificationUtils.ACTION_NEXT_MUSIC);
-        notificationFilter.addAction("ACTION_PLAY_COMPLETED");
-        musicStateReceiver = new MusicStateReceiver();
-        registerReceiver(musicStateReceiver,notificationFilter);
-
-        //------------初始化Needle距离父控件的left和top----------
-        needleLeft = needleImg.getLeft();
-        needleTop = needleImg.getTop();
-
-        //------------初始化Needle的播放和暂停动画----------
-        playAnimation = new RotateAnimation(-15f,0f,needleLeft, needleTop);
-        playAnimation.setInterpolator(new LinearInterpolator());
-        playAnimation.setDuration(500);
-        playAnimation.setFillAfter(true);
-
-        pauseAnimation = new RotateAnimation(0,-15f,needleLeft, needleTop);
-        pauseAnimation.setInterpolator(new LinearInterpolator());
-        pauseAnimation.setDuration(500);
-        pauseAnimation.setFillAfter(true);
+        initViewPager();
 
         if (musicService != null) {
             if (!musicService.isPlaying()) {
                 playMusic.setVisibility(View.VISIBLE);
                 pauseMusic.setVisibility(View.GONE);
-                RotateAnimation animation = new RotateAnimation(0,-15f,needleLeft, needleTop);
-                animation.setInterpolator(new LinearInterpolator());
-                animation.setDuration(100);
-                animation.setFillAfter(true);
-                needleImg.startAnimation(animation);
             }else {
                 playMusic.setVisibility(View.GONE);
                 pauseMusic.setVisibility(View.VISIBLE);
             }
-
-
             if (musicService.getMusicIndex() == -1) {
                 currTime.setText(R.string.default_time);
                 totalTime.setText(R.string.default_time);
-                musicImg.setImageResource(R.drawable.ic_default_music);
+                //musicImg.setImageResource(R.drawable.ic_default_music);
+                //musicPlayFragment.setDefaultMusicImg();
                 musicName.setText(R.string.bottom_music_default_text);
                 musicSinger.setText("");
                 isFirst = true;
             }else {
-                //Song song = MusicUtils.getMusicList(this).get(musicService.getMusicIndex());
                 Song song = musicService.getMusicList().get(musicService.getMusicIndex());
-                musicImg.setImageBitmap(song.getAlbumBmp());
+                //musicImg.setImageBitmap(song.getAlbumBmp());
+                //musicPlayFragment.setMusicImgBitmap(song.getAlbumBmp());
                 musicName.setText(song.getName());
                 musicSinger.setText(song.getSinger());
                 totalTime.setText(MusicUtils.formatTime(song.getDuration()));
@@ -206,19 +110,8 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 isFirst = false;
             }
 
-            objectAnimator = ObjectAnimator.ofFloat(musicImg,"rotation",0f,360f);
-            objectAnimator.setInterpolator(new LinearInterpolator());
-            objectAnimator.setDuration(60000);//1min
-            objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            objectAnimator.setRepeatMode(ValueAnimator.RESTART);
-            objectAnimator.start();
-
-            if (!musicService.isPlaying()){
-                objectAnimator.pause();
-            }
-
-            timer = new Timer();
-            timerTask = new TimerTask() {
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
                     runOnUiThread(new Runnable() {
@@ -250,12 +143,146 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 playRandom.setVisibility(View.VISIBLE);
                 break;
         }
+
+        //------------注册广播----------
+        IntentFilter notificationFilter = new IntentFilter();
+        notificationFilter.addAction(NotificationUtils.ACTION_CLOSE);
+        notificationFilter.addAction(NotificationUtils.ACTION_PLAY_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_PAUSE_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_LAST_MUSIC);
+        notificationFilter.addAction(NotificationUtils.ACTION_NEXT_MUSIC);
+        notificationFilter.addAction("ACTION_PLAY_COMPLETED");
+        musicStateReceiver = new MusicStateReceiver();
+        registerReceiver(musicStateReceiver,notificationFilter);
+    }
+
+    private void initViews() {
+        //初始化小圆点选中状态
+        circleView1 = findViewById(R.id.circle1);
+        circleView1.setEnabled(false);
+        circleView2 = findViewById(R.id.circle2);
+        circleView2.setEnabled(true);
+        circleView3 = findViewById(R.id.circle3);
+        circleView3.setEnabled(false);
+
+        viewPager = findViewById(R.id.view_pager);
+        backImg = findViewById(R.id.back_image_view);
+        moreImg = findViewById(R.id.more_image_view);
+        musicName = findViewById(R.id.music_name);
+        musicSinger = findViewById(R.id.music_singer);
+        currTime = findViewById(R.id.music_curr_time);
+        totalTime = findViewById(R.id.music_total_time);
+        playMusic = findViewById(R.id.play_music);
+        pauseMusic = findViewById(R.id.pause_music);
+        lastMusic = findViewById(R.id.last_music);
+        nextMusic = findViewById(R.id.next_music);
+        seekBar = findViewById(R.id.seek_bar);
+        addFavorite = findViewById(R.id.add_favorite);
+        removeFavorite = findViewById(R.id.remove_favorite);
+        playInOrder = findViewById(R.id.play_in_order);
+        playSingleCycle = findViewById(R.id.play_single_cycle);
+        playRandom = findViewById(R.id.play_random);
+
+        backImg.setOnClickListener(this);
+        moreImg.setOnClickListener(this);
+        playMusic.setOnClickListener(this);
+        pauseMusic.setOnClickListener(this);
+        lastMusic.setOnClickListener(this);
+        nextMusic.setOnClickListener(this);
+        addFavorite.setOnClickListener(this);
+        removeFavorite.setOnClickListener(this);
+        playInOrder.setOnClickListener(this);
+        playSingleCycle.setOnClickListener(this);
+        playRandom.setOnClickListener(this);
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                //Log.d("qianqingming","fromUser:"+b);
+                //Log.d("qianqingming","i:"+i);
+                if (b) {
+                    //如果是用户拖动导致的进度改变
+                    if (musicService.getIsSetDataSource()) {
+                        //currTime.setText(MusicUtils.formatTime(musicService.getCurrPosition()));
+                        musicService.seekToPosition(i);
+                    }
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private void initViewPager() {
+        fragment_list = new ArrayList<>();
+
+        playListFragment = new PlayListFragment();
+        musicPlayFragment = new MusicPlayFragment();
+        lyricsFragment = new LyricsFragment();
+
+        fragment_list.add(playListFragment);
+        fragment_list.add(musicPlayFragment);
+        fragment_list.add(lyricsFragment);
+
+        viewPager.setOffscreenPageLimit(2);
+
+        viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager(),FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+            @NonNull
+            @Override
+            public Fragment getItem(int position) {
+                return fragment_list.get(position);
+            }
+
+            @Override
+            public int getCount() {
+                return fragment_list.size();
+            }
+        });
+
+        viewPager.setCurrentItem(1);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    circleView1.setEnabled(true);
+                    circleView2.setEnabled(false);
+                    circleView3.setEnabled(false);
+                }else if (position == 1) {
+                    circleView1.setEnabled(false);
+                    circleView2.setEnabled(true);
+                    circleView3.setEnabled(false);
+                }else if (position == 2) {
+                    circleView1.setEnabled(false);
+                    circleView2.setEnabled(false);
+                    circleView3.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
 
     @Override
     public void onClick(View view) {
-        Intent intent = null;
+        Intent intent;
         SharedPreferences.Editor editor = getSharedPreferences("playMode",Context.MODE_PRIVATE).edit();
         Song song = musicService.getMusicList().get(musicService.getMusicIndex());
         List<Song> favoriteList = MusicUtils.getFavoriteList();
@@ -265,6 +292,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 finish();
                 break;
             case R.id.more_image_view:
+                //share();
                 break;
             case R.id.add_favorite:
                 addFavorite.setVisibility(View.GONE);
@@ -303,22 +331,6 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
 
                 ToastUtils.showToast(this,this.getResources().getString(R.string.remove_favorite_success));
                 break;
-            case R.id.play_music:
-                intent = new Intent(NotificationUtils.ACTION_PLAY_MUSIC);
-                sendBroadcast(intent);
-                break;
-            case R.id.pause_music:
-                intent = new Intent(NotificationUtils.ACTION_PAUSE_MUSIC);
-                sendBroadcast(intent);
-                break;
-            case R.id.last_music:
-                intent = new Intent(NotificationUtils.ACTION_LAST_MUSIC);
-                sendBroadcast(intent);
-                break;
-            case R.id.next_music:
-                intent = new Intent(NotificationUtils.ACTION_NEXT_MUSIC);
-                sendBroadcast(intent);
-                break;
             case R.id.play_in_order:
                 playInOrder.setVisibility(View.GONE);
                 playSingleCycle.setVisibility(View.VISIBLE);
@@ -346,10 +358,47 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 editor.apply();
                 MusicUtils.setPlayMode(MusicUtils.PLAY_MODE_IN_ORDER);
                 break;
+            case R.id.play_music:
+                intent = new Intent(NotificationUtils.ACTION_PLAY_MUSIC);
+                sendBroadcast(intent);
+                break;
+            case R.id.pause_music:
+                intent = new Intent(NotificationUtils.ACTION_PAUSE_MUSIC);
+                sendBroadcast(intent);
+                break;
+            case R.id.last_music:
+                intent = new Intent(NotificationUtils.ACTION_LAST_MUSIC);
+                sendBroadcast(intent);
+                break;
+            case R.id.next_music:
+                intent = new Intent(NotificationUtils.ACTION_NEXT_MUSIC);
+                sendBroadcast(intent);
+                break;
             default:
                 break;
         }
     }
+
+    private void share() {
+        Intent share_intent = new Intent();
+        share_intent.setAction(Intent.ACTION_SEND);//设置分享行为
+        share_intent.setType("audio/*");
+        //share_intent.setType("text/plain");//设置分享内容的类型
+
+        Song song = MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex());
+        Log.d("qianqingming","path:"+song.getPath());
+        File file = new File(song.getPath());
+        Uri uri = Uri.fromFile(file);
+
+        share_intent.putExtra(Intent.EXTRA_STREAM,uri);
+
+        //share_intent.putExtra(Intent.EXTRA_SUBJECT, "share");//添加分享内容标题
+        //share_intent.putExtra(Intent.EXTRA_TEXT, "share with you:"+"android");//添加分享内容
+        //创建分享的Dialog
+        share_intent = Intent.createChooser(share_intent, "分享到");
+        startActivity(share_intent);
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -367,13 +416,15 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 case NotificationUtils.ACTION_LAST_MUSIC:
                 case NotificationUtils.ACTION_NEXT_MUSIC:
                 case "ACTION_PLAY_COMPLETED":
-                    objectAnimator.pause();
+                    //objectAnimator.pause();
+                    musicPlayFragment.pauseObjectAnimator();
                     if (playMusic.getVisibility() == View.VISIBLE) {
-                        needleImg.startAnimation(playAnimation);
+                        //needleImg.startAnimation(playAnimation);
+                        musicPlayFragment.startNeedleImgPlayAnim();
                     }
-                    //Song song = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
                     Song song = musicService.getMusicList().get(musicService.getMusicIndex());
-                    musicImg.setImageBitmap(song.getAlbumBmp());
+                    //musicImg.setImageBitmap(song.getAlbumBmp());
+                    musicPlayFragment.setMusicImgBitmap(song.getAlbumBmp());
                     musicName.setText(song.getName());
                     musicSinger.setText(song.getSinger());
                     totalTime.setText(MusicUtils.formatTime(song.getDuration()));
@@ -398,20 +449,23 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                     }
 
                     seekBar.setMax(song.getDuration());
-                    objectAnimator.start();
+                    //objectAnimator.start();
+                    musicPlayFragment.startObjectAnimator();
                     break;
                 case NotificationUtils.ACTION_PLAY_MUSIC:
                     //timer.schedule(timerTask,0,1000);
                     if (isFirst) {
                         //Song song2 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
                         Song song2 = musicService.getMusicList().get(musicService.getMusicIndex());
-                        musicImg.setImageBitmap(song2.getAlbumBmp());
+                        //musicImg.setImageBitmap(song2.getAlbumBmp());
+                        musicPlayFragment.setMusicImgBitmap(song2.getAlbumBmp());
                         musicName.setText(song2.getName());
                         musicSinger.setText(song2.getSinger());
                         totalTime.setText(MusicUtils.formatTime(song2.getDuration()));
                         seekBar.setMax(song2.getDuration());
                     }
-                    needleImg.startAnimation(playAnimation);
+                    //needleImg.startAnimation(playAnimation);
+                    musicPlayFragment.startNeedleImgPlayAnim();
                     playMusic.setVisibility(View.GONE);
                     pauseMusic.setVisibility(View.VISIBLE);
                     if (isClosed){
@@ -419,13 +473,15 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                         //Song song1 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
                         Song song1 = musicService.getMusicList().get(musicService.getMusicIndex());
                         totalTime.setText(MusicUtils.formatTime(song1.getDuration()));
-                        musicImg.setImageBitmap(song1.getAlbumBmp());
+                        //musicImg.setImageBitmap(song1.getAlbumBmp());
+                        musicPlayFragment.setMusicImgBitmap(song1.getAlbumBmp());
                         musicName.setText(song1.getName());
                         musicSinger.setText(song1.getSinger());
                         isClosed = false;
                         seekBar.setMax(song1.getDuration());
                     }
-                    playAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    musicPlayFragment.resumeObjectAnimator();
+                    /*playAnimation.setAnimationListener(new Animation.AnimationListener() {
                         @Override
                         public void onAnimationStart(Animation animation) {
 
@@ -440,25 +496,30 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                         public void onAnimationRepeat(Animation animation) {
 
                         }
-                    });
+                    });*/
                     break;
                 case NotificationUtils.ACTION_PAUSE_MUSIC:
-                    needleImg.startAnimation(pauseAnimation);
+                    //needleImg.startAnimation(pauseAnimation);
+                    musicPlayFragment.startNeedleImgPauseAnim();
                     playMusic.setVisibility(View.VISIBLE);
                     pauseMusic.setVisibility(View.GONE);
-                    objectAnimator.pause();
+                    //objectAnimator.pause();
+                    musicPlayFragment.pauseObjectAnimator();
                     break;
                 case NotificationUtils.ACTION_CLOSE:
                     //timer.cancel();
                     if (musicService.isPlaying()){
-                        needleImg.startAnimation(pauseAnimation);
+                        //needleImg.startAnimation(pauseAnimation);
+                        musicPlayFragment.startNeedleImgPauseAnim();
                     }
                     playMusic.setVisibility(View.VISIBLE);
                     pauseMusic.setVisibility(View.GONE);
-                    objectAnimator.pause();
+                    //objectAnimator.pause();
+                    musicPlayFragment.pauseObjectAnimator();
                     currTime.setText(R.string.default_time);
                     totalTime.setText(R.string.default_time);
-                    musicImg.setImageResource(R.drawable.ic_default_music);
+                    //musicImg.setImageResource(R.drawable.ic_default_music);
+                    musicPlayFragment.setDefaultMusicImg();
                     musicName.setText(R.string.bottom_music_default_text);
                     musicSinger.setText("");
                     isClosed = true;

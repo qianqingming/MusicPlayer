@@ -1,4 +1,4 @@
-package com.tct.musicplayer.domain;
+package com.tct.musicplayer.entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,8 @@ public class Artist {
 
     private String singer;//歌手
     private List<Song> songList;
+
+    private String firstLetter;//歌手名首字母
 
     public String getSinger() {
         return singer;
@@ -26,6 +28,14 @@ public class Artist {
 
     public void setSongList(List<Song> songList) {
         this.songList = songList;
+    }
+
+    public String getFirstLetter() {
+        return firstLetter;
+    }
+
+    public void setFirstLetter(String firstLetter) {
+        this.firstLetter = firstLetter;
     }
 
     @Override

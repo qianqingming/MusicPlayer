@@ -1,4 +1,4 @@
-package com.tct.musicplayer.domain;
+package com.tct.musicplayer.entity;
 
 
 import java.io.Serializable;
@@ -11,6 +11,8 @@ public class Album implements Serializable {
     private String singer;//歌手
 
     private List<Song> songList;
+
+    private String firstLetter;//专辑名首字母
 
     public Album() {
     }
@@ -34,6 +36,14 @@ public class Album implements Serializable {
 
     public void setSinger(String singer) {
         this.singer = singer;
+    }
+
+    public String getFirstLetter() {
+        return firstLetter;
+    }
+
+    public void setFirstLetter(String firstLetter) {
+        this.firstLetter = firstLetter;
     }
 
     public List<Song> getSongList() {

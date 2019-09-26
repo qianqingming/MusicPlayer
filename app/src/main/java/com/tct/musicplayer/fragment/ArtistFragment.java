@@ -1,19 +1,14 @@
 package com.tct.musicplayer.fragment;
 
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,20 +16,11 @@ import android.widget.TextView;
 
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.adapter.ArtistAdapter;
-import com.tct.musicplayer.adapter.ItemLineDecoration;
 import com.tct.musicplayer.adapter.TitleDecoration;
-import com.tct.musicplayer.domain.Artist;
-import com.tct.musicplayer.utils.CharacterUtils;
+import com.tct.musicplayer.entity.Artist;
 import com.tct.musicplayer.utils.MusicUtils;
-import com.tct.musicplayer.utils.NotificationUtils;
 import com.tct.musicplayer.views.RightNavigationBar;
 
-import org.w3c.dom.Text;
-
-import java.text.Collator;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -72,8 +58,8 @@ public class ArtistFragment extends Fragment {
             //recyclerView.addItemDecoration(new ItemLineDecoration(getActivity()));
             recyclerView.addItemDecoration(new TitleDecoration(getActivity(), new TitleDecoration.TitleDecorationCallBack() {
                 @Override
-                public String getSingerName(int position) {
-                    return singerList.get(position).getSinger();
+                public String getSingerFirstLetter(int position) {
+                    return singerList.get(position).getFirstLetter();
                 }
 
                 @Override
@@ -116,44 +102,4 @@ public class ArtistFragment extends Fragment {
             }
         }
     }
-
-
-
-    /*@Override
-    public void onResume() {
-        super.onResume();
-        //if (isFirst) {
-            //数据初始化
-            artistAdapter = new ArtistAdapter(getActivity(),singerList);
-            recyclerView.setAdapter(artistAdapter);
-            recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),DividerItemDecoration.VERTICAL));
-            //recyclerView.addItemDecoration(new ItemLineDecoration(getActivity()));
-            recyclerView.addItemDecoration(new TitleDecoration(getActivity(), new TitleDecoration.TitleDecorationCallBack() {
-                @Override
-                public String getSingerName(int position) {
-                    return singerList.get(position);
-                }
-
-                @Override
-                public int getSingerListSize() {
-                    return singerList.size();
-                }
-            }));
-            //为字母导航栏设置touch事件
-            RightNavigationBar rightNavigationBar = view.findViewById(R.id.right_navigation_bar);
-            rightNavigationBar.setTextView(textView);
-            rightNavigationBar.setListener(new RightNavigationBar.OnTouchLetterListener() {
-                @Override
-                public void touchLetter(String s) {
-                    int selectPosition = artistAdapter.getSelectPosition(s);
-                    if (selectPosition != -1){
-                        recyclerView.scrollToPosition(selectPosition);
-                        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                        layoutManager.scrollToPositionWithOffset(selectPosition,0);
-                    }
-                }
-            });
-            isFirst = false;
-        //}
-    }*/
 }

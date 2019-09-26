@@ -5,11 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -17,25 +12,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
-import com.tct.musicplayer.domain.Song;
+import com.tct.musicplayer.entity.Song;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 import com.tct.musicplayer.utils.ToastUtils;
 
-import java.io.File;
 import java.util.List;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
@@ -103,6 +96,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         holder.musicLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+                //显示弹窗
                 if (list.get(holder.getAdapterPosition()).isFavorite()) {
                     removeFavoritePopupWindow.showAtLocation(view, Gravity.BOTTOM,0,0);
                 }else {
@@ -135,7 +129,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             }else {
                 holder.favorite.setVisibility(View.GONE);
             }
-            
+
             if (!isFirst) {
                 if (position == selectedPos) {
                     //holder.musicLayout.setBackgroundColor(context.getColor(R.color.colorSelected));
@@ -247,7 +241,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             public void onClick(View view) {
                 addFavoritePopupWindow.dismiss();
                 Song song = list.get(longClickPos);
-                showDeleteDialog(song.getName());
+                showDeleteDialog(song.getSinger() + " - " + song.getName());
             }
         });
 
@@ -322,6 +316,9 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         final AlertDialog dialog = new AlertDialog.Builder(context).setView(view).create();
         dialog.setCanceledOnTouchOutside(false);//点击外部不消失，按返回键消失
         ((TextView)view.findViewById(R.id.title)).setText("删除\""+title+"\"吗？");
+        final CheckBox checkBox = view.findViewById(R.id.delete_from_device);
+        TextView delText = view.findViewById(R.id.delete_from_device_text);
+
         view.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -331,9 +328,26 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         view.findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (checkBox.isChecked()) {
 
+                }else {
+
+                }
+                dialog.dismiss();
+                ToastUtils.showToast(context,context.getResources().getString(R.string.delete_success));
             }
         });
+        delText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (checkBox.isChecked()) {
+                    checkBox.setChecked(false);
+                }else {
+                    checkBox.setChecked(true);
+                }
+            }
+        });
+
         dialog.show();
         Window window = dialog.getWindow();
         if (window != null){

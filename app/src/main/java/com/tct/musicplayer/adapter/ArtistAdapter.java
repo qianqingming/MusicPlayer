@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tct.musicplayer.ArtistActivity;
 import com.tct.musicplayer.R;
-import com.tct.musicplayer.domain.Artist;
+import com.tct.musicplayer.entity.Artist;
 import com.tct.musicplayer.utils.CharacterUtils;
 
 import java.util.List;
@@ -67,13 +67,13 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
 
     public int getSelectPosition(String s) {
         if (singerList != null) {
-            if (s.equals("#")){
+            /*if (s.equals("#")){
                 //如果是<unknown>
                 return singerList.size() - 1;
-            }
+            }*/
             for (int i = 0; i < singerList.size(); i++) {
                 //Log.d("qianqingming","1--"+CharacterUtils.getPingYin(singerList.get(i)).substring(0,1));
-                if (s.equals(CharacterUtils.getPingYin(singerList.get(i).getSinger()).substring(0,1).toUpperCase())){
+                if (s.equals(singerList.get(i).getFirstLetter())){
                     return i;
                 }
             }

@@ -15,9 +15,13 @@
         android:textSize="20sp"
         android:textColor="@color/timer_color"/>
 
+
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timer_dialog_item_height">
+        android:layout_height="@dimen/timer_dialog_item_height"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:id="@+id/timer_no"
             android:layout_width="match_parent"
@@ -27,17 +31,25 @@
             android:text="@string/timer_no"
             android:textColor="@color/timer_color"
             android:textSize="@dimen/timer_dialog_item_text_size" />
-        <ImageView
+        <RadioButton
+            android:id="@+id/radio_btn_timer_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"/>
+        <!--<ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_ok"/>
+            android:src="@drawable/ic_ok"/>-->
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timer_dialog_item_height">
+        android:layout_height="@dimen/timer_dialog_item_height"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:id="@+id/timer_1"
             android:layout_width="match_parent"
@@ -47,17 +59,19 @@
             android:text="@string/timer_time_1"
             android:textColor="@color/timer_color"
             android:textSize="@dimen/timer_dialog_item_text_size" />
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+        <RadioButton
+            android:id="@+id/radio_btn_timer_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_ok"/>
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timer_dialog_item_height">
+        android:layout_height="@dimen/timer_dialog_item_height"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:id="@+id/timer_2"
             android:layout_width="match_parent"
@@ -67,17 +81,19 @@
             android:textSize="@dimen/timer_dialog_item_text_size"
             android:layout_centerVertical="true"
             android:textColor="@color/timer_color"/>
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+        <RadioButton
+            android:id="@+id/radio_btn_timer_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_ok"/>
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timer_dialog_item_height">
+        android:layout_height="@dimen/timer_dialog_item_height"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:id="@+id/timer_3"
             android:layout_width="match_parent"
@@ -87,17 +103,19 @@
             android:layout_centerVertical="true"
             android:textSize="@dimen/timer_dialog_item_text_size"
             android:textColor="@color/timer_color"/>
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+        <RadioButton
+            android:id="@+id/radio_btn_timer_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_ok"/>
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timer_dialog_item_height">
+        android:layout_height="@dimen/timer_dialog_item_height"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:id="@+id/timer_4"
             android:layout_width="match_parent"
@@ -107,17 +125,19 @@
             android:layout_centerVertical="true"
             android:textSize="@dimen/timer_dialog_item_text_size"
             android:textColor="@color/timer_color"/>
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+        <RadioButton
+            android:id="@+id/radio_btn_timer_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_ok"/>
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timer_dialog_item_height">
+        android:layout_height="@dimen/timer_dialog_item_height"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:id="@+id/timer_5"
             android:layout_width="match_parent"
@@ -127,17 +147,19 @@
             android:layout_centerVertical="true"
             android:textSize="@dimen/timer_dialog_item_text_size"
             android:textColor="@color/timer_color"/>
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+        <RadioButton
+            android:id="@+id/radio_btn_timer_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_ok"/>
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timer_dialog_item_height">
+        android:layout_height="@dimen/timer_dialog_item_height"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:id="@+id/timer_customer"
             android:layout_width="match_parent"
@@ -147,12 +169,12 @@
             android:layout_centerVertical="true"
             android:textSize="@dimen/timer_dialog_item_text_size"
             android:textColor="@color/timer_color"/>
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+        <RadioButton
+            android:id="@+id/radio_btn_timer_6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_ok"/>
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <View
@@ -162,12 +184,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timer_dialog_item_height"
+        android:layout_height="30dp"
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -175,5 +194,39 @@
             android:text="@string/timer_play_until_finish"
             android:layout_centerVertical="true"
             android:textColor="@color/timer_color"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:background="?android:attr/selectableItemBackground"
+            android:textColor="@color/colorAccent"
+            android:text="@string/cancel"/>
+        <View
+            android:layout_width="1dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@color/gray_default"/>
+        <TextView
+            android:id="@+id/delete"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:background="?android:attr/selectableItemBackground"
+            android:textColor="@color/colorAccent"
+            android:text="确定"/>
     </LinearLayout>
 </LinearLayout>
