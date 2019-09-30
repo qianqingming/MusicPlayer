@@ -77,6 +77,9 @@ public class MusicPlayFragment extends Fragment {
         objectAnimator.start();
         if (!MainActivity.musicService.isPlaying()){
             objectAnimator.pause();
+            startNeedleImgPauseAnim();
+        }else {
+            startNeedleImgPlayAnim();
         }
 
         return view;

@@ -87,6 +87,11 @@ public class ArtistFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        notifyData();
+    }
 
     public void notifyData() {
         if (artistAdapter != null) {

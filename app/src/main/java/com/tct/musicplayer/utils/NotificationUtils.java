@@ -23,13 +23,6 @@ import java.util.List;
 
 public class NotificationUtils {
 
-    public static final String ACTION_CLOSE = "ACTION_CLOSE";
-    public static final String ACTION_PLAY_MUSIC = "ACTION_PLAY_MUSIC";
-    public static final String ACTION_PAUSE_MUSIC = "ACTION_PAUSE_MUSIC";
-    public static final String ACTION_LAST_MUSIC = "ACTION_LAST_MUSIC";
-    public static final String ACTION_NEXT_MUSIC = "ACTION_NEXT_MUSIC";
-    public static final String ACTION_PLAY_SELECTED_MUSIC = "ACTION_PLAY_SELECTED_MUSIC";
-
     private static RemoteViews remoteViews;
     private static NotificationManager manager;
     private static Notification notification;
@@ -65,23 +58,23 @@ public class NotificationUtils {
         PendingIntent activityPi = PendingIntent.getActivity(context,0,activityIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_layout,activityPi);
 
-        Intent closeIntent = new Intent(ACTION_CLOSE);
+        Intent closeIntent = new Intent(BroadcastUtils.ACTION_CLOSE);
         PendingIntent closePi = PendingIntent.getBroadcast(context,1,closeIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_close,closePi);
 
-        Intent playIntent = new Intent(ACTION_PLAY_MUSIC);
+        Intent playIntent = new Intent(BroadcastUtils.ACTION_PLAY_MUSIC);
         PendingIntent playPi = PendingIntent.getBroadcast(context,2,playIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_play_music,playPi);
 
-        Intent pauseIntent = new Intent(ACTION_PAUSE_MUSIC);
+        Intent pauseIntent = new Intent(BroadcastUtils.ACTION_PAUSE_MUSIC);
         PendingIntent pausePi = PendingIntent.getBroadcast(context,3,pauseIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_pause_music,pausePi);
 
-        Intent lastIntent = new Intent(ACTION_LAST_MUSIC);
+        Intent lastIntent = new Intent(BroadcastUtils.ACTION_LAST_MUSIC);
         PendingIntent lastPi = PendingIntent.getBroadcast(context,4,lastIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_last_music,lastPi);
 
-        Intent nextIntent = new Intent(ACTION_NEXT_MUSIC);
+        Intent nextIntent = new Intent(BroadcastUtils.ACTION_NEXT_MUSIC);
         PendingIntent nextPi = PendingIntent.getBroadcast(context,5,nextIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_next_music,nextPi);
     }

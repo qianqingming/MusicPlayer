@@ -23,20 +23,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.entity.Song;
+import com.tct.musicplayer.utils.BroadcastUtils;
 import com.tct.musicplayer.utils.GlideUtils;
 import com.tct.musicplayer.utils.MusicUtils;
-import com.tct.musicplayer.utils.NotificationUtils;
 import com.tct.musicplayer.utils.ToastUtils;
 
 import org.litepal.LitePal;
-import org.litepal.crud.LitePalSupport;
 
-import java.io.File;
 import java.util.List;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
@@ -97,9 +94,9 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 //设置选中项并更新
                 setSelectedPos(holder.getAdapterPosition());
                 //发送广播，播放音乐
-                Intent intent = new Intent(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
+                Intent intent = new Intent(BroadcastUtils.ACTION_PLAY_SELECTED_MUSIC);
                 intent.putExtra("position",holder.getAdapterPosition());
-                context.sendBroadcast(intent);
+                context.sendOrderedBroadcast(intent,null);
                 notifyDataSetChanged();
             }
         });

@@ -17,6 +17,7 @@ import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.entity.Song;
+import com.tct.musicplayer.utils.BroadcastUtils;
 import com.tct.musicplayer.utils.GlideUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
@@ -59,9 +60,10 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
                 //设置选中项并更新
                 setSelectedPos(holder.getAdapterPosition());
                 //发送广播，播放音乐
-                Intent intent = new Intent(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
+                Intent intent = new Intent(BroadcastUtils.ACTION_PLAY_SELECTED_MUSIC);
                 intent.putExtra("position",holder.getAdapterPosition());
-                context.sendBroadcast(intent);
+                context.sendOrderedBroadcast(intent,null);
+                notifyDataSetChanged();
             }
         });
 

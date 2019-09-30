@@ -3,14 +3,17 @@ package com.tct.musicplayer.service;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.tct.musicplayer.entity.Song;
+import com.tct.musicplayer.utils.BroadcastUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 
@@ -27,6 +30,8 @@ public class MusicService extends Service {
     private boolean isStartForeground = false;
     private boolean isSetDataSource = false;
 
+    private MusicStateReceiver musicStateReceiver;
+
     public MusicService() {
 
     }
@@ -36,22 +41,25 @@ public class MusicService extends Service {
         super.onCreate();
         mediaPlayer = new MediaPlayer();
         musicList = MusicUtils.getMusicList();
-//        musicIndex = 0;
-//        try {
-//            mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
-//            mediaPlayer.prepare();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        isSetDataSource = true;
+
+        //注册广播
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BroadcastUtils.ACTION_PLAY_MUSIC);
+        intentFilter.addAction(BroadcastUtils.ACTION_PAUSE_MUSIC);
+        intentFilter.addAction(BroadcastUtils.ACTION_LAST_MUSIC);
+        intentFilter.addAction(BroadcastUtils.ACTION_NEXT_MUSIC);
+        intentFilter.addAction(BroadcastUtils.ACTION_PLAY_SELECTED_MUSIC);
+        intentFilter.addAction(BroadcastUtils.ACTION_CLOSE);
+        intentFilter.setPriority(BroadcastUtils.Priority_1);
+        musicStateReceiver = new MusicStateReceiver();
+        registerReceiver(musicStateReceiver,intentFilter);
+
         //音乐播放完的监听事件
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 if (isSetDataSource){
-                    //Intent intent = new Intent(NotificationUtils.ACTION_NEXT_MUSIC);
-                    //sendBroadcast(intent);
-                    Intent intent = new Intent("ACTION_PLAY_COMPLETED");
+                    Intent intent = new Intent(BroadcastUtils.ACTION_PLAY_COMPLETED);
                     sendBroadcast(intent);
                     switch (MusicUtils.playMode) {
                         case MusicUtils.PLAY_MODE_SINGLE_CYCLE:
@@ -110,7 +118,7 @@ public class MusicService extends Service {
         if (musicIndex == -1) {
             musicIndex = 0;
         }
-        if (!isSetDataSource) {
+        if (!isSetDataSource && musicList != null) {
             try {
                 mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
                 mediaPlayer.prepare();
@@ -245,7 +253,7 @@ public class MusicService extends Service {
     }
 
     public int getDuration() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying() && isSetDataSource) {
+        if (mediaPlayer != null && isSetDataSource) {
             return mediaPlayer.getDuration();
         }
         return 0;
@@ -269,6 +277,7 @@ public class MusicService extends Service {
             mediaPlayer.release();
         }
         stopForeground(true);
+        unregisterReceiver(musicStateReceiver);
     }
 
     public int getMusicIndex() {
@@ -308,4 +317,32 @@ public class MusicService extends Service {
         }
     }
 
+    class MusicStateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d("qianqingming", "MusicService-----:" + action);
+            switch (action) {
+                case BroadcastUtils.ACTION_PLAY_MUSIC:
+                    playMusic();
+                    break;
+                case BroadcastUtils.ACTION_PAUSE_MUSIC:
+                    pauseMusic();
+                    break;
+                case BroadcastUtils.ACTION_LAST_MUSIC:
+                    playLastMusic();
+                    break;
+                case BroadcastUtils.ACTION_NEXT_MUSIC:
+                    playNextMusic();
+                    break;
+                case BroadcastUtils.ACTION_PLAY_SELECTED_MUSIC:
+                    int index = intent.getIntExtra("position",0);
+                    playSelectedMusic(index);
+                    break;
+                case BroadcastUtils.ACTION_CLOSE:
+                    stopForeground();
+                    break;
+            }
+        }
+    }
 }

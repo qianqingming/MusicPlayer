@@ -53,6 +53,11 @@ public class SongsFragment extends Fragment {
         loadImg = view.findViewById(R.id.loading_img);
         loadText = view.findViewById(R.id.loading_text);
         recyclerView = view.findViewById(R.id.recycler_view_songs);
+
+        loadImg.setVisibility(View.GONE);
+        loadText.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         songsAdapter = new SongsAdapter(getActivity(), MusicUtils.getMusicList());
         recyclerView.setAdapter(songsAdapter);

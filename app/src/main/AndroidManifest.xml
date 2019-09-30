@@ -19,22 +19,6 @@
         <activity android:name=".MusicPlayActivity"
             android:launchMode="singleTask"/>
 
-        <receiver
-            android:name=".receiver.BaseReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="ACTION_CLOSE" />
-                <action android:name="ACTION_PLAY_MUSIC" />
-                <action android:name="ACTION_PAUSE_MUSIC" />
-                <action android:name="ACTION_LAST_MUSIC" />
-                <action android:name="ACTION_NEXT_MUSIC" />
-                <action android:name="ACTION_PLAY_SELECTED_MUSIC" />
-                <action android:name="ACTION_NOTIFY_DATA" />
-                <action android:name="ACTION_PLAY_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
         <service
             android:name=".service.MusicService"
             android:enabled="true"

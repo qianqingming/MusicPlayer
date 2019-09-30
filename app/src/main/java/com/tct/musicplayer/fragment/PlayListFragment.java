@@ -25,6 +25,7 @@ public class PlayListFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextView listSizeTextView;
 
+    private PlayListAdapter adapter;
 
     public PlayListFragment() {
         // Required empty public constructor
@@ -41,9 +42,16 @@ public class PlayListFragment extends Fragment {
         listSizeTextView.setText("（" + MainActivity.musicService.getMusicList().size() + "首）");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(new PlayListAdapter(getActivity(), MainActivity.musicService.getMusicList()));
+        adapter = new PlayListAdapter(getActivity(), MainActivity.musicService.getMusicList());
+        recyclerView.setAdapter(adapter);
 
         return view;
+    }
+
+    public void notifyData() {
+        if (recyclerView != null && adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
 }
