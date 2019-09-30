@@ -53,12 +53,11 @@ public class FavoriteFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
     }
 
     public void notifyData() {
         list = MusicUtils.getFavoriteList();
-        if (list != null) {
+        if (list != null && loadImg != null && loadText != null && recyclerView != null && adapter!= null) {
             if (list.size() > 0) {
                 loadImg.setVisibility(View.GONE);
                 loadText.setVisibility(View.GONE);
@@ -70,6 +69,12 @@ public class FavoriteFragment extends Fragment {
                 loadText.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
             }
+        }
+    }
+
+    public void notifyDataSetChanged() {
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
         }
     }
 }

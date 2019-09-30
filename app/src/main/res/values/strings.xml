@@ -11,6 +11,7 @@
     <string name="add_favorite_success">已添加到收藏</string>
     <string name="remove_favorite_success">已从收藏中移除</string>
     <string name="no_favorite">没有收藏的文件</string>
+    <string name="no_songs">没有歌曲文件</string>
     <string name="loading">加载中,请稍后&#8230;</string>
     <string name="timer_title">定时停止播放</string>
     <string name="timer_no">不开启</string>

@@ -12,9 +12,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.tct.musicplayer.AlbumActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.entity.Album;
+import com.tct.musicplayer.utils.GlideUtils;
 
 import java.util.List;
 
@@ -48,7 +50,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (albumList != null) {
             Album album = albumList.get(position);
-            holder.albumImg.setImageBitmap(album.getSongList().get(0).getAlbumBmp());
+            //holder.albumImg.setImageBitmap(album.getSongList().get(0).getAlbumBmp());
+            GlideUtils.setImg(context,album.getSongList().get(0).getAlbumPath(),holder.albumImg);
             holder.albumName.setText(album.getAlbumName());
             holder.songCount.setText(""+album.getSongList().size());
             holder.singerName.setText(album.getSinger());

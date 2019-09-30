@@ -12,10 +12,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.entity.Song;
+import com.tct.musicplayer.utils.GlideUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 
@@ -74,9 +76,24 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
             holder.songSinger.setText(song.getSinger());
             holder.songTime.setText(MusicUtils.formatTime(song.getDuration()));
             //holder.songImg.setImageDrawable(new BitmapDrawable(context.getResources(),song.getAlbumBmp()));
-            holder.songImg.setImageBitmap(song.getAlbumBmp());
+            //holder.songImg.setImageBitmap(song.getAlbumBmp());
+            GlideUtils.setImg(context,song.getAlbumPath(),holder.songImg);
 
-            if (!isFirst) {
+            if (MainActivity.musicService != null && MainActivity.musicService.getMusicList() != null) {
+                if (MainActivity.musicService.getMusicIndex() >= 0) {
+                    if (song.getId() == MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex()).getId()){
+                        holder.songName.setTextColor(context.getColor(R.color.colorSelected));
+                        holder.songSinger.setTextColor(context.getColor(R.color.colorSelected));
+                        holder.songTime.setTextColor(context.getColor(R.color.colorSelected));
+                    }else {
+                        holder.songName.setTextColor(context.getColor(R.color.white));
+                        holder.songSinger.setTextColor(context.getColor(R.color.white));
+                        holder.songTime.setTextColor(context.getColor(R.color.white));
+                    }
+                }
+            }
+
+            /*if (!isFirst) {
                 if (position == selectedPos) {
                     //holder.musicLayout.setBackgroundColor(context.getColor(R.color.colorSelected));
                     holder.songName.setTextColor(context.getColor(R.color.colorSelected));
@@ -88,7 +105,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
                     holder.songSinger.setTextColor(context.getColor(R.color.white));
                     holder.songTime.setTextColor(context.getColor(R.color.white));
                 }
-            }
+            }*/
         }
     }
 

@@ -16,8 +16,12 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.R;
+import com.tct.musicplayer.utils.GlideUtils;
+
+import java.io.File;
 
 /**
  * 唱片
@@ -61,7 +65,8 @@ public class MusicPlayFragment extends Fragment {
         if (MainActivity.musicService.getMusicIndex() == -1) {
             setDefaultMusicImg();
         }else {
-            setMusicImgBitmap(MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex()).getAlbumBmp());
+            //setMusicImgBitmap(MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex()).getAlbumBmp());
+            setMusicImgBitmap(MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex()).getAlbumPath());
         }
 
         objectAnimator = ObjectAnimator.ofFloat(musicImg,"rotation",0f,360f);
@@ -88,9 +93,11 @@ public class MusicPlayFragment extends Fragment {
             musicImg.setImageResource(R.drawable.ic_default_music);
     }
 
-    public void setMusicImgBitmap(Bitmap bitmap) {
-        if (musicImg != null)
-            musicImg.setImageBitmap(bitmap);
+    public void setMusicImgBitmap(String path) {
+        if (musicImg != null) {
+            GlideUtils.setImg(getActivity(),path,musicImg);
+        }
+        //musicImg.setImageBitmap(bitmap);
     }
 
     public void pauseObjectAnimator() {

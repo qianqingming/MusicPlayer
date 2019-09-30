@@ -2,10 +2,12 @@ package com.tct.musicplayer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -30,6 +32,8 @@ import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 import com.tct.musicplayer.utils.ToastUtils;
 
+import org.litepal.LitePal;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +42,8 @@ import java.util.TimerTask;
 
 public class MusicPlayActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final String TAG = "qianqingming";
+
     private View circleView1,circleView2,circleView3;
     private ViewPager viewPager;
     private List<Fragment> fragment_list;
@@ -45,7 +51,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
     private MusicPlayFragment musicPlayFragment;
     private LyricsFragment lyricsFragment;
 
-    private ImageView backImg,moreImg;
+    private ImageView backImg,shareImg;
     private TextView musicName,musicSinger;
     private TextView currTime,totalTime;
     private ImageView playMusic,pauseMusic,lastMusic,nextMusic;
@@ -100,7 +106,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 musicSinger.setText(song.getSinger());
                 totalTime.setText(MusicUtils.formatTime(song.getDuration()));
                 seekBar.setMax(song.getDuration());//设置进度条的最大值
-                if (song.isFavorite()) {
+                if (song.getFavorite() == 1) {
                     addFavorite.setVisibility(View.GONE);
                     removeFavorite.setVisibility(View.VISIBLE);
                 }
@@ -167,7 +173,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
 
         viewPager = findViewById(R.id.view_pager);
         backImg = findViewById(R.id.back_image_view);
-        moreImg = findViewById(R.id.more_image_view);
+        shareImg = findViewById(R.id.share_image_view);
         musicName = findViewById(R.id.music_name);
         musicSinger = findViewById(R.id.music_singer);
         currTime = findViewById(R.id.music_curr_time);
@@ -184,7 +190,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         playRandom = findViewById(R.id.play_random);
 
         backImg.setOnClickListener(this);
-        moreImg.setOnClickListener(this);
+        shareImg.setOnClickListener(this);
         playMusic.setOnClickListener(this);
         pauseMusic.setOnClickListener(this);
         lastMusic.setOnClickListener(this);
@@ -286,26 +292,26 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         SharedPreferences.Editor editor = getSharedPreferences("playMode",Context.MODE_PRIVATE).edit();
         Song song = musicService.getMusicList().get(musicService.getMusicIndex());
         List<Song> favoriteList = MusicUtils.getFavoriteList();
-        SharedPreferences.Editor editor1 = getSharedPreferences("favorite",Context.MODE_PRIVATE).edit();
         switch (view.getId()){
             case R.id.back_image_view:
                 finish();
                 break;
-            case R.id.more_image_view:
-                //share();
+            case R.id.share_image_view:
+                share();
                 break;
             case R.id.add_favorite:
                 addFavorite.setVisibility(View.GONE);
                 removeFavorite.setVisibility(View.VISIBLE);
 
-                song.setFavorite(true);
+                song.setFavorite(1);
 
-                editor1.putInt(""+song.getId(),1);
-                editor1.apply();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("favorite",1);
+                LitePal.update(Song.class,contentValues,song.getId());
 
                 favoriteList.add(song);
 
-                intent = new Intent("ACTION_ADD_FAVORITE");
+                intent = new Intent("ACTION_NOTIFY_DATA");
                 sendBroadcast(intent);
 
                 ToastUtils.showToast(this,this.getResources().getString(R.string.add_favorite_success));
@@ -314,19 +320,20 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 removeFavorite.setVisibility(View.GONE);
                 addFavorite.setVisibility(View.VISIBLE);
 
-                song.setFavorite(false);
+                song.setFavorite(0);
 
-                editor1.remove(""+song.getId());
-                editor1.apply();
+                ContentValues contentValues1 = new ContentValues();
+                contentValues1.put("favorite",0);
+                LitePal.update(Song.class,contentValues1,song.getId());
 
                 for (int i = 0; i < favoriteList.size(); i++) {
-                    if (favoriteList.get(i).getId() == song.getId()) {
+                    if (favoriteList.get(i).getSongId().equals(song.getSongId())) {
                         favoriteList.remove(i);
                         break;
                     }
                 }
 
-                intent = new Intent("ACTION_REMOVE_FAVORITE");
+                intent = new Intent("ACTION_NOTIFY_DATA");
                 sendBroadcast(intent);
 
                 ToastUtils.showToast(this,this.getResources().getString(R.string.remove_favorite_success));
@@ -382,16 +389,16 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
     private void share() {
         Intent share_intent = new Intent();
         share_intent.setAction(Intent.ACTION_SEND);//设置分享行为
-        share_intent.setType("audio/*");
-        //share_intent.setType("text/plain");//设置分享内容的类型
+        share_intent.setType("audio/*");//设置分享内容的类型
+        //share_intent.setType("text/plain");
 
         Song song = MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex());
-        Log.d("qianqingming","path:"+song.getPath());
         File file = new File(song.getPath());
-        Uri uri = Uri.fromFile(file);
 
+        Uri uri = FileProvider.getUriForFile(this,"com.tct.musicplayer.fileProvider",file);
         share_intent.putExtra(Intent.EXTRA_STREAM,uri);
 
+        //Log.d(TAG,"uri:"+uri.toString());
         //share_intent.putExtra(Intent.EXTRA_SUBJECT, "share");//添加分享内容标题
         //share_intent.putExtra(Intent.EXTRA_TEXT, "share with you:"+"android");//添加分享内容
         //创建分享的Dialog
@@ -424,7 +431,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                     }
                     Song song = musicService.getMusicList().get(musicService.getMusicIndex());
                     //musicImg.setImageBitmap(song.getAlbumBmp());
-                    musicPlayFragment.setMusicImgBitmap(song.getAlbumBmp());
+                    musicPlayFragment.setMusicImgBitmap(song.getAlbumPath());
                     musicName.setText(song.getName());
                     musicSinger.setText(song.getSinger());
                     totalTime.setText(MusicUtils.formatTime(song.getDuration()));
@@ -440,7 +447,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                         playMusic.setVisibility(View.VISIBLE);
                     }
 
-                    if (song.isFavorite()) {
+                    if (song.getFavorite() == 1) {
                         addFavorite.setVisibility(View.GONE);
                         removeFavorite.setVisibility(View.VISIBLE);
                     }else {
@@ -458,7 +465,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                         //Song song2 = MusicUtils.getMusicList(MusicPlayActivity.this).get(musicService.getMusicIndex());
                         Song song2 = musicService.getMusicList().get(musicService.getMusicIndex());
                         //musicImg.setImageBitmap(song2.getAlbumBmp());
-                        musicPlayFragment.setMusicImgBitmap(song2.getAlbumBmp());
+                        musicPlayFragment.setMusicImgBitmap(song2.getAlbumPath());
                         musicName.setText(song2.getName());
                         musicSinger.setText(song2.getSinger());
                         totalTime.setText(MusicUtils.formatTime(song2.getDuration()));
@@ -474,7 +481,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                         Song song1 = musicService.getMusicList().get(musicService.getMusicIndex());
                         totalTime.setText(MusicUtils.formatTime(song1.getDuration()));
                         //musicImg.setImageBitmap(song1.getAlbumBmp());
-                        musicPlayFragment.setMusicImgBitmap(song1.getAlbumBmp());
+                        musicPlayFragment.setMusicImgBitmap(song1.getAlbumPath());
                         musicName.setText(song1.getName());
                         musicSinger.setText(song1.getSinger());
                         isClosed = false;

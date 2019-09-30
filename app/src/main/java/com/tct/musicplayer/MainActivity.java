@@ -23,17 +23,23 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.tct.musicplayer.adapter.MyFragmentPagerAdapter;
@@ -44,9 +50,14 @@ import com.tct.musicplayer.fragment.FavoriteFragment;
 import com.tct.musicplayer.fragment.SongsFragment;
 import com.tct.musicplayer.receiver.BaseReceiver;
 import com.tct.musicplayer.service.MusicService;
+import com.tct.musicplayer.utils.GlideUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 
+import org.litepal.LitePal;
+import org.litepal.crud.callback.FindMultiCallback;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -54,6 +65,8 @@ import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final String TAG = "qianqingming";
 
     private List<String> tab_title_list;
     private List<Fragment> fragment_list;
@@ -69,8 +82,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView bottomMusicBg;//底部图片
     private TextView bottomDefaultText,bottomMusicName,bottomMusicSinger;//底部默认文字、歌曲名字、歌手
 
-    private RelativeLayout bottomLayout;
-
     public static List<Song> musicList;
 
     private MusicStateReceiver musicStateReceiver;
@@ -83,12 +94,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AlbumFragment albumFragment;
 
 
-    private MusicService.MusicBinder musicBinder;
     public static MusicService musicService;
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            musicBinder = (MusicService.MusicBinder) iBinder;
+            MusicService.MusicBinder musicBinder = (MusicService.MusicBinder) iBinder;
             musicService = musicBinder.getMusicService();
 
             Timer timer = new Timer();
@@ -122,10 +132,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initViews();
 
         //musicList = MusicUtils.getMusicList(this);
-        musicList = MusicUtils.getTenMuscList(this);
+        //musicList = MusicUtils.getTenMuscList(this);
 
-        MyTask myTask = new MyTask();
-        myTask.execute();
+        //MyTask myTask = new MyTask();
+        //myTask.execute();
+
+        boolean first = MusicUtils.isFirst(this);
+        if (first) {
+            //MusicUtils.loadMusicList(this);
+            MyTask myTask = new MyTask();
+            myTask.execute();
+        }else {
+            //musicList = LitePal.findAll(Song.class);
+            //MusicUtils.setMusicList(musicList);
+
+            LitePal.findAllAsync(Song.class).listen(new FindMultiCallback<Song>() {
+                @Override
+                public void onFinish(List<Song> list) {
+                    MusicUtils.setMusicList(list);
+                    musicList = list;
+                    Log.d(TAG,"size:"+list.size());
+                    notifyData();
+                }
+            });
+        }
 
         //绑定TabLayout与ViewPager
         init();
@@ -141,9 +171,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void initViews() {
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.navigation_view);
-
         tabLayout = findViewById(R.id.tabs);
         viewPager = findViewById(R.id.view_pager);
 
@@ -155,12 +182,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pauseMusicImg = findViewById(R.id.pause_music_image_view);
         nextMusicImg = findViewById(R.id.next_music_image_view);
         progressBar = findViewById(R.id.progress_bar_music);
-        bottomLayout = findViewById(R.id.bottom_layout);
 
         bottomMusicBg = findViewById(R.id.music_bg_image_view);
         bottomDefaultText = findViewById(R.id.default_bottom_music_text);
         bottomMusicName = findViewById(R.id.bottom_music_name);
         bottomMusicSinger = findViewById(R.id.bottom_music_singer);
+
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.navigation_view);
 
         settingsImg.setOnClickListener(this);
         searchImg.setOnClickListener(this);
@@ -184,8 +214,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         notificationFilter.addAction(NotificationUtils.ACTION_LAST_MUSIC);
         notificationFilter.addAction(NotificationUtils.ACTION_NEXT_MUSIC);
         notificationFilter.addAction(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
-        notificationFilter.addAction("ACTION_ADD_FAVORITE");
-        notificationFilter.addAction("ACTION_REMOVE_FAVORITE");
+        notificationFilter.addAction("ACTION_NOTIFY_DATA");
         notificationFilter.addAction("ACTION_PLAY_COMPLETED");
         musicStateReceiver = new MusicStateReceiver();
         registerReceiver(musicStateReceiver,notificationFilter);
@@ -227,8 +256,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initTimerDialog() {
-        //TimerDialog dialog = new TimerDialog(MainActivity.this);
-        //dialog.show();
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_timer,null);
         final android.app.AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).setView(view).create();
         //dialog.setCanceledOnTouchOutside(false);
@@ -239,197 +266,74 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             window.setBackgroundDrawable(null);
         }
 
-        final RadioButton radioBtnTimerNo = view.findViewById(R.id.radio_btn_timer_no);
-        final RadioButton radioBtnTimer1 = view.findViewById(R.id.radio_btn_timer_1);
-        final RadioButton radioBtnTimer2 = view.findViewById(R.id.radio_btn_timer_2);
-        final RadioButton radioBtnTimer3 = view.findViewById(R.id.radio_btn_timer_3);
-        final RadioButton radioBtnTimer4 = view.findViewById(R.id.radio_btn_timer_4);
-        final RadioButton radioBtnTimer5 = view.findViewById(R.id.radio_btn_timer_5);
-        final RadioButton radioBtnTimer6 = view.findViewById(R.id.radio_btn_timer_6);
+        final String[] timerList = new String[] {
+                "不开启", "10分钟后", "20分钟后",
+                "30分钟后", "45分钟后", "60分钟后",
+                "自定义"
+        };
+        final ListView listView = view.findViewById(R.id.timer_single_choice);
+        listView.setAdapter(new ArrayAdapter<String>(this,R.layout.item_single_choice,timerList));
+        listView.setItemsCanFocus(false);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
 
-        TextView textViewTimerNo = view.findViewById(R.id.timer_no);
-        TextView textViewTimer1 = view.findViewById(R.id.timer_1);
-        TextView textViewTimer2 = view.findViewById(R.id.timer_2);
-        TextView textViewTimer3 = view.findViewById(R.id.timer_3);
-        TextView textViewTimer4 = view.findViewById(R.id.timer_4);
-        TextView textViewTimer5 = view.findViewById(R.id.timer_5);
-        TextView textViewTimerCustomer = view.findViewById(R.id.timer_customer);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(MainActivity.this,"pos:"+i,Toast.LENGTH_SHORT).show();
+                //如果选择自定义
+                if (i == timerList.length - 1) {
+                    View customer = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_timer_customer,null);
+                    final android.app.AlertDialog customerDialog = new AlertDialog.Builder(MainActivity.this).setView(customer).create();
+                    customerDialog.setCanceledOnTouchOutside(false);
+                    customerDialog.show();
+                    Window window = customerDialog.getWindow();
+                    if (window != null){
+                        window.setGravity(Gravity.BOTTOM);
+                        window.setBackgroundDrawable(null);
+                    }
+                    //获取数字选择器
+                    final NumberPicker hourPicker = customer.findViewById(R.id.customer_hour);
+                    final NumberPicker minPicker = customer.findViewById(R.id.customer_min);
+                    //设置不可编辑
+                    hourPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                    minPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                    //设置最大值
+                    hourPicker.setMaxValue(12);
+                    minPicker.setMaxValue(59);
 
-        radioBtnTimerNo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(true);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
+                    customer.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            customerDialog.dismiss();
+                        }
+                    });
+                    customer.findViewById(R.id.sure).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Log.d("qianqingming","hour:"+hourPicker.getValue());
+                            Log.d("qianqingming","min:"+minPicker.getValue());
+                        }
+                    });
+                }
             }
         });
+        //获取switch
+        final Switch switchUntilEnd = view.findViewById(R.id.switch_until_play_end);
 
-        radioBtnTimer1.setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(true);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
+                dialog.dismiss();
             }
         });
+        view.findViewById(R.id.sure).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toast.makeText(MainActivity.this,"pos:"+listView.getCheckedItemPosition(),Toast.LENGTH_SHORT).show();
+                if (switchUntilEnd.isChecked()) {
 
-        radioBtnTimer2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(true);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-
-        radioBtnTimer3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(true);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-
-        radioBtnTimer4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(true);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-
-        radioBtnTimer5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(true);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-
-        radioBtnTimer6.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(true);
-            }
-        });
-
-        //--------------------------------------------------------------------
-        textViewTimerNo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(true);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-        textViewTimer1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(true);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-        textViewTimer2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(true);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-        textViewTimer3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(true);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-        textViewTimer4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(true);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-        textViewTimer5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(true);
-                radioBtnTimer6.setChecked(false);
-            }
-        });
-        textViewTimerCustomer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                radioBtnTimerNo.setChecked(false);
-                radioBtnTimer1.setChecked(false);
-                radioBtnTimer2.setChecked(false);
-                radioBtnTimer3.setChecked(false);
-                radioBtnTimer4.setChecked(false);
-                radioBtnTimer5.setChecked(false);
-                radioBtnTimer6.setChecked(true);
+                }
             }
         });
     }
@@ -564,6 +468,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         changeMusicImageAndText();
         songsFragment.setSelectedPos(musicService.getMusicIndex());
         songsFragment.scrollToPosition(musicService.getMusicIndex());
+        favoriteFragment.notifyDataSetChanged();
         objectAnimator.start();
         hasPlayedMusic = true;
     }
@@ -573,6 +478,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         changeMusicImageAndText();
         songsFragment.setSelectedPos(musicService.getMusicIndex());
         songsFragment.scrollToPosition(musicService.getMusicIndex());
+        favoriteFragment.notifyDataSetChanged();
         objectAnimator.start();
         hasPlayedMusic = true;
     }
@@ -600,6 +506,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         musicService.playSelectedMusic(index);
         changeMusicImageAndText();
         objectAnimator.start();
+        favoriteFragment.notifyDataSetChanged();
+        songsFragment.scrollToPosition(index);
         hasPlayedMusic = true;
     }
 
@@ -613,7 +521,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void changeMusicImageAndText() {
         Song song = musicList.get(musicService.getMusicIndex());
-        bottomMusicBg.setImageBitmap(song.getAlbumBmp());
+        //bottomMusicBg.setImageBitmap(song.getAlbumBmp());
+        GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
         bottomDefaultText.setVisibility(View.GONE);
         bottomMusicName.setVisibility(View.VISIBLE);
         bottomMusicSinger.setVisibility(View.VISIBLE);
@@ -688,10 +597,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int index = intent.getIntExtra("position",0);
                     playSelectedMusic(index);
                     break;
-                case "ACTION_ADD_FAVORITE":
-                case "ACTION_REMOVE_FAVORITE":
-                    favoriteFragment.notifyData();
-                    songsFragment.notifyData();
+                case "ACTION_NOTIFY_DATA":
+                    notifyData();
                     break;
                 case "ACTION_PLAY_COMPLETED":
                     playCompleted();
@@ -700,29 +607,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void notifyData() {
+        if (songsFragment != null){
+            songsFragment.notifyData();
+        }
+        if (artistFragment != null) {
+            artistFragment.notifyData();
+        }
+        if (albumFragment != null) {
+            albumFragment.notifyData();
+        }
+        if (favoriteFragment != null) {
+            favoriteFragment.notifyData();
+        }
+    }
+
     class MyTask extends AsyncTask<Void,Void,Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            musicList = MusicUtils.getMusicList(MainActivity.this);
+            //musicList = MusicUtils.getMusicList(MainActivity.this);
+            musicList = MusicUtils.loadMusicList(MainActivity.this);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            if (songsFragment != null){
-                songsFragment.notifyData();
-            }
-            if (artistFragment != null) {
-                artistFragment.notifyData();
-            }
-            if (albumFragment != null) {
-                albumFragment.notifyData();
-            }
-            if (favoriteFragment != null) {
-                favoriteFragment.notifyData();
-            }
+            notifyData();
         }
     }
 }

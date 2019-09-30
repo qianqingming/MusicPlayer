@@ -7,15 +7,18 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
+import com.bumptech.glide.Glide;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.entity.Song;
 
+import java.io.File;
 import java.util.List;
 
 public class NotificationUtils {
@@ -85,7 +88,17 @@ public class NotificationUtils {
 
     public static void updateRemoteViews(List<Song> musicList,int musicIndex,boolean isPlaying) {
         Song song = musicList.get(musicIndex);
-        remoteViews.setImageViewBitmap(R.id.notification_music_img,song.getAlbumBmp());
+        if (song.getAlbumPath() != null) {
+            File file = new File(song.getAlbumPath());
+            if (file.exists()) {
+                remoteViews.setImageViewBitmap(R.id.notification_music_img, BitmapFactory.decodeFile(song.getAlbumPath()));
+            }else{
+                remoteViews.setImageViewResource(R.id.notification_music_img, R.drawable.ic_default_music);
+            }
+        }else {
+            remoteViews.setImageViewResource(R.id.notification_music_img, R.drawable.ic_default_music);
+        }
+        //remoteViews.setImageViewBitmap(R.id.notification_music_img,song.getAlbumBmp());
         remoteViews.setTextViewText(R.id.notification_music_name,song.getName());
         remoteViews.setTextViewText(R.id.notification_music_singer,song.getSinger());
         if (isPlaying) {

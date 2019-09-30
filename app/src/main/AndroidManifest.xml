@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
+        android:name="org.litepal.LitePalApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_default_music"
         android:label="@string/app_name"
@@ -29,8 +30,7 @@
                 <action android:name="ACTION_LAST_MUSIC" />
                 <action android:name="ACTION_NEXT_MUSIC" />
                 <action android:name="ACTION_PLAY_SELECTED_MUSIC" />
-                <action android:name="ACTION_ADD_FAVORITE" />
-                <action android:name="ACTION_REMOVE_FAVORITE" />
+                <action android:name="ACTION_NOTIFY_DATA" />
                 <action android:name="ACTION_PLAY_COMPLETED" />
             </intent-filter>
         </receiver>
@@ -50,6 +50,15 @@
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.tct.musicplayer.fileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

@@ -15,6 +15,7 @@ import com.tct.musicplayer.adapter.SongsAdapter;
 import com.tct.musicplayer.entity.Album;
 import com.tct.musicplayer.entity.Song;
 import com.tct.musicplayer.service.MusicService;
+import com.tct.musicplayer.utils.GlideUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 
@@ -78,7 +79,8 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
         Album album = MusicUtils.getSortedAlbumList().get(position);
 
         title.setText(album.getSinger());
-        albumBmp.setImageBitmap(album.getSongList().get(0).getAlbumBmp());
+        //albumBmp.setImageBitmap(album.getSongList().get(0).getAlbumBmp());
+        GlideUtils.setImg(this,album.getSongList().get(0).getAlbumPath(),albumBmp);
 
         musicListRecyclerView.setLayoutManager(new LinearLayoutManager(AlbumActivity.this));
         musicListRecyclerView.setAdapter(new SongsAdapter(AlbumActivity.this,album.getSongList()));
@@ -87,7 +89,8 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
 
     private void changeMusicImageAndText() {
         Song song = musicList.get(musicService.getMusicIndex());
-        bottomMusicBg.setImageBitmap(song.getAlbumBmp());
+        //bottomMusicBg.setImageBitmap(song.getAlbumBmp());
+        GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
         bottomDefaultText.setVisibility(View.GONE);
         bottomMusicName.setVisibility(View.VISIBLE);
         bottomMusicSinger.setVisibility(View.VISIBLE);

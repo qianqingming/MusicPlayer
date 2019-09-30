@@ -35,7 +35,7 @@ public class MusicService extends Service {
     public void onCreate() {
         super.onCreate();
         mediaPlayer = new MediaPlayer();
-        musicList = MusicUtils.getMusicList(this);
+        musicList = MusicUtils.getMusicList();
 //        musicIndex = 0;
 //        try {
 //            mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());

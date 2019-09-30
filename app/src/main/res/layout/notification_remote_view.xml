@@ -24,17 +24,24 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:text="@string/bottom_music_default_text"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/notification_close"
+                android:layout_marginEnd="10dp"
                 android:textSize="16sp"/>
             <TextView
                 android:id="@+id/notification_music_singer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="10dp"
+                android:singleLine="true"
+                android:layout_toStartOf="@id/notification_close"
                 android:layout_below="@id/notification_music_name"/>
             <ImageView
                 android:id="@+id/notification_close"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:src="@drawable/ic_close_notification"/>
         </RelativeLayout>
         <LinearLayout

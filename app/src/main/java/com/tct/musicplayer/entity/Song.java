@@ -1,22 +1,33 @@
 package com.tct.musicplayer.entity;
 
-import android.graphics.Bitmap;
 
-import java.io.Serializable;
+import org.litepal.annotation.Column;
+import org.litepal.crud.LitePalSupport;
 
-public class Song implements Serializable {
+
+public class Song extends LitePalSupport {
+
+    private long id;
+
     private String name;//歌曲名
     private String singer;//歌手
     private long size;//歌曲所占空间大小
     private int duration;//歌曲时间长度
     private String path;//歌曲地址
     private long  albumId;//图片id
-    private long id;//歌曲id
+    @Column(unique = true)
+    private String songId;//歌曲id
     private String albumName;//专辑名称
+    private String albumPath;//专辑图片路径
+    private int favorite;//是否被收藏  0:未收藏，1：收藏
 
-    private boolean favorite = false;
+    public long getId() {
+        return id;
+    }
 
-    private Bitmap albumBmp;//专辑图片
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -66,20 +77,12 @@ public class Song implements Serializable {
         this.albumId = albumId;
     }
 
-    public long getId() {
-        return id;
+    public String getSongId() {
+        return songId;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Bitmap getAlbumBmp() {
-        return albumBmp;
-    }
-
-    public void setAlbumBmp(Bitmap albumBmp) {
-        this.albumBmp = albumBmp;
+    public void setSongId(String songId) {
+        this.songId = songId;
     }
 
     public String getAlbumName() {
@@ -90,25 +93,19 @@ public class Song implements Serializable {
         this.albumName = albumName;
     }
 
-    public boolean isFavorite() {
+    public int getFavorite() {
         return favorite;
     }
 
-    public void setFavorite(boolean favorite) {
+    public void setFavorite(int favorite) {
         this.favorite = favorite;
     }
 
-    @Override
-    public String toString() {
-        return "Song{" +
-                "name='" + name + '\'' +
-                ", singer='" + singer + '\'' +
-                ", size=" + size +
-                ", duration=" + duration +
-                ", path='" + path + '\'' +
-                ", albumId=" + albumId +
-                ", id=" + id +
-                ", albumName='" + albumName + '\'' +
-                '}';
+    public String getAlbumPath() {
+        return albumPath;
+    }
+
+    public void setAlbumPath(String albumPath) {
+        this.albumPath = albumPath;
     }
 }

@@ -16,7 +16,7 @@
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_back"/>
 
-    <TextView
+    <com.tct.musicplayer.views.MarqueeTextView
         android:id="@+id/title_text_view"
         android:layout_width="200dp"
         android:layout_height="wrap_content"

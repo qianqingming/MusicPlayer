@@ -7,11 +7,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.entity.Album;
 import com.tct.musicplayer.entity.Artist;
 import com.tct.musicplayer.entity.Song;
+
+import org.litepal.LitePal;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,9 +54,11 @@ public class MusicUtils {
     private static List<Album> albumList;
 
 
-
-    public static List<Song> getTenMuscList(Context context) {
-        List<Song> list = new ArrayList<>();
+    /**
+     * 加载歌曲列表
+     */
+    public static List<Song> loadMusicList(Context context) {
+        list = new ArrayList<>();
         Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null,
                 null, MediaStore.Audio.AudioColumns.IS_MUSIC);
         if (cursor != null) {
@@ -65,11 +70,7 @@ public class MusicUtils {
             long albumId;
             long id;
             String albumName;
-            int count = 0;
             while (cursor.moveToNext()) {
-                if (count == 8) {
-                    break;
-                }
                 Song song = new Song();
                 name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME));
                 id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
@@ -86,7 +87,7 @@ public class MusicUtils {
                 song.setPath(path);
                 song.setDuration(duration);
                 song.setSize(size);
-                song.setId(id);
+                song.setSongId(""+id);
                 song.setAlbumId(albumId);
                 song.setAlbumName(albumName);
                 //去掉歌曲名字后缀.mp3
@@ -96,13 +97,9 @@ public class MusicUtils {
                     song.setName(name);
                 }
                 //设置专辑图片
-                song.setAlbumBmp(getAlbumArtBmp(context,albumId));
-                //是否被收藏
-                SharedPreferences preferences = context.getSharedPreferences("favorite", Context.MODE_PRIVATE);
-                int favorite = preferences.getInt("" + id, -1);
-                if (favorite != -1) {
-                    song.setFavorite(true);
-                }
+                //song.setAlbumBmp(getAlbumArtBmp(context,albumId));
+                //设置专辑路径
+                song.setAlbumPath(getAlbumArtPath(context,albumId));
                 if (size > 1000 * 800) {
                     if (name.contains("-")) {
                         //把歌曲名字和歌手切割开
@@ -111,7 +108,7 @@ public class MusicUtils {
                         song.setName(str[1].trim());
                     }
                     list.add(song);
-                    count++;
+                    song.save();
                 }
             }
             cursor.close();
@@ -119,80 +116,20 @@ public class MusicUtils {
         return list;
     }
 
-
     /**
      * 获取歌曲列表
-     * @param context
-     * @return
      */
-    public static List<Song> getMusicList(Context context) {
-        if (list == null) {
-            list = new ArrayList<>();
-            Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null,
-                    null, MediaStore.Audio.AudioColumns.IS_MUSIC);
-            if (cursor != null) {
-                String name;
-                String singer;
-                String path;
-                int duration;
-                long size;
-                long albumId;
-                long id;
-                String albumName;
-                while (cursor.moveToNext()) {
-                    Song song = new Song();
-                    name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME));
-                    id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                    singer = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                    path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                    duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
-                    size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE));
-                    albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                    albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));//专辑名称
-                    //String year = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));//歌曲的发行时间
-                    //Log.d("qianqingming","year--"+year);
-                    song.setName(name);
-                    song.setSinger(singer);
-                    song.setPath(path);
-                    song.setDuration(duration);
-                    song.setSize(size);
-                    song.setId(id);
-                    song.setAlbumId(albumId);
-                    song.setAlbumName(albumName);
-                    //去掉歌曲名字后缀.mp3
-                    if (name.contains(".")) {
-                        int lastIndex = name.lastIndexOf(".");
-                        name = name.substring(0,lastIndex);
-                        song.setName(name);
-                    }
-                    //设置专辑图片
-                    song.setAlbumBmp(getAlbumArtBmp(context,albumId));
-                    //是否被收藏
-                    SharedPreferences preferences = context.getSharedPreferences("favorite", Context.MODE_PRIVATE);
-                    int favorite = preferences.getInt("" + id, -1);
-                    if (favorite != -1) {
-                        song.setFavorite(true);
-                    }
-                    if (size > 1000 * 800) {
-                        if (name.contains("-")) {
-                            //把歌曲名字和歌手切割开
-                            String[] str = name.split("-");
-                            //song.setSinger(str[0].trim());
-                            song.setName(str[1].trim());
-                        }
-                        list.add(song);
-                    }
-                }
-                cursor.close();
-            }
-        }
+    public static List<Song> getMusicList() {
         return list;
     }
 
+    public static void setMusicList(List<Song> songList) {
+        list = songList;
+    }
+
+
     /**
      * 转换歌曲时间的格式
-     * @param time
-     * @return
      */
     public static String formatTime(int time) {
         String formatTime;
@@ -238,12 +175,8 @@ public class MusicUtils {
 
     /**
      * 获取专辑封面
-     * @param context
-     * @param album_id
-     * @return
      */
-    private static Bitmap getAlbumArtBmp(Context context, long album_id) {
-        String album_art = getAlbumArtPath(context,album_id);
+    private static Bitmap getAlbumArtBmp(Context context, String album_art) {
         Bitmap bm;
         if (album_art != null) {
             //还需要判断该路径下的文件是否存在
@@ -446,7 +379,7 @@ public class MusicUtils {
         if (favoriteList == null) {
             favoriteList = new ArrayList<>();
             for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).isFavorite()) {
+                if (list.get(i).getFavorite() == 1) {
                     favoriteList.add(list.get(i));
                 }
             }
@@ -466,5 +399,22 @@ public class MusicUtils {
 
     public static void setPlayMode(int mode) {
         playMode = mode;
+    }
+
+    /**
+     * 是否第一次加载数据
+     * @param context
+     * @return
+     */
+    public static boolean isFirst(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("first", Context.MODE_PRIVATE);
+        int first = preferences.getInt("isfirst",0);
+        if (first == 0) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("isfirst",1);
+            editor.apply();
+            return true;
+        }
+        return false;
     }
 }

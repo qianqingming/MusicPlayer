@@ -2,9 +2,11 @@ package com.tct.musicplayer.adapter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -21,17 +23,25 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.entity.Song;
+import com.tct.musicplayer.utils.GlideUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.NotificationUtils;
 import com.tct.musicplayer.utils.ToastUtils;
 
+import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
+
+import java.io.File;
 import java.util.List;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
+
+    private static final String TAG = "qianqingming";
 
     private List<Song> list;
     private Context context;
@@ -90,6 +100,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 Intent intent = new Intent(NotificationUtils.ACTION_PLAY_SELECTED_MUSIC);
                 intent.putExtra("position",holder.getAdapterPosition());
                 context.sendBroadcast(intent);
+                notifyDataSetChanged();
             }
         });
 
@@ -97,7 +108,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             @Override
             public boolean onLongClick(View view) {
                 //显示弹窗
-                if (list.get(holder.getAdapterPosition()).isFavorite()) {
+                if (list.get(holder.getAdapterPosition()).getFavorite() == 1) {
                     removeFavoritePopupWindow.showAtLocation(view, Gravity.BOTTOM,0,0);
                 }else {
                     addFavoritePopupWindow.showAtLocation(view, Gravity.BOTTOM,0,0);
@@ -122,15 +133,31 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             holder.songSinger.setText(song.getSinger());
             holder.songTime.setText(MusicUtils.formatTime(song.getDuration()));
             //holder.songImg.setImageDrawable(new BitmapDrawable(context.getResources(),song.getAlbumBmp()));
-            holder.songImg.setImageBitmap(song.getAlbumBmp());
+            //holder.songImg.setImageBitmap(song.getAlbumBmp());
+            GlideUtils.setImg(context,song.getAlbumPath(),holder.songImg);
 
-            if (song.isFavorite()){
+            if (song.getFavorite() == 1){
                 holder.favorite.setVisibility(View.VISIBLE);
             }else {
                 holder.favorite.setVisibility(View.GONE);
             }
 
-            if (!isFirst) {
+            if (MainActivity.musicService != null && MainActivity.musicService.getMusicList() != null) {
+                if (MainActivity.musicService.getMusicIndex() >= 0) {
+                    if (song.getId() == MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex()).getId()){
+                        holder.songName.setTextColor(context.getColor(R.color.colorSelected));
+                        holder.songSinger.setTextColor(context.getColor(R.color.colorSelected));
+                        holder.songTime.setTextColor(context.getColor(R.color.colorSelected));
+                    }else {
+                        holder.songName.setTextColor(context.getColor(R.color.black));
+                        holder.songSinger.setTextColor(context.getColor(R.color.gray_default));
+                        holder.songTime.setTextColor(context.getColor(R.color.gray_default));
+                    }
+                }
+            }
+
+
+            /*if (!isFirst) {
                 if (position == selectedPos) {
                     //holder.musicLayout.setBackgroundColor(context.getColor(R.color.colorSelected));
                     holder.songName.setTextColor(context.getColor(R.color.colorSelected));
@@ -142,7 +169,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                     holder.songSinger.setTextColor(context.getColor(R.color.gray_default));
                     holder.songTime.setTextColor(context.getColor(R.color.gray_default));
                 }
-            }
+            }*/
         }
     }
 
@@ -153,7 +180,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
 
     public void setSelectedPos(int pos){
-        if (isFirst) {
+        /*if (isFirst) {
             selectedPos = pos;
             notifyItemChanged(selectedPos);
             lastSelectedPos = selectedPos;
@@ -163,7 +190,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             selectedPos = pos;
             notifyItemChanged(selectedPos);
             lastSelectedPos = selectedPos;
-        }
+        }*/
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -217,18 +244,18 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             @Override
             public void onClick(View view) {
                 Song song = list.get(longClickPos);
-                song.setFavorite(true);
+                song.setFavorite(1);
                 //notifyItemChanged(longClickPos);
                 addFavoritePopupWindow.dismiss();
 
-                SharedPreferences.Editor editor = context.getSharedPreferences("favorite",Context.MODE_PRIVATE).edit();
-                editor.putInt(""+song.getId(),1);
-                editor.apply();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("favorite",1);
+                LitePal.update(Song.class,contentValues,song.getId());
 
                 List<Song> favoriteList = MusicUtils.getFavoriteList();
                 favoriteList.add(song);
 
-                Intent intent = new Intent("ACTION_ADD_FAVORITE");
+                Intent intent = new Intent("ACTION_NOTIFY_DATA");
                 context.sendBroadcast(intent);
 
                 ToastUtils.showToast(context,context.getResources().getString(R.string.add_favorite_success));
@@ -275,23 +302,23 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             @Override
             public void onClick(View view) {
                 Song song = list.get(longClickPos);
-                song.setFavorite(false);
+                song.setFavorite(0);
                 //notifyItemChanged(longClickPos);
                 removeFavoritePopupWindow.dismiss();
 
-                SharedPreferences.Editor editor = context.getSharedPreferences("favorite",Context.MODE_PRIVATE).edit();
-                editor.remove(""+song.getId());
-                editor.apply();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("favorite",0);
+                LitePal.update(Song.class,contentValues,song.getId());
 
                 List<Song> favoriteList = MusicUtils.getFavoriteList();
                 for (int i = 0; i < favoriteList.size(); i++) {
-                    if (favoriteList.get(i).getId() == song.getId()) {
+                    if (favoriteList.get(i).getSongId().equals(song.getSongId())) {
                         favoriteList.remove(i);
                         break;
                     }
                 }
 
-                Intent intent = new Intent("ACTION_REMOVE_FAVORITE");
+                Intent intent = new Intent("ACTION_NOTIFY_DATA");
                 context.sendBroadcast(intent);
 
                 ToastUtils.showToast(context,context.getResources().getString(R.string.remove_favorite_success));
@@ -328,11 +355,14 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         view.findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Song song = list.get(longClickPos);
                 if (checkBox.isChecked()) {
 
                 }else {
-
+                    //LitePal.delete(Song.class,song.getId());
                 }
+                Intent intent = new Intent("ACTION_NOTIFY_DATA");
+                context.sendBroadcast(intent);
                 dialog.dismiss();
                 ToastUtils.showToast(context,context.getResources().getString(R.string.delete_success));
             }

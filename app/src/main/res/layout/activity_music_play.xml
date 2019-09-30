@@ -44,12 +44,12 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/more_image_view"
+            android:id="@+id/share_image_view"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_more_white"/>
+            android:src="@drawable/ic_share"/>
     </RelativeLayout>
 
     <androidx.viewpager.widget.ViewPager

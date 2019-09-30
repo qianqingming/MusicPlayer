@@ -21,7 +21,10 @@ import android.widget.TextView;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.adapter.SongsAdapter;
+import com.tct.musicplayer.entity.Song;
 import com.tct.musicplayer.utils.MusicUtils;
+
+import java.util.List;
 
 
 /**
@@ -29,11 +32,15 @@ import com.tct.musicplayer.utils.MusicUtils;
  */
 public class SongsFragment extends Fragment {
 
+    private ImageView loadImg;
+    private TextView loadText;
     private SongsAdapter songsAdapter;
     private RecyclerView recyclerView;
     private TextView textView;
 
     private boolean isFirst = true;
+
+    private List<Song> list;
 
     public SongsFragment() {
         // Required empty public constructor
@@ -43,9 +50,11 @@ public class SongsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_songs, container, false);
+        loadImg = view.findViewById(R.id.loading_img);
+        loadText = view.findViewById(R.id.loading_text);
         recyclerView = view.findViewById(R.id.recycler_view_songs);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        songsAdapter = new SongsAdapter(getActivity(), MusicUtils.getMusicList(getActivity()));
+        songsAdapter = new SongsAdapter(getActivity(), MusicUtils.getMusicList());
         recyclerView.setAdapter(songsAdapter);
 //        Log.d("qianqingming","onCreateView");
 //        isFirst = true;
@@ -73,12 +82,28 @@ public class SongsFragment extends Fragment {
     public void scrollToPosition(int position) {
         if (recyclerView != null) {
             recyclerView.scrollToPosition(position);
+            songsAdapter.notifyDataSetChanged();
         }
     }
 
     public void notifyData() {
         if (songsAdapter != null) {
-            songsAdapter.notifyDataSetChanged();
+            //songsAdapter.notifyDataSetChanged();
+            list = MusicUtils.getMusicList();
+            if (list != null) {
+                if (list.size() > 0) {
+                    loadImg.setVisibility(View.GONE);
+                    loadText.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                    songsAdapter.setList(list);
+                    songsAdapter.notifyDataSetChanged();
+                }else {
+                    loadImg.setVisibility(View.VISIBLE);
+                    loadText.setVisibility(View.VISIBLE);
+                    loadText.setText(getResources().getText(R.string.no_songs));
+                    recyclerView.setVisibility(View.GONE);
+                }
+            }
         }
     }
 
