@@ -376,14 +376,14 @@ public class MusicUtils {
      * @return
      */
     public static List<Song> getFavoriteList() {
-        if (favoriteList == null) {
+        //if (favoriteList == null) {
             favoriteList = new ArrayList<>();
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getFavorite() == 1) {
                     favoriteList.add(list.get(i));
                 }
             }
-        }
+        //}
         return favoriteList;
     }
 
@@ -416,5 +416,22 @@ public class MusicUtils {
             return true;
         }
         return false;
+    }
+
+    public static List<String> getMusicDirList() {
+        if (list != null) {
+            List<String> dirList = new ArrayList<>();
+            for (int i = 0; i < list.size(); i++) {
+                //  /storage/emulated/0/netease/cloudmusic/Music/张杰 张碧晨 - 只要平凡.mp3
+                String path = list.get(i).getPath();
+                // /storage/emulated/0/netease/cloudmusic/Music
+                path =  path.substring(0,path.lastIndexOf("/"));
+                if (!dirList.contains(path)) {
+                    dirList.add(path);
+                }
+            }
+            return dirList;
+        }
+        return null;
     }
 }

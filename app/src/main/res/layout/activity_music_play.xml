@@ -3,7 +3,7 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#90000000"
+    android:background="@color/gray_bg"
     android:paddingBottom="10dp"
     android:fitsSystemWindows="true">
 

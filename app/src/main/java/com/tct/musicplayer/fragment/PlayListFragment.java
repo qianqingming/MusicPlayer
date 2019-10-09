@@ -54,4 +54,10 @@ public class PlayListFragment extends Fragment {
         }
     }
 
+    public void scrollToPosition(int position) {
+        if (recyclerView != null) {
+            recyclerView.scrollToPosition(position);
+            adapter.notifyDataSetChanged();
+        }
+    }
 }

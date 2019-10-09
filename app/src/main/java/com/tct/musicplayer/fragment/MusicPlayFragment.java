@@ -36,6 +36,8 @@ public class MusicPlayFragment extends Fragment {
     private RotateAnimation playAnimation,pauseAnimation;
     private ObjectAnimator objectAnimator;
 
+    private boolean needlePlay = false;
+
     public MusicPlayFragment() {
     }
 
@@ -71,7 +73,7 @@ public class MusicPlayFragment extends Fragment {
 
         objectAnimator = ObjectAnimator.ofFloat(musicImg,"rotation",0f,360f);
         objectAnimator.setInterpolator(new LinearInterpolator());
-        objectAnimator.setDuration(60000);//1min
+        objectAnimator.setDuration(30000);
         objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
         objectAnimator.setRepeatMode(ValueAnimator.RESTART);
         objectAnimator.start();
@@ -117,9 +119,15 @@ public class MusicPlayFragment extends Fragment {
 
     public void startNeedleImgPlayAnim() {
         needleImg.startAnimation(playAnimation);
+        needlePlay = true;
     }
 
     public void startNeedleImgPauseAnim() {
         needleImg.startAnimation(pauseAnimation);
+        needlePlay = false;
+    }
+
+    public boolean isNeedlePlay() {
+        return needlePlay;
     }
 }

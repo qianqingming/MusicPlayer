@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,7 +18,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -30,6 +35,7 @@ import com.tct.musicplayer.fragment.PlayListFragment;
 import com.tct.musicplayer.service.MusicService;
 import com.tct.musicplayer.utils.BroadcastUtils;
 import com.tct.musicplayer.utils.MusicUtils;
+import com.tct.musicplayer.utils.ShareUtils;
 import com.tct.musicplayer.utils.ToastUtils;
 
 import org.litepal.LitePal;
@@ -76,10 +82,10 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         musicService = MainActivity.musicService;
 
         //通知栏透明
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        }
+        }*/
 
         initViews();
 
@@ -357,7 +363,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
 
                 favoriteList.add(song);
 
-                intent = new Intent("ACTION_NOTIFY_DATA");
+                intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
                 sendBroadcast(intent);
 
                 ToastUtils.showToast(this,this.getResources().getString(R.string.add_favorite_success));
@@ -381,7 +387,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
 
-                intent = new Intent("ACTION_NOTIFY_DATA");
+                intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
                 sendBroadcast(intent);
 
                 ToastUtils.showToast(this,this.getResources().getString(R.string.remove_favorite_success));
@@ -419,23 +425,53 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void share() {
-        Intent share_intent = new Intent();
-        share_intent.setAction(Intent.ACTION_SEND);//设置分享行为
-        share_intent.setType("audio/*");//设置分享内容的类型
-        //share_intent.setType("text/plain");
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_share,null);
+        final android.app.AlertDialog dialog = new AlertDialog.Builder(this).setView(view).create();
+        //dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null){
+            window.setGravity(Gravity.BOTTOM);
+            window.setBackgroundDrawable(null);
 
-        Song song = MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex());
-        File file = new File(song.getPath());
+            WindowManager windowManager = getWindowManager();
+            Display display = windowManager.getDefaultDisplay();
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.width = display.getWidth(); //设置宽度
+            window.setAttributes(lp);
+        }
 
-        Uri uri = FileProvider.getUriForFile(this,"com.tct.musicplayer.fileProvider",file);
-        share_intent.putExtra(Intent.EXTRA_STREAM,uri);
+        view.findViewById(R.id.weixin).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-        //Log.d(TAG,"uri:"+uri.toString());
-        //share_intent.putExtra(Intent.EXTRA_SUBJECT, "share");//添加分享内容标题
-        //share_intent.putExtra(Intent.EXTRA_TEXT, "share with you:"+"android");//添加分享内容
-        //创建分享的Dialog
-        share_intent = Intent.createChooser(share_intent, "分享到");
-        startActivity(share_intent);
+            }
+        });
+        view.findViewById(R.id.weixin_pengyouquan).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        view.findViewById(R.id.qq).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        view.findViewById(R.id.qq_zone).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        view.findViewById(R.id.more).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                ShareUtils.sharedBySys(MusicPlayActivity.this);
+            }
+        });
     }
 
 
@@ -456,6 +492,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 removeFavorite.setVisibility(View.VISIBLE);
             }
 
+            playListFragment.scrollToPosition(MainActivity.musicService.getMusicIndex());
             playListFragment.notifyData();
         }
     }
@@ -492,6 +529,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         musicPlayFragment.startNeedleImgPlayAnim();
         musicPlayFragment.startObjectAnimator();
 
+        playListFragment.scrollToPosition(MainActivity.musicService.getMusicIndex());
         playListFragment.notifyData();
     }
 
@@ -511,6 +549,7 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         seekBar.setMax(song.getDuration());
         musicPlayFragment.startObjectAnimator();
 
+        playListFragment.scrollToPosition(MainActivity.musicService.getMusicIndex());
         playListFragment.notifyData();
     }
 
@@ -536,6 +575,8 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         totalTime.setText(MusicUtils.formatTime(song.getDuration()));
         seekBar.setMax(song.getDuration());
         musicPlayFragment.startObjectAnimator();
+        musicPlayFragment.startNeedleImgPlayAnim();
+        playListFragment.scrollToPosition(index);
     }
 
     private void stopMusic() {

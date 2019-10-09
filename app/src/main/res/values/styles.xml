@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -8,20 +8,33 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="CustomDialog" parent="android:style/Theme.Dialog">
-        <!--背景颜色及和透明程度-->
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <!--是否去除标题 -->
-        <item name="android:windowNoTitle">true</item>
-        <!--是否去除边框-->
-        <item name="android:windowFrame">@null</item>
-        <!--是否浮现在activity之上-->
-        <item name="android:windowIsFloating">true</item>
-        <!--是否背景模糊-->
-        <item name="android:backgroundDimEnabled">true</item>
-        <!-- 是否半透明 -->
-        <item name="android:windowIsTranslucent">false</item>
-        <!-- 设置背景模糊的透明度-->
-        <!--<item name="android:backgroundDimAmount">0.5</item>-->
+    <style name="WhiteTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/white</item>
+    </style>
+
+    <style name="GrayTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/gray_bg</item>
+    </style>
+
+    <style name="MyCheckBox" parent="@android:style/Widget.Material.CompoundButton.CheckBox">
+        <item name="android:colorControlActivated">@color/blue</item>
+        <item name="android:colorControlNormal">@color/gray_default</item>
+    </style>
+    <style name="MySwitch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="android:colorControlActivated">@color/blue</item>
+        <item name="android:colorControlNormal">@color/gray_default</item>
+    </style>
+
+    <style name="ImageStyle">
+        <item name="android:layout_width">@dimen/bottomImgWidth</item>
+        <item name="android:layout_height">@dimen/bottomImgWidth</item>
     </style>
 </resources>

@@ -4,7 +4,7 @@
     <group android:id="@+id/group1">
         <item
             android:id="@+id/scan_music"
-            android:title="扫描"
+            android:title="扫描本地音乐"
             android:icon="@drawable/ic_scan"/>
     </group>
 
@@ -17,20 +17,8 @@
 
     <group android:id="@+id/group3">
         <item
-            android:id="@+id/change_background"
-            android:title="换肤"
-            android:icon="@drawable/ic_change_skin"/>
-    </group>
-
-    <group android:id="@+id/group4">
-        <item
             android:id="@+id/exit"
             android:title="退出"
             android:icon="@drawable/ic_exit"/>
-    </group>
-
-    <group android:id="@+id/group5">
-        <item
-            android:title=""/>
     </group>
 </menu>

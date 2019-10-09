@@ -8,6 +8,7 @@ public class BroadcastUtils {
     public static final String ACTION_NEXT_MUSIC = "ACTION_NEXT_MUSIC";
     public static final String ACTION_PLAY_SELECTED_MUSIC = "ACTION_PLAY_SELECTED_MUSIC";
     public static final String ACTION_PLAY_COMPLETED = "ACTION_PLAY_COMPLETED";
+    public static final String ACTION_NOTIFY_DATA = "ACTION_NOTIFY_DATA";
 
     public static final int Priority_1 = 1000;
     public static final int Priority_2 = 800;

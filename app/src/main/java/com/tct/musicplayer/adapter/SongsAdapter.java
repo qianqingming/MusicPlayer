@@ -6,7 +6,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -34,6 +37,7 @@ import com.tct.musicplayer.utils.ToastUtils;
 
 import org.litepal.LitePal;
 
+import java.io.File;
 import java.util.List;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
@@ -50,6 +54,8 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     private PopupWindow addFavoritePopupWindow;
     private PopupWindow removeFavoritePopupWindow;
     private int longClickPos;
+
+    private Drawable drawable;
 
     public SongsAdapter(final Context context, List<Song> list){
         this.context = context;
@@ -74,6 +80,18 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 ((Activity) context).getWindow().setAttributes(layoutParams);
             }
         });
+
+        //drawable = getDrawable();
+    }
+
+    private Drawable getDrawable() {
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true);
+        int[] attribute = new int[] { android.R.attr.selectableItemBackground};
+        TypedArray typedArray = context.getTheme().obtainStyledAttributes(typedValue.resourceId, attribute);
+        Drawable drawable = typedArray.getDrawable(0);
+        typedArray.recycle();
+        return drawable;
     }
 
     @NonNull
@@ -252,7 +270,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 List<Song> favoriteList = MusicUtils.getFavoriteList();
                 favoriteList.add(song);
 
-                Intent intent = new Intent("ACTION_NOTIFY_DATA");
+                Intent intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
                 context.sendBroadcast(intent);
 
                 ToastUtils.showToast(context,context.getResources().getString(R.string.add_favorite_success));
@@ -308,6 +326,11 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 LitePal.update(Song.class,contentValues,song.getId());
 
                 List<Song> favoriteList = MusicUtils.getFavoriteList();
+
+                if (MainActivity.musicService.getMusicIndex() == favoriteList.size() - 1) {
+                    MainActivity.musicService.setMusicIndex(favoriteList.size() - 2 > 0 ? favoriteList.size() - 2 : 0);
+                }
+
                 for (int i = 0; i < favoriteList.size(); i++) {
                     if (favoriteList.get(i).getSongId().equals(song.getSongId())) {
                         favoriteList.remove(i);
@@ -315,7 +338,9 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                     }
                 }
 
-                Intent intent = new Intent("ACTION_NOTIFY_DATA");
+                MainActivity.musicService.setMusicList(favoriteList);
+
+                Intent intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
                 context.sendBroadcast(intent);
 
                 ToastUtils.showToast(context,context.getResources().getString(R.string.remove_favorite_success));
@@ -343,6 +368,17 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         final CheckBox checkBox = view.findViewById(R.id.delete_from_device);
         TextView delText = view.findViewById(R.id.delete_from_device_text);
 
+        delText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (checkBox.isChecked()) {
+                    checkBox.setChecked(false);
+                }else {
+                    checkBox.setChecked(true);
+                }
+            }
+        });
+
         view.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -353,25 +389,21 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             @Override
             public void onClick(View view) {
                 Song song = list.get(longClickPos);
+                LitePal.delete(Song.class,song.getId());
                 if (checkBox.isChecked()) {
-
-                }else {
-                    //LitePal.delete(Song.class,song.getId());
+                    //从设备中删除
+                    File file = new File(song.getPath());
+                    if (file.exists()) {
+                        file.delete();
+                    }
                 }
-                Intent intent = new Intent("ACTION_NOTIFY_DATA");
+
+                MusicUtils.setMusicList(LitePal.findAll(Song.class));
+
+                Intent intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
                 context.sendBroadcast(intent);
                 dialog.dismiss();
                 ToastUtils.showToast(context,context.getResources().getString(R.string.delete_success));
-            }
-        });
-        delText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (checkBox.isChecked()) {
-                    checkBox.setChecked(false);
-                }else {
-                    checkBox.setChecked(true);
-                }
             }
         });
 

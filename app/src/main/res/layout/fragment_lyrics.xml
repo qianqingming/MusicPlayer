@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".fragment.LyricsFragment">
+    android:layout_height="match_parent">
+
+    <!--<TextView
+        android:id="@+id/text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:text="@string/no_lyrics_file"
+        android:layout_gravity="center"
+        android:gravity="center"/>-->
 
     <ScrollView
         android:layout_width="match_parent"
@@ -19,4 +27,4 @@
     </ScrollView>
 
 
-</FrameLayout>
+</LinearLayout>

@@ -30,5 +30,17 @@
     <string name="delete">移除</string>
     <string name="delete_success">已从库中移除</string>
     <string name="no_lyrics_file">没有歌词文件</string>
-
+    <string name="scan_music">扫描歌曲</string>
+    <string name="scan_filter_time">大小过滤</string>
+    <string name="scan_filter_dir">目录过滤</string>
+    <string name="scan_filter_less_60s">跳过小于60秒的音乐</string>
+    <string name="scan_filter_less_500k">跳过小于500k的音乐</string>
+    <string name="scan_dir">扫描文件夹</string>
+    <string name="scan">扫描</string>
+    <string name="sure">确定</string>
+    <string name="weixin">微信好友</string>
+    <string name="weixin_pengyouquan">微信朋友圈</string>
+    <string name="qq">qq</string>
+    <string name="qq_zone">qq空间</string>
+    <string name="more">更多</string>
 </resources>

@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -92,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Timer timer;
 
+    private int closeTime = -1;//定时停止播放的时间
+
 
     public static MusicService musicService;
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -127,6 +130,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //修改状态栏字体颜色
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
 
         initViews();
 
@@ -208,8 +216,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         intentFilter.addAction(BroadcastUtils.ACTION_NEXT_MUSIC);
         intentFilter.addAction(BroadcastUtils.ACTION_PLAY_SELECTED_MUSIC);
         intentFilter.addAction(BroadcastUtils.ACTION_CLOSE);
-        intentFilter.addAction("ACTION_NOTIFY_DATA");
         intentFilter.addAction(BroadcastUtils.ACTION_PLAY_COMPLETED);
+        intentFilter.addAction(BroadcastUtils.ACTION_NOTIFY_DATA);
         intentFilter.setPriority(BroadcastUtils.Priority_2);
         musicStateReceiver = new MusicStateReceiver();
         registerReceiver(musicStateReceiver,intentFilter);
@@ -218,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initAnimation() {
         objectAnimator = ObjectAnimator.ofFloat(bottomMusicBg,"rotation",0f,360f);
         objectAnimator.setInterpolator(new LinearInterpolator());
-        objectAnimator.setDuration(20000);
+        objectAnimator.setDuration(8000);
         objectAnimator.setRepeatCount(ValueAnimator.INFINITE);
         objectAnimator.setRepeatMode(ValueAnimator.RESTART);
         //objectAnimator.start();
@@ -230,14 +238,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.scan_music:
-                        Toast.makeText(MainActivity.this,"扫描",Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MainActivity.this,"扫描",Toast.LENGTH_SHORT).show();
+                        drawerLayout.closeDrawers();
+                        Intent intent = new Intent(MainActivity.this,ScanActivity.class);
+                        startActivity(intent);
                         break;
                     case R.id.clock_stop_music:
                         drawerLayout.closeDrawers();
                         initTimerDialog();
-                        break;
-                    case R.id.change_background:
-                        Toast.makeText(MainActivity.this,"换肤",Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.exit:
                         //Toast.makeText(MainActivity.this,"退出",Toast.LENGTH_SHORT).show();
@@ -270,46 +278,95 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listView.setAdapter(new ArrayAdapter<String>(this,R.layout.item_single_choice,timerList));
         listView.setItemsCanFocus(false);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
-
+        listView.setItemChecked(0,true);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(MainActivity.this,"pos:"+i,Toast.LENGTH_SHORT).show();
-                //如果选择自定义
-                if (i == timerList.length - 1) {
-                    View customer = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_timer_customer,null);
-                    final android.app.AlertDialog customerDialog = new AlertDialog.Builder(MainActivity.this).setView(customer).create();
-                    customerDialog.setCanceledOnTouchOutside(false);
-                    customerDialog.show();
-                    Window window = customerDialog.getWindow();
-                    if (window != null){
-                        window.setGravity(Gravity.BOTTOM);
-                        window.setBackgroundDrawable(null);
-                    }
-                    //获取数字选择器
-                    final NumberPicker hourPicker = customer.findViewById(R.id.customer_hour);
-                    final NumberPicker minPicker = customer.findViewById(R.id.customer_min);
-                    //设置不可编辑
-                    hourPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-                    minPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-                    //设置最大值
-                    hourPicker.setMaxValue(12);
-                    minPicker.setMaxValue(59);
-
-                    customer.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            customerDialog.dismiss();
+                //Toast.makeText(MainActivity.this,"pos:"+i,Toast.LENGTH_SHORT).show();
+                switch (i) {
+                    case 0:
+                        closeTime = -1;
+                        break;
+                    case 1:
+                        closeTime = 10;
+                        break;
+                    case 2:
+                        closeTime = 20;
+                        break;
+                    case 3:
+                        closeTime = 30;
+                        break;
+                    case 4:
+                        closeTime = 45;
+                        break;
+                    case 5:
+                        closeTime = 60;
+                        break;
+                    case 6:
+                        View customer = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_timer_customer,null);
+                        TextView cancelView = customer.findViewById(R.id.cancel);
+                        final TextView sureView = customer.findViewById(R.id.sure);
+                        final android.app.AlertDialog customerDialog = new AlertDialog.Builder(MainActivity.this).setView(customer).create();
+                        customerDialog.setCanceledOnTouchOutside(false);
+                        customerDialog.show();
+                        Window window = customerDialog.getWindow();
+                        if (window != null){
+                            window.setGravity(Gravity.BOTTOM);
+                            window.setBackgroundDrawable(null);
                         }
-                    });
-                    customer.findViewById(R.id.sure).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Log.d("qianqingming","hour:"+hourPicker.getValue());
-                            Log.d("qianqingming","min:"+minPicker.getValue());
-                        }
-                    });
+                        //获取数字选择器
+                        final NumberPicker hourPicker = customer.findViewById(R.id.customer_hour);
+                        final NumberPicker minPicker = customer.findViewById(R.id.customer_min);
+                        //设置不可编辑
+                        hourPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                        minPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                        //设置最大值
+                        hourPicker.setMaxValue(12);
+                        minPicker.setMaxValue(59);
+                        //设置默认值
+                        minPicker.setValue(58);
+                        //设置监听
+                        hourPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                            @Override
+                            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                                //Log.d("qianqingming","oldValue:"+i+",newValue:"+i1);
+                                if (i1 == 0 && minPicker.getValue() ==0) {
+                                    sureView.setClickable(false);
+                                    sureView.setTextColor(getResources().getColor(R.color.gray));
+                                }else {
+                                    sureView.setClickable(true);
+                                    sureView.setTextColor(getResources().getColor(R.color.colorAccent));
+                                }
+                            }
+                        });
+                        minPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                            @Override
+                            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                                if (i1 == 0 && hourPicker.getValue() == 0) {
+                                    sureView.setClickable(false);
+                                    sureView.setTextColor(getResources().getColor(R.color.gray));
+                                }else {
+                                    sureView.setClickable(true);
+                                    sureView.setTextColor(getResources().getColor(R.color.colorAccent));
+                                }
+                            }
+                        });
+                        cancelView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                customerDialog.dismiss();
+                            }
+                        });
+                        sureView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                int hour = hourPicker.getValue();
+                                int min = minPicker.getValue();
+                                closeTime = hour * 60 + min;
+                                customerDialog.dismiss();
+                            }
+                        });
+                        break;
                 }
             }
         });
@@ -325,11 +382,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         view.findViewById(R.id.sure).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(MainActivity.this,"pos:"+listView.getCheckedItemPosition(),Toast.LENGTH_SHORT).show();
-                if (switchUntilEnd.isChecked()) {
-
+                if (closeTime != -1) {
+                    ToastUtils.showToast(MainActivity.this,"设置成功，"+closeTime+"分钟后将自动关闭");
+                    Timer timer = new Timer();
+                    TimerTask timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG,"close");
+                            if (switchUntilEnd.isChecked() && musicService.isPlaying()) {
+                                int t = musicService.getDuration() - musicService.getCurrPosition();
+                                Timer timer1 = new Timer();
+                                TimerTask timerTask1 = new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        Intent intent = new Intent(BroadcastUtils.ACTION_CLOSE);
+                                        sendOrderedBroadcast(intent,null);
+                                    }
+                                };
+                                timer1.schedule(timerTask1,t);
+                            }else {
+                                Intent intent = new Intent(BroadcastUtils.ACTION_CLOSE);
+                                sendOrderedBroadcast(intent,null);
+                            }
+                        }
+                    };
+                    timer.schedule(timerTask,closeTime*60*1000);
                 }
-                ToastUtils.showToast(MainActivity.this,timerList[listView.getCheckedItemPosition()]);
+                dialog.dismiss();
             }
         });
     }
@@ -603,7 +682,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case BroadcastUtils.ACTION_PLAY_COMPLETED:
                     playCompleted();
                     break;
-                case "ACTION_NOTIFY_DATA":
+                case BroadcastUtils.ACTION_NOTIFY_DATA:
                     notifyData();
                     break;
             }

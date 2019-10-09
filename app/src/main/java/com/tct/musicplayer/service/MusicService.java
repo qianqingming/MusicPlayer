@@ -130,7 +130,6 @@ public class MusicService extends Service {
         if (!isPlaying()) {
             mediaPlayer.start();
         }
-
     }
 
     public void pauseMusic() {
@@ -227,6 +226,9 @@ public class MusicService extends Service {
     }
 
     public void playSelectedMusic(int index) {
+        if (index == -1) {
+            return;
+        }
         if (!isStartForeground) {
             startForeground();
         }
@@ -298,6 +300,9 @@ public class MusicService extends Service {
     }
 
     public void setMusicIndex(int musicIndex) {
+        if (musicIndex == -1) {
+            return;
+        }
         this.musicIndex = musicIndex;
     }
 

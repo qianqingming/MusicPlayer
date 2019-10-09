@@ -7,8 +7,10 @@
     <color name="tabIndicatorColor">#11D3EC</color>
     <color name="gray">#696969</color>
     <color name="gray_default">#FF888888</color>
+    <color name="gray_bg">#6D6D6D</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="timer_color">#000000</color>
     <color name="dialog_delete_text_color">#393DD5</color>
+    <color name="blue">#4E51BE</color>
 </resources>
