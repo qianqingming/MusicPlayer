@@ -3,6 +3,10 @@
     <string name="title_name">音乐播放器</string>
     <string name="permission_title">权限申请</string>
     <string name="permission_content">请允许访问权限，以便音乐播放器访问存储空间</string>
+    <string name="favorites">收藏</string>
+    <string name="songs">歌曲</string>
+    <string name="artist">艺术家</string>
+    <string name="album">专辑</string>
     <string name="bottom_music_default_text">没有播放</string>
     <string name="default_time">00:00</string>
     <string name="add_favorite">添加到收藏</string>
@@ -30,6 +34,9 @@
     <string name="delete">移除</string>
     <string name="delete_success">已从库中移除</string>
     <string name="no_lyrics_file">没有歌词文件</string>
+    <string name="scan_local_music">扫描本地音乐</string>
+    <string name="timer_to_stop">定时停止播放</string>
+    <string name="exit_app">退出</string>
     <string name="scan_music">扫描歌曲</string>
     <string name="scan_filter_time">大小过滤</string>
     <string name="scan_filter_dir">目录过滤</string>
@@ -43,4 +50,7 @@
     <string name="qq">qq</string>
     <string name="qq_zone">qq空间</string>
     <string name="more">更多</string>
+    <string name="play_list">播放列表</string>
+    <string name="hour">小时</string>
+    <string name="min">分钟</string>
 </resources>

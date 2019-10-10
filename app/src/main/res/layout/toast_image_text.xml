@@ -3,12 +3,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="15dp"
+    android:padding="@dimen/padding_toast"
     android:background="@drawable/bg_toast">
 
     <ImageView
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="@dimen/toast_image_width_height"
+        android:layout_height="@dimen/toast_image_width_height"
         android:src="@drawable/ic_ok_circle"
         android:layout_gravity="center" />
 
@@ -17,7 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
-        android:layout_marginTop="10dp"
-        android:textSize="18sp"
+        android:layout_marginTop="@dimen/margin_10"
+        android:textSize="@dimen/big_text_size"
         android:layout_gravity="center"/>
 </LinearLayout>

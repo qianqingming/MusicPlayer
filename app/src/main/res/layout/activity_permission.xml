@@ -3,18 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="30dp">
+    android:padding="@dimen/padding_permission">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="@dimen/margin_permission"
         android:text="@string/permission_title"
-        android:textSize="30sp"/>
+        android:textSize="@dimen/permission_text_size"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/margin_10"
         android:text="@string/permission_content"/>
 </LinearLayout>

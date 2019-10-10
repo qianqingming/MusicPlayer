@@ -6,11 +6,11 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="178dp"
+        android:layout_height="@dimen/navigation_image_height"
         android:src="@drawable/ic_default_music"/>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="@dimen/navigation_view_height"
         android:background="@color/gray"/>
 </LinearLayout>

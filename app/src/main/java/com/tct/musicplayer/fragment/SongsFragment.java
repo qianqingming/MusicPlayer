@@ -78,11 +78,6 @@ public class SongsFragment extends Fragment {
         }*/
     }
 
-    public void setSelectedPos(int pos) {
-        if (songsAdapter != null) {
-            songsAdapter.setSelectedPos(pos);
-        }
-    }
 
     public void scrollToPosition(int position) {
         if (recyclerView != null) {

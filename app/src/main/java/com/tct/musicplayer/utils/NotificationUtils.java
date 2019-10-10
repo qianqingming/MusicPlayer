@@ -37,7 +37,7 @@ public class NotificationUtils {
 
         String channelId = "musicPlayerChannelId";
         String channelName = "musicPlayerChannelName";
-        NotificationChannel channel = new NotificationChannel(channelId,channelName,NotificationManager.IMPORTANCE_HIGH);
+        NotificationChannel channel = new NotificationChannel(channelId,channelName,NotificationManager.IMPORTANCE_DEFAULT);
         channel.setGroup(groupId);
         manager.createNotificationChannel(channel);
 
@@ -151,6 +151,13 @@ public class NotificationUtils {
             bigRemoteViews.setViewVisibility(R.id.notification_play_music, View.VISIBLE);
             normalRemoteViews.setViewVisibility(R.id.notification_play_music, View.VISIBLE);
         }
+        /*if (song.getFavorite() == 1) {
+            bigRemoteViews.setViewVisibility(R.id.add_favorite, View.GONE);
+            bigRemoteViews.setViewVisibility(R.id.remove_favorite, View.VISIBLE);
+        }else {
+            bigRemoteViews.setViewVisibility(R.id.remove_favorite, View.GONE);
+            bigRemoteViews.setViewVisibility(R.id.add_favorite, View.VISIBLE);
+        }*/
         manager.notify(1,notification);
     }
 

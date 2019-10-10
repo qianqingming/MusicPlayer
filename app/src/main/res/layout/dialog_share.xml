@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialog_share"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
+    android:paddingTop="@dimen/padding_10"
+    android:paddingBottom="@dimen/padding_10"
     android:scrollbars="none">
     <LinearLayout
         android:layout_width="wrap_content"
@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:layout_gravity="center"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/margin_share_dialog"
                 android:text="@string/weixin"/>
         </LinearLayout>
 
@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:layout_gravity="center"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/margin_share_dialog"
                 android:text="@string/weixin_pengyouquan"/>
         </LinearLayout>
 
@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:layout_gravity="center"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/margin_share_dialog"
                 android:text="@string/qq"/>
         </LinearLayout>
 
@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:layout_gravity="center"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/margin_share_dialog"
                 android:text="@string/qq_zone"/>
         </LinearLayout>
 
@@ -106,7 +106,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:layout_gravity="center"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/margin_share_dialog"
                 android:text="@string/more"/>
         </LinearLayout>
     </LinearLayout>

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="10dp"
+    android:padding="@dimen/padding_10"
     android:background="@drawable/bg_dialog">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/timer_time_customer"
-        android:textSize="20sp"
+        android:textSize="@dimen/most_big_text_size"
         android:textColor="@color/timer_color"/>
 
     <LinearLayout
@@ -36,13 +36,13 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="小时"
+            android:text="@string/hour"
             android:gravity="center"
             android:layout_weight="1"/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="分钟"
+            android:text="@string/min"
             android:gravity="center"
             android:layout_weight="1"/>
     </LinearLayout>
@@ -54,7 +54,7 @@
         <TextView
             android:id="@+id/cancel"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="@dimen/dialog_text_view_height"
             android:layout_weight="1"
             android:gravity="center"
             android:textStyle="bold"
@@ -62,19 +62,19 @@
             android:textColor="@color/colorAccent"
             android:text="@string/cancel"/>
         <View
-            android:layout_width="1dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/dialog_view_width"
+            android:layout_height="@dimen/dialog_view_height"
             android:layout_gravity="center"
             android:background="@color/gray_default"/>
         <TextView
             android:id="@+id/sure"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="@dimen/dialog_text_view_height"
             android:layout_weight="1"
             android:gravity="center"
             android:textStyle="bold"
             android:background="?android:attr/selectableItemBackground"
             android:textColor="@color/colorAccent"
-            android:text="确定"/>
+            android:text="@string/sure"/>
     </LinearLayout>
 </LinearLayout>

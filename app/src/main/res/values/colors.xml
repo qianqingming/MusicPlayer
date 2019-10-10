@@ -3,8 +3,8 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="tab_layout_text_color_default">#8F8B8B</color>
     <color name="colorSelected">#11D3EC</color>
-    <color name="tabIndicatorColor">#11D3EC</color>
     <color name="gray">#696969</color>
     <color name="gray_default">#FF888888</color>
     <color name="gray_bg">#6D6D6D</color>
@@ -13,4 +13,5 @@
     <color name="timer_color">#000000</color>
     <color name="dialog_delete_text_color">#393DD5</color>
     <color name="blue">#4E51BE</color>
+    <color name="navigation_bar_hint_text_bg">#888888</color>
 </resources>

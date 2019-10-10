@@ -30,6 +30,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.PopupMenu;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView searchImg,settingsImg,moreImg;//顶部搜索、设置、更多
     private ImageView lastMusicImg,playMusicImg,pauseMusicImg,nextMusicImg;//底部上一曲、播放、暂停、下一曲
     private ProgressBar progressBar;
+    private LinearLayout bottomTextLayout;
 
     private ImageView bottomMusicBg;//底部图片
     private TextView bottomDefaultText,bottomMusicName,bottomMusicSinger;//底部默认文字、歌曲名字、歌手
@@ -130,6 +132,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startService(new Intent(this,MusicService.class));
 
         //修改状态栏字体颜色
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -189,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bottomDefaultText = findViewById(R.id.default_bottom_music_text);
         bottomMusicName = findViewById(R.id.bottom_music_name);
         bottomMusicSinger = findViewById(R.id.bottom_music_singer);
+        bottomTextLayout = findViewById(R.id.bottom_music_singer_layout);
 
 
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -270,9 +275,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         final String[] timerList = new String[] {
-                "不开启", "10分钟后", "20分钟后",
-                "30分钟后", "45分钟后", "60分钟后",
-                "自定义"
+                getResources().getString(R.string.timer_no), getResources().getString(R.string.timer_time_1),
+                getResources().getString(R.string.timer_time_2), getResources().getString(R.string.timer_time_3),
+                getResources().getString(R.string.timer_time_4), getResources().getString(R.string.timer_time_5),
+                getResources().getString(R.string.timer_time_customer)
         };
         final ListView listView = view.findViewById(R.id.timer_single_choice);
         listView.setAdapter(new ArrayAdapter<String>(this,R.layout.item_single_choice,timerList));
@@ -417,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(musicStateReceiver);
-        unbindService(serviceConnection);
+        //unbindService(serviceConnection);
         timer.cancel();
     }
 
@@ -440,10 +446,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void init() {
         tab_title_list = new ArrayList<>();
-        tab_title_list.add("收藏");
-        tab_title_list.add("歌曲");
-        tab_title_list.add("艺术家");
-        tab_title_list.add("专辑");
+        tab_title_list.add(getResources().getString(R.string.favorites));
+        tab_title_list.add(getResources().getString(R.string.songs));
+        tab_title_list.add(getResources().getString(R.string.artist));
+        tab_title_list.add(getResources().getString(R.string.album));
 
         favoriteFragment = new FavoriteFragment();
         songsFragment = new SongsFragment();
@@ -534,6 +540,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //playNextMusic();
                 intent = new Intent(BroadcastUtils.ACTION_NEXT_MUSIC);
                 sendOrderedBroadcast(intent,null);
+                //sendBroadcast(intent);
                 break;
             default:
                 break;
@@ -542,8 +549,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void playMusic() {
         //musicService.playMusic();
-        updateViews();
-        songsFragment.setSelectedPos(musicService.getMusicIndex());
+        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
         if (hasPlayedMusic){
             objectAnimator.resume();
         }else {
@@ -554,7 +560,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void pauseMusic() {
         //musicService.pauseMusic();
-        updateViews();
+        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
         //songsFragment.setSelectedPos(musicService.getMusicIndex());
         objectAnimator.pause();
     }
@@ -562,8 +568,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void playLastMusic() {
         //musicService.playLastMusic();
-        updateViews();
-        songsFragment.setSelectedPos(musicService.getMusicIndex());
+        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
         songsFragment.scrollToPosition(musicService.getMusicIndex());
         favoriteFragment.notifyDataSetChanged();
         objectAnimator.start();
@@ -572,8 +577,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void playNextMusic() {
         //musicService.playNextMusic();
-        updateViews();
-        songsFragment.setSelectedPos(musicService.getMusicIndex());
+        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
         songsFragment.scrollToPosition(musicService.getMusicIndex());
         favoriteFragment.notifyDataSetChanged();
         objectAnimator.start();
@@ -582,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void playSelectedMusic(int index) {
         //musicService.playSelectedMusic(index);
-        updateViews();
+        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
         objectAnimator.start();
         favoriteFragment.notifyDataSetChanged();
         songsFragment.scrollToPosition(index);
@@ -590,8 +594,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void playCompleted() {
-        updateViews();
-        songsFragment.setSelectedPos(musicService.getMusicIndex());
+        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
         songsFragment.scrollToPosition(musicService.getMusicIndex());
         objectAnimator.start();
         hasPlayedMusic = true;
@@ -600,8 +603,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void stopMusic() {
         bottomMusicBg.setImageResource(R.drawable.ic_default_music);
         bottomDefaultText.setVisibility(View.VISIBLE);
-        bottomMusicName.setVisibility(View.GONE);
-        bottomMusicSinger.setVisibility(View.GONE);
+        //bottomMusicName.setVisibility(View.GONE);
+        //bottomMusicSinger.setVisibility(View.GONE);
+        bottomTextLayout.setVisibility(View.GONE);
         pauseMusicImg.setVisibility(View.GONE);
         playMusicImg.setVisibility(View.VISIBLE);
         objectAnimator.pause();
@@ -609,24 +613,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         hasPlayedMusic = false;
     }
 
-    private void updateViews() {
-        if (musicService != null) {
-            Song song = musicService.getMusicList().get(musicService.getMusicIndex());
-            GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
-            bottomDefaultText.setVisibility(View.GONE);
-            bottomMusicName.setVisibility(View.VISIBLE);
-            bottomMusicSinger.setVisibility(View.VISIBLE);
-            bottomMusicName.setText(song.getName());
-            bottomMusicSinger.setText(song.getSinger());
-            NotificationUtils.updateRemoteViews(musicService.getMusicList(),musicService.getMusicIndex(),musicService.isPlaying());
-            if (musicService.isPlaying()) {
-                playMusicImg.setVisibility(View.GONE);
-                pauseMusicImg.setVisibility(View.VISIBLE);
-            }else {
-                pauseMusicImg.setVisibility(View.GONE);
-                playMusicImg.setVisibility(View.VISIBLE);
-            }
+    private void updateViews(List<Song> musicList, int musicIndex) {
+        Song song = musicList.get(musicIndex);
+        GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
+        bottomDefaultText.setVisibility(View.GONE);
+        //bottomMusicName.setVisibility(View.VISIBLE);
+        //bottomMusicSinger.setVisibility(View.VISIBLE);
+        bottomTextLayout.setVisibility(View.VISIBLE);
+        bottomMusicName.setText(song.getName());
+        bottomMusicSinger.setText(song.getSinger());
+        if (musicService.isPlaying()) {
+            playMusicImg.setVisibility(View.GONE);
+            pauseMusicImg.setVisibility(View.VISIBLE);
+        }else {
+            pauseMusicImg.setVisibility(View.GONE);
+            playMusicImg.setVisibility(View.VISIBLE);
         }
+        NotificationUtils.updateRemoteViews(musicList,musicIndex,musicService.isPlaying());
     }
 
     private void initPopMenu() {

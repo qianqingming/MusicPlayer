@@ -26,6 +26,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
@@ -47,9 +48,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     private List<Song> list;
     private Context context;
 
-    private int selectedPos;
-    private int lastSelectedPos;
-    private boolean isFirst = true;
 
     private PopupWindow addFavoritePopupWindow;
     private PopupWindow removeFavoritePopupWindow;
@@ -109,8 +107,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 //跳转Activity
                 Intent intent1 = new Intent(context, MusicPlayActivity.class);
                 context.startActivity(intent1);
-                //设置选中项并更新
-                setSelectedPos(holder.getAdapterPosition());
                 //发送广播，播放音乐
                 Intent intent = new Intent(BroadcastUtils.ACTION_PLAY_SELECTED_MUSIC);
                 intent.putExtra("position",holder.getAdapterPosition());
@@ -149,7 +145,8 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             holder.songTime.setText(MusicUtils.formatTime(song.getDuration()));
             //holder.songImg.setImageDrawable(new BitmapDrawable(context.getResources(),song.getAlbumBmp()));
             //holder.songImg.setImageBitmap(song.getAlbumBmp());
-            GlideUtils.setImg(context,song.getAlbumPath(),holder.songImg);
+            //GlideUtils.setImg(context,song.getAlbumPath(),holder.songImg);
+            Glide.with(context).load(song.getAlbumPath()).error(R.drawable.ic_default_music).into(holder.songImg);
 
             if (song.getFavorite() == 1){
                 holder.favorite.setVisibility(View.VISIBLE);
@@ -170,21 +167,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                     }
                 }
             }
-
-
-            /*if (!isFirst) {
-                if (position == selectedPos) {
-                    //holder.musicLayout.setBackgroundColor(context.getColor(R.color.colorSelected));
-                    holder.songName.setTextColor(context.getColor(R.color.colorSelected));
-                    holder.songSinger.setTextColor(context.getColor(R.color.colorSelected));
-                    holder.songTime.setTextColor(context.getColor(R.color.colorSelected));
-                }else {
-                    //holder.musicLayout.setBackgroundColor(Color.parseColor("#ffffff"));
-                    holder.songName.setTextColor(context.getColor(R.color.black));
-                    holder.songSinger.setTextColor(context.getColor(R.color.gray_default));
-                    holder.songTime.setTextColor(context.getColor(R.color.gray_default));
-                }
-            }*/
         }
     }
 
@@ -194,19 +176,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     }
 
 
-    public void setSelectedPos(int pos){
-        /*if (isFirst) {
-            selectedPos = pos;
-            notifyItemChanged(selectedPos);
-            lastSelectedPos = selectedPos;
-            isFirst = false;
-        } else {
-            notifyItemChanged(lastSelectedPos);
-            selectedPos = pos;
-            notifyItemChanged(selectedPos);
-            lastSelectedPos = selectedPos;
-        }*/
-    }
 
     class ViewHolder extends RecyclerView.ViewHolder {
 

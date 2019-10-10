@@ -2,7 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp">
+    android:paddingLeft="@dimen/padding_10"
+    android:paddingTop="@dimen/padding_10"
+    android:paddingBottom="@dimen/padding_10">
 
     <ImageView
         android:id="@+id/loading_img"
@@ -15,7 +17,7 @@
         android:id="@+id/loading_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="200dp"
+        android:paddingTop="@dimen/padding_loading"
         android:gravity="center"
         android:text="@string/loading"/>
 
@@ -23,25 +25,25 @@
         android:id="@+id/recycler_view_album"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="@dimen/padding_10"
+        android:paddingRight="@dimen/padding_10"
         android:visibility="gone"
-        android:layout_toLeftOf="@id/right_navigation_bar"/>
+        android:layout_toStartOf="@id/right_navigation_bar"/>
 
     <TextView
         android:id="@+id/tv_letter"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/navigation_bar_hint_text_width_height"
+        android:layout_height="@dimen/navigation_bar_hint_text_width_height"
         android:layout_centerInParent="true"
-        android:background="#888888"
+        android:background="@color/navigation_bar_hint_text_bg"
         android:gravity="center"
-        android:textColor="#000000"
-        android:textSize="18dp"
+        android:textColor="@color/black"
+        android:textSize="@dimen/big_text_size"
         android:visibility="gone" />
 
     <com.tct.musicplayer.views.RightNavigationBar
         android:id="@+id/right_navigation_bar"
-        android:layout_width="20dp"
+        android:layout_width="@dimen/navigation_bar_width"
         android:layout_height="match_parent"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentEnd="true"/>
 </RelativeLayout>

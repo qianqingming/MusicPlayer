@@ -14,7 +14,7 @@
         android:id="@+id/loading_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="200dp"
+        android:paddingTop="@dimen/padding_loading"
         android:gravity="center"
         android:text="@string/no_favorite"/>
 

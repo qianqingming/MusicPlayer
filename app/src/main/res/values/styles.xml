@@ -33,8 +33,24 @@
         <item name="android:colorControlNormal">@color/gray_default</item>
     </style>
 
-    <style name="ImageStyle">
-        <item name="android:layout_width">@dimen/bottomImgWidth</item>
-        <item name="android:layout_height">@dimen/bottomImgWidth</item>
+    <style name="BottomImageStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/bottom_icon_width_height</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="NotificationViewImageStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/big_notification_icon_width_height</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="MusicPlayBottomImageStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/music_play_bottom_icon_width_height</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
     </style>
 </resources>

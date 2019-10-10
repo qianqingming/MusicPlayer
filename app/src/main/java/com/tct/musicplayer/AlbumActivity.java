@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -42,6 +43,7 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
     private ProgressBar progressBar;
     private ImageView bottomMusicBg;//底部图片
     private TextView bottomDefaultText,bottomMusicName,bottomMusicSinger;//底部默认文字、歌曲名字、歌手
+    private LinearLayout bottomTextLayout;
     private ImageView playMusicImg;
     private ImageView pauseMusicImg;
 
@@ -97,8 +99,9 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
             Song song = musicService.getMusicList().get(musicService.getMusicIndex());
             GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
             bottomDefaultText.setVisibility(View.GONE);
-            bottomMusicName.setVisibility(View.VISIBLE);
-            bottomMusicSinger.setVisibility(View.VISIBLE);
+            //bottomMusicName.setVisibility(View.VISIBLE);
+            //bottomMusicSinger.setVisibility(View.VISIBLE);
+            bottomTextLayout.setVisibility(View.VISIBLE);
             bottomMusicName.setText(song.getName());
             bottomMusicSinger.setText(song.getSinger());
             if (MainActivity.musicService.isPlaying()) {
@@ -129,7 +132,6 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
     private void initViews() {
         title = findViewById(R.id.title_text_view);
         ImageView backImg = findViewById(R.id.back_image_view);
-        ImageView moreImg = findViewById(R.id.more_image_view);
         albumBmp = findViewById(R.id.album_bmp);
         musicListRecyclerView = findViewById(R.id.recycler_view_music_list);
 
@@ -142,9 +144,9 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
         playMusicImg = findViewById(R.id.play_music_image_view);
         pauseMusicImg = findViewById(R.id.pause_music_image_view);
         ImageView nextMusicImg = findViewById(R.id.next_music_image_view);
+        bottomTextLayout = findViewById(R.id.bottom_music_singer_layout);
 
         backImg.setOnClickListener(this);
-        moreImg.setOnClickListener(this);
 
         bottomMusicBg.setOnClickListener(this);
         bottomDefaultText.setOnClickListener(this);
@@ -154,6 +156,7 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
         playMusicImg.setOnClickListener(this);
         pauseMusicImg.setOnClickListener(this);
         nextMusicImg.setOnClickListener(this);
+        bottomTextLayout.setOnClickListener(this);
     }
 
     private void initAnimation() {
@@ -182,8 +185,9 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
         Song song = musicService.getMusicList().get(musicService.getMusicIndex());
         GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
         bottomDefaultText.setVisibility(View.GONE);
-        bottomMusicName.setVisibility(View.VISIBLE);
-        bottomMusicSinger.setVisibility(View.VISIBLE);
+        //bottomMusicName.setVisibility(View.VISIBLE);
+        //bottomMusicSinger.setVisibility(View.VISIBLE);
+        bottomTextLayout.setVisibility(View.VISIBLE);
         bottomMusicName.setText(song.getName());
         bottomMusicSinger.setText(song.getSinger());
         playMusicImg.setVisibility(View.GONE);
@@ -225,8 +229,9 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
         Song song = musicService.getMusicList().get(musicService.getMusicIndex());
         GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
         bottomDefaultText.setVisibility(View.GONE);
-        bottomMusicName.setVisibility(View.VISIBLE);
-        bottomMusicSinger.setVisibility(View.VISIBLE);
+        //bottomMusicName.setVisibility(View.VISIBLE);
+        //bottomMusicSinger.setVisibility(View.VISIBLE);
+        bottomTextLayout.setVisibility(View.VISIBLE);
         bottomMusicName.setText(song.getName());
         bottomMusicSinger.setText(song.getSinger());
         if (musicService.isPlaying()) {
@@ -243,8 +248,9 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
     private void stopMusic() {
         bottomMusicBg.setImageResource(R.drawable.ic_default_music);
         bottomDefaultText.setVisibility(View.VISIBLE);
-        bottomMusicName.setVisibility(View.GONE);
-        bottomMusicSinger.setVisibility(View.GONE);
+        //bottomMusicName.setVisibility(View.GONE);
+        //bottomMusicSinger.setVisibility(View.GONE);
+        bottomTextLayout.setVisibility(View.GONE);
         pauseMusicImg.setVisibility(View.GONE);
         playMusicImg.setVisibility(View.VISIBLE);
         objectAnimator.pause();
@@ -263,8 +269,7 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.music_bg_image_view:
             case R.id.default_bottom_music_text:
-            case R.id.bottom_music_name:
-            case R.id.bottom_music_singer:
+            case R.id.bottom_music_singer_layout:
                 intent = new Intent(this, MusicPlayActivity.class);
                 startActivity(intent);
                 break;

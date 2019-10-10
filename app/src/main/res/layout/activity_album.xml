@@ -11,15 +11,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_layout"
-        android:textSize="18sp"
-        android:layout_marginLeft="10dp"
-        android:text="歌曲"/>
+        android:textSize="@dimen/big_text_size"
+        android:layout_marginStart="@dimen/margin_10"
+        android:text="@string/songs"/>
 
     <ImageView
         android:id="@+id/album_bmp"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="5dp"
+        android:layout_width="@dimen/album_img_width"
+        android:layout_height="@dimen/album_img_width"
+        android:layout_marginTop="@dimen/margin_10"
         android:layout_centerHorizontal="true"
         android:scaleType="fitXY"
         android:layout_below="@id/music"/>
@@ -28,9 +28,9 @@
         android:id="@+id/recycler_view_music_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:layout_marginTop="@dimen/margin_10"
+        android:paddingLeft="@dimen/padding_10"
+        android:paddingRight="@dimen/padding_10"
         android:layout_above="@id/bottom_layout"
         android:layout_below="@id/album_bmp"/>
 

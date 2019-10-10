@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -37,12 +38,13 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
     private static final String TAG = "qianqingming";
 
     private TextView title;
-    private ImageView backImg,moreImg;
+    private ImageView backImg;
     private RecyclerView musicListRecyclerView;
     private ImageView lastMusicImg,playMusicImg,pauseMusicImg,nextMusicImg;//底部上一曲、播放、暂停、下一曲
     private ProgressBar progressBar;
     private ImageView bottomMusicBg;//底部图片
     private TextView bottomDefaultText,bottomMusicName,bottomMusicSinger;//底部默认文字、歌曲名字、歌手
+    private LinearLayout bottomTextLayout;
 
     private ObjectAnimator objectAnimator;
     private Timer timer;
@@ -102,8 +104,9 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
             Song song = musicService.getMusicList().get(musicService.getMusicIndex());
             GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
             bottomDefaultText.setVisibility(View.GONE);
-            bottomMusicName.setVisibility(View.VISIBLE);
-            bottomMusicSinger.setVisibility(View.VISIBLE);
+            //bottomMusicName.setVisibility(View.VISIBLE);
+            //bottomMusicSinger.setVisibility(View.VISIBLE);
+            bottomTextLayout.setVisibility(View.VISIBLE);
             bottomMusicName.setText(song.getName());
             bottomMusicSinger.setText(song.getSinger());
             if (MainActivity.musicService.isPlaying()) {
@@ -134,7 +137,6 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
     private void initViews() {
         title = findViewById(R.id.title_text_view);
         backImg = findViewById(R.id.back_image_view);
-        moreImg = findViewById(R.id.more_image_view);
         musicListRecyclerView = findViewById(R.id.recycler_view_music_list);
         progressBar = findViewById(R.id.progress_bar_music);
         bottomMusicBg = findViewById(R.id.music_bg_image_view);
@@ -145,9 +147,9 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
         playMusicImg = findViewById(R.id.play_music_image_view);
         pauseMusicImg = findViewById(R.id.pause_music_image_view);
         nextMusicImg = findViewById(R.id.next_music_image_view);
+        bottomTextLayout = findViewById(R.id.bottom_music_singer_layout);
 
         backImg.setOnClickListener(this);
-        moreImg.setOnClickListener(this);
         bottomMusicBg.setOnClickListener(this);
         bottomDefaultText.setOnClickListener(this);
         bottomMusicName.setOnClickListener(this);
@@ -156,6 +158,7 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
         playMusicImg.setOnClickListener(this);
         pauseMusicImg.setOnClickListener(this);
         nextMusicImg.setOnClickListener(this);
+        bottomTextLayout.setOnClickListener(this);
     }
 
     private void initAnimation() {
@@ -182,12 +185,9 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.back_image_view:
                 finish();
                 break;
-            case R.id.more_image_view:
-                break;
             case R.id.music_bg_image_view:
             case R.id.default_bottom_music_text:
-            case R.id.bottom_music_name:
-            case R.id.bottom_music_singer:
+            case R.id.bottom_music_singer_layout:
                 intent = new Intent(this, MusicPlayActivity.class);
                 startActivity(intent);
                 break;
@@ -223,8 +223,9 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
         Song song = musicService.getMusicList().get(musicService.getMusicIndex());
         GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
         bottomDefaultText.setVisibility(View.GONE);
-        bottomMusicName.setVisibility(View.VISIBLE);
-        bottomMusicSinger.setVisibility(View.VISIBLE);
+        //bottomMusicName.setVisibility(View.VISIBLE);
+        //bottomMusicSinger.setVisibility(View.VISIBLE);
+        bottomTextLayout.setVisibility(View.VISIBLE);
         bottomMusicName.setText(song.getName());
         bottomMusicSinger.setText(song.getSinger());
         playMusicImg.setVisibility(View.GONE);
@@ -266,8 +267,9 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
         Song song = musicService.getMusicList().get(musicService.getMusicIndex());
         GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
         bottomDefaultText.setVisibility(View.GONE);
-        bottomMusicName.setVisibility(View.VISIBLE);
-        bottomMusicSinger.setVisibility(View.VISIBLE);
+        //bottomMusicName.setVisibility(View.VISIBLE);
+        //bottomMusicSinger.setVisibility(View.VISIBLE);
+        bottomTextLayout.setVisibility(View.VISIBLE);
         bottomMusicName.setText(song.getName());
         bottomMusicSinger.setText(song.getSinger());
         if (musicService.isPlaying()) {
@@ -284,8 +286,9 @@ public class ArtistActivity extends AppCompatActivity implements View.OnClickLis
     private void stopMusic() {
         bottomMusicBg.setImageResource(R.drawable.ic_default_music);
         bottomDefaultText.setVisibility(View.VISIBLE);
-        bottomMusicName.setVisibility(View.GONE);
-        bottomMusicSinger.setVisibility(View.GONE);
+        //bottomMusicName.setVisibility(View.GONE);
+        //bottomMusicSinger.setVisibility(View.GONE);
+        bottomTextLayout.setVisibility(View.GONE);
         pauseMusicImg.setVisibility(View.GONE);
         playMusicImg.setVisibility(View.VISIBLE);
         objectAnimator.pause();

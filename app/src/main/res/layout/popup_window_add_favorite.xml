@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/popupWindowHeight"
+    android:layout_height="@dimen/pop_window_height"
     android:orientation="vertical"
-    android:paddingTop="20dp"
-    android:paddingLeft="20dp"
+    android:paddingTop="@dimen/padding_pop_window"
+    android:paddingLeft="@dimen/padding_pop_window"
     android:id="@+id/popup_window_layout"
     android:background="@drawable/bg_popup_window">
 
@@ -13,18 +13,18 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <ImageView
-            android:layout_width="@dimen/addFavoriteSize"
-            android:layout_height="@dimen/addFavoriteSize"
+            android:layout_width="@dimen/pop_window_icon_width_height"
+            android:layout_height="@dimen/pop_window_icon_width_height"
             android:layout_gravity="center_vertical"
             android:src="@drawable/ic_favorite_add_black"/>
         <TextView
             android:id="@+id/add_favorite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="@dimen/margin_pop_window"
             android:textColor="@color/black"
             android:layout_gravity="center_vertical"
-            android:textSize="@dimen/addFavoriteTextSize"
+            android:textSize="@dimen/middle_text_size"
             android:text="@string/add_favorite"/>
     </LinearLayout>
 
@@ -32,20 +32,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/padding_pop_window"
         android:orientation="horizontal">
         <ImageView
-            android:layout_width="@dimen/addFavoriteSize"
-            android:layout_height="@dimen/addFavoriteSize"
+            android:layout_width="@dimen/pop_window_icon_width_height"
+            android:layout_height="@dimen/pop_window_icon_width_height"
             android:layout_gravity="center_vertical"
             android:src="@drawable/ic_trash"/>
         <TextView
             android:id="@+id/remove_from_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="@dimen/margin_pop_window"
             android:layout_gravity="center_vertical"
-            android:textSize="@dimen/addFavoriteTextSize"
+            android:textSize="@dimen/middle_text_size"
             android:textColor="@color/black"
             android:text="@string/remove_from_list"/>
     </LinearLayout>

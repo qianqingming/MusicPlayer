@@ -2,6 +2,8 @@ package com.tct.musicplayer.utils;
 
 import android.util.Log;
 
+import com.tct.musicplayer.entity.LyricsRow;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,7 +19,45 @@ import java.util.regex.Pattern;
 
 public class LyricsUtils {
 
-    public static String getSortedLyrics(HashMap<Long,String> map) {
+    public static List<LyricsRow> parseLyrics(String filePath) {
+        List<LyricsRow> lyricsRowList = new ArrayList<>();
+        try {
+            File file = new File(filePath);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            int min;
+            int sec;
+            int ms;
+            String content;
+            long time;
+            LyricsRow lyricsRow;
+            String regex = "\\[(\\d{1,2}):(\\d{1,2}).(\\d{1,2})\\]";
+            Pattern pattern = Pattern.compile(regex);
+            while((line = bufferedReader.readLine()) != null){
+                line = line.trim();
+                if(line.equals(""))
+                    continue;
+                Matcher matcher = pattern.matcher(line);
+                while (matcher.find()) {
+                    min = Integer.parseInt(matcher.group(1));
+                    sec = Integer.parseInt(matcher.group(2));
+                    ms = Integer.parseInt(matcher.group(3));
+                    time = min * 60 * 1000 + sec * 1000 + ms;
+                    content = line.substring(matcher.end());
+                    lyricsRow = new LyricsRow(time,content);
+                    lyricsRowList.add(lyricsRow);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Collections.sort(lyricsRowList);
+        return lyricsRowList;
+    }
+
+    /*public static String getSortedLyrics(HashMap<Long,String> map) {
         StringBuilder sb = new StringBuilder();
         List<Long> timeList = new ArrayList<>(map.keySet());
         Collections.sort(timeList);
@@ -63,5 +104,5 @@ public class LyricsUtils {
             e.printStackTrace();
         }
         return map;
-    }
+    }*/
 }

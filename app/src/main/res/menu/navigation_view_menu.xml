@@ -4,21 +4,21 @@
     <group android:id="@+id/group1">
         <item
             android:id="@+id/scan_music"
-            android:title="扫描本地音乐"
+            android:title="@string/scan_local_music"
             android:icon="@drawable/ic_scan"/>
     </group>
 
     <group android:id="@+id/group2">
         <item
             android:id="@+id/clock_stop_music"
-            android:title="定时停止播放"
+            android:title="@string/timer_to_stop"
             android:icon="@drawable/ic_timer"/>
     </group>
 
     <group android:id="@+id/group3">
         <item
             android:id="@+id/exit"
-            android:title="退出"
+            android:title="@string/exit_app"
             android:icon="@drawable/ic_exit"/>
     </group>
 </menu>

@@ -5,12 +5,12 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:background="?android:attr/selectableItemBackground"
-    android:padding="10dp">
+    android:padding="@dimen/padding_10">
 
     <com.tct.musicplayer.views.CircleImageView
         android:id="@+id/iv_song_pic"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="@dimen/play_list_image_radius"
+        android:layout_height="@dimen/play_list_image_radius"
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true"/>
 
@@ -20,8 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/iv_song_pic"
         android:layout_toStartOf="@id/tv_song_time"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginLeft="@dimen/margin_5"
+        android:layout_marginRight="@dimen/margin_5"
         android:layout_centerVertical="true"
         android:orientation="vertical">
         <com.tct.musicplayer.views.MarqueeTextView
@@ -29,14 +29,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/text_size_14"/>
 
         <com.tct.musicplayer.views.MarqueeTextView
             android:id="@+id/tv_song_singer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:textSize="12sp"/>
+            android:textSize="@dimen/small_text_size"/>
     </LinearLayout>
 
 

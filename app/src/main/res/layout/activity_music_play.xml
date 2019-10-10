@@ -4,22 +4,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/gray_bg"
-    android:paddingBottom="10dp"
+    android:paddingBottom="@dimen/padding_10"
     android:fitsSystemWindows="true">
 
     <RelativeLayout
         android:id="@+id/top_layout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:layout_height="@dimen/title_height"
+        android:paddingLeft="@dimen/padding_10"
+        android:paddingRight="@dimen/padding_10"
         android:layout_alignParentTop="true">
         <ImageView
             android:id="@+id/back_image_view"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_alignParentLeft="true"
+            android:layout_width="@dimen/title_icon_width_height"
+            android:layout_height="@dimen/title_icon_width_height"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_back_white"/>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -29,26 +30,26 @@
             <com.tct.musicplayer.views.MarqueeTextView
                 android:id="@+id/music_name"
                 android:layout_height="wrap_content"
-                android:layout_width="200dp"
+                android:layout_width="@dimen/title_text_width"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:textSize="18sp"/>
+                android:textSize="@dimen/big_text_size"/>
             <com.tct.musicplayer.views.MarqueeTextView
                 android:id="@+id/music_singer"
-                android:layout_width="200dp"
+                android:layout_width="@dimen/title_text_width"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:maxLines="1"
                 android:ellipsize="end" />
         </LinearLayout>
-
         <ImageView
             android:id="@+id/share_image_view"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_alignParentRight="true"
+            android:layout_width="@dimen/title_icon_width_height"
+            android:layout_height="@dimen/title_icon_width_height"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_share"/>
     </RelativeLayout>
 
@@ -63,26 +64,26 @@
     <LinearLayout
         android:id="@+id/circle_layout"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="@dimen/circle_indicator_layout_height"
         android:orientation="horizontal"
         android:layout_above="@id/bottom_progress_layout"
         android:gravity="center">
         <View
             android:id="@+id/circle1"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
+            android:layout_width="@dimen/circle_indicator_radius"
+            android:layout_height="@dimen/circle_indicator_radius"
             android:background="@drawable/bg_circle"/>
         <View
             android:id="@+id/circle2"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_width="@dimen/circle_indicator_radius"
+            android:layout_height="@dimen/circle_indicator_radius"
+            android:layout_marginStart="@dimen/margin_10"
             android:background="@drawable/bg_circle"/>
         <View
             android:id="@+id/circle3"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_width="@dimen/circle_indicator_radius"
+            android:layout_height="@dimen/circle_indicator_radius"
+            android:layout_marginStart="@dimen/margin_10"
             android:background="@drawable/bg_circle"/>
     </LinearLayout>
 
@@ -90,8 +91,8 @@
         android:id="@+id/bottom_progress_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="@dimen/padding_10"
+        android:paddingRight="@dimen/padding_10"
         android:layout_above="@id/bottom_layout">
         <TextView
             android:id="@+id/music_curr_time"
@@ -99,102 +100,67 @@
             android:layout_height="wrap_content"
             android:text="@string/default_time"
             android:textColor="@color/white"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignParentStart="true"/>
         <SeekBar
             android:id="@+id/seek_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/music_curr_time"
-            android:layout_toLeftOf="@id/music_total_time"/>
+            android:layout_toEndOf="@id/music_curr_time"
+            android:layout_toStartOf="@id/music_total_time"/>
         <TextView
             android:id="@+id/music_total_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/default_time"
             android:textColor="@color/white"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/bottom_layout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/bottom_layout_height"
         android:layout_alignParentBottom="true"
-        android:paddingBottom="10dp"
         android:gravity="center">
-        <!--<ImageView
-            android:id="@+id/playing_list"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_playing_list"/>-->
         <ImageView
             android:id="@+id/play_in_order"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            style="@style/MusicPlayBottomImageStyle"
             android:src="@drawable/ic_play_in_order" />
         <ImageView
             android:id="@+id/play_single_cycle"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
+            style="@style/MusicPlayBottomImageStyle"
             android:visibility="gone"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_play_single_cycle" />
         <ImageView
             android:id="@+id/play_random"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
+            style="@style/MusicPlayBottomImageStyle"
             android:visibility="gone"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_play_random" />
         <ImageView
             android:id="@+id/last_music"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            style="@style/MusicPlayBottomImageStyle"
             android:src="@drawable/ic_pre_music_white"/>
         <ImageView
             android:id="@+id/play_music"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            style="@style/MusicPlayBottomImageStyle"
             android:src="@drawable/ic_play_music_white"/>
         <ImageView
             android:id="@+id/pause_music"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
+            style="@style/MusicPlayBottomImageStyle"
             android:visibility="gone"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_pause_music_white"/>
         <ImageView
             android:id="@+id/next_music"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            style="@style/MusicPlayBottomImageStyle"
             android:src="@drawable/ic_next_music_white"/>
         <ImageView
             android:id="@+id/add_favorite"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            style="@style/MusicPlayBottomImageStyle"
             android:src="@drawable/ic_favorite_add_white"/>
         <ImageView
             android:id="@+id/remove_favorite"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
+            style="@style/MusicPlayBottomImageStyle"
             android:visibility="gone"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_favorite"/>
     </LinearLayout>
 </RelativeLayout>

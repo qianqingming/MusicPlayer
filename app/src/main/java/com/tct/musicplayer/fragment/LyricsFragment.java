@@ -16,8 +16,10 @@ import android.widget.TextView;
 
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.R;
+import com.tct.musicplayer.entity.LyricsRow;
 import com.tct.musicplayer.entity.Song;
 import com.tct.musicplayer.utils.LyricsUtils;
+import com.tct.musicplayer.views.LyricsView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,11 +60,15 @@ public class LyricsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_lyrics, container, false);
-        final TextView textView = view.findViewById(R.id.text_view);
+        //final TextView textView = view.findViewById(R.id.text_view);
+        //HashMap<Long, String> map = LyricsUtils.parseLyrics(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "海阔天空 - Beyond.lrc");
+        //textView.setText(LyricsUtils.getSortedLyrics(map));
 
-        HashMap<Long, String> map = LyricsUtils.parseLyrics(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "海阔天空 - Beyond.lrc");
+        List<LyricsRow> lyricsRowList = LyricsUtils.parseLyrics(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "海阔天空 - Beyond.lrc");
 
-        textView.setText(LyricsUtils.getSortedLyrics(map));
+        LyricsView lyricsView = view.findViewById(R.id.lyrics_view);
+        lyricsView.hasLyrics(true);
+        lyricsView.setLyricsRowList(lyricsRowList);
         return view;
     }
 

@@ -2,13 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/notification_layout"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="70dp"
     android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/notification_music_img"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/normal_notification_layout_height"
         android:layout_weight="1"
         android:scaleType="fitXY"/>
 
@@ -16,7 +16,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="2"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="@dimen/margin_10"
         android:layout_gravity="center"
         android:orientation="vertical">
         <TextView
@@ -41,34 +41,24 @@
         android:orientation="horizontal">
         <ImageView
             android:id="@+id/notification_last_music"
-            android:layout_width="0dp"
-            android:layout_height="25dp"
-            android:layout_weight="1"
+            style="@style/NotificationViewImageStyle"
             android:src="@drawable/ic_pre_music"/>
         <ImageView
             android:id="@+id/notification_play_music"
-            android:layout_width="0dp"
-            android:layout_height="25dp"
-            android:layout_weight="1"
+            style="@style/NotificationViewImageStyle"
             android:src="@drawable/ic_play_music"/>
         <ImageView
             android:id="@+id/notification_pause_music"
-            android:layout_width="0dp"
-            android:layout_height="25dp"
-            android:layout_weight="1"
+            style="@style/NotificationViewImageStyle"
             android:visibility="gone"
             android:src="@drawable/ic_pause_music"/>
         <ImageView
             android:id="@+id/notification_next_music"
-            android:layout_width="0dp"
-            android:layout_height="25dp"
-            android:layout_weight="1"
+            style="@style/NotificationViewImageStyle"
             android:src="@drawable/ic_next_music"/>
         <ImageView
             android:id="@+id/notification_close"
-            android:layout_width="0dp"
-            android:layout_height="25dp"
-            android:layout_weight="1"
+            style="@style/NotificationViewImageStyle"
             android:src="@drawable/ic_close_notification"/>
     </LinearLayout>
 
