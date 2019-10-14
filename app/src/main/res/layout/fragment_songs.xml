@@ -26,9 +26,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
+        android:scrollbarStyle="outsideOverlay"
         app:fastScrollEnabled="true"
         app:fastScrollHorizontalThumbDrawable="@drawable/thumb_drawable"
         app:fastScrollHorizontalTrackDrawable="@drawable/line_drawable"
         app:fastScrollVerticalThumbDrawable="@drawable/thumb_drawable"
         app:fastScrollVerticalTrackDrawable="@drawable/line_drawable"/>
+    
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_20"
+        android:layout_marginEnd="@dimen/margin_50"
+        android:visibility="gone"
+        app:backgroundTint="@color/white"
+        android:clickable="true"
+        app:fabSize="mini"
+        android:scaleType="center"
+        android:src="@drawable/ic_scroll_to_curr_pos"
+        android:layout_gravity="end|bottom"/>
 </FrameLayout>

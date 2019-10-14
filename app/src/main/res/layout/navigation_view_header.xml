@@ -1,16 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/navigation_image_height"
         android:layout_height="@dimen/navigation_image_height"
+        android:layout_gravity="center"
         android:src="@drawable/ic_default_music"/>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/navigation_view_height"
-        android:background="@color/gray"/>
+        android:background="@color/gray_light"/>
+
+    <LinearLayout
+        android:id="@+id/scan_music"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingStart="@dimen/padding_15"
+        android:paddingTop="@dimen/padding_10"
+        android:paddingBottom="@dimen/padding_10"
+        android:paddingEnd="@dimen/padding_10">
+        <ImageView
+            android:layout_width="@dimen/dp_25"
+            android:layout_height="@dimen/dp_25"
+            android:src="@drawable/ic_scan"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_local_music"
+            android:layout_marginStart="@dimen/dp_30"
+            android:textColor="@color/black"
+            android:textSize="@dimen/middle_text_size"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="@color/gray_light"/>
+
+    <RelativeLayout
+        android:id="@+id/clock_stop_music"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingStart="@dimen/padding_15"
+        android:paddingTop="@dimen/padding_10"
+        android:paddingBottom="@dimen/padding_10"
+        android:paddingEnd="@dimen/padding_10">
+        <ImageView
+            android:id="@+id/icon_timer"
+            android:layout_width="@dimen/dp_25"
+            android:layout_height="@dimen/dp_25"
+            android:src="@drawable/ic_timer"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/timer_to_stop"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_toEndOf="@id/icon_timer"
+            android:textColor="@color/black"
+            android:textSize="@dimen/middle_text_size"/>
+        <TextView
+            android:id="@+id/remain_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:textColor="@color/black"
+            android:textSize="@dimen/middle_text_size"/>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="@color/gray_light"/>
+
+    <LinearLayout
+        android:id="@+id/exit"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingStart="@dimen/padding_15"
+        android:paddingTop="@dimen/padding_10"
+        android:paddingBottom="@dimen/padding_10"
+        android:paddingEnd="@dimen/padding_10">
+        <ImageView
+            android:layout_width="@dimen/dp_25"
+            android:layout_height="@dimen/dp_25"
+            android:src="@drawable/ic_exit"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/exit_app"
+            android:layout_marginStart="@dimen/dp_30"
+            android:textColor="@color/black"
+            android:textSize="@dimen/middle_text_size"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="@color/gray_light"/>
 </LinearLayout>

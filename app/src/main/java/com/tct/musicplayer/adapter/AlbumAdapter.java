@@ -51,7 +51,11 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
         if (albumList != null) {
             Album album = albumList.get(position);
             //holder.albumImg.setImageBitmap(album.getSongList().get(0).getAlbumBmp());
-            GlideUtils.setImg(context,album.getSongList().get(0).getAlbumPath(),holder.albumImg);
+            //GlideUtils.setImg(context,album.getSongList().get(0).getAlbumPath(),holder.albumImg);
+            Glide.with(context).load(album.getSongList().get(0).getAlbumPath())
+                    .error(R.drawable.ic_default_music)
+                    .placeholder(R.drawable.ic_default_music)
+                    .into(holder.albumImg);
             holder.albumName.setText(album.getAlbumName());
             holder.songCount.setText(""+album.getSongList().size());
             holder.singerName.setText(album.getSinger());

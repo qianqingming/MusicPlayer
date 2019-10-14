@@ -4,6 +4,8 @@ package com.tct.musicplayer.entity;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
+import java.util.Objects;
+
 
 public class Song extends LitePalSupport {
 
@@ -107,5 +109,19 @@ public class Song extends LitePalSupport {
 
     public void setAlbumPath(String albumPath) {
         this.albumPath = albumPath;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Song song = (Song) o;
+        return Objects.equals(songId, song.songId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(songId);
     }
 }

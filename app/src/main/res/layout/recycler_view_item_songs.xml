@@ -55,6 +55,7 @@
         android:id="@+id/tv_song_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_14"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"/>
 </RelativeLayout>

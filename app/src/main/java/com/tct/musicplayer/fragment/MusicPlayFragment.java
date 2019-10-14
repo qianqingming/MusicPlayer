@@ -100,9 +100,13 @@ public class MusicPlayFragment extends Fragment {
 
     public void setMusicImgBitmap(String path) {
         if (musicImg != null) {
-            GlideUtils.setImg(getActivity(),path,musicImg);
+            //GlideUtils.setImg(getActivity(),path,musicImg);
+            Glide.with(getActivity())
+                    .load(path)
+                    .error(R.drawable.ic_default_music)
+                    .placeholder(R.drawable.ic_default_music)
+                    .into(musicImg);
         }
-        //musicImg.setImageBitmap(bitmap);
     }
 
     public void pauseObjectAnimator() {

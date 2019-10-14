@@ -5,10 +5,9 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
+import android.provider.MediaStore;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -28,11 +27,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.tct.musicplayer.MainActivity;
-import com.tct.musicplayer.MusicPlayActivity;
 import com.tct.musicplayer.R;
+import com.tct.musicplayer.entity.Album;
+import com.tct.musicplayer.entity.Artist;
 import com.tct.musicplayer.entity.Song;
 import com.tct.musicplayer.utils.BroadcastUtils;
-import com.tct.musicplayer.utils.GlideUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.utils.ToastUtils;
 
@@ -88,7 +87,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         int[] attribute = new int[] { android.R.attr.selectableItemBackground};
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(typedValue.resourceId, attribute);
         Drawable drawable = typedArray.getDrawable(0);
-        typedArray.recycle();
+        //typedArray.recycle();
         return drawable;
     }
 
@@ -103,10 +102,10 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 //更新播放的列表
                 MainActivity.musicService.setMusicIndex(holder.getAdapterPosition());
                 MainActivity.musicService.setMusicList(list);
-                MainActivity.musicList = list;
+                //MainActivity.musicList = list;
                 //跳转Activity
-                Intent intent1 = new Intent(context, MusicPlayActivity.class);
-                context.startActivity(intent1);
+                //Intent intent1 = new Intent(context, MusicPlayActivity.class);
+                //context.startActivity(intent1);
                 //发送广播，播放音乐
                 Intent intent = new Intent(BroadcastUtils.ACTION_PLAY_SELECTED_MUSIC);
                 intent.putExtra("position",holder.getAdapterPosition());
@@ -146,14 +145,16 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             //holder.songImg.setImageDrawable(new BitmapDrawable(context.getResources(),song.getAlbumBmp()));
             //holder.songImg.setImageBitmap(song.getAlbumBmp());
             //GlideUtils.setImg(context,song.getAlbumPath(),holder.songImg);
-            Glide.with(context).load(song.getAlbumPath()).error(R.drawable.ic_default_music).into(holder.songImg);
+            Glide.with(context).load(song.getAlbumPath())
+                    .error(R.drawable.ic_default_music)
+                    .placeholder(R.drawable.ic_default_music)
+                    .into(holder.songImg);
 
             if (song.getFavorite() == 1){
                 holder.favorite.setVisibility(View.VISIBLE);
             }else {
                 holder.favorite.setVisibility(View.GONE);
             }
-
             if (MainActivity.musicService != null && MainActivity.musicService.getMusicList() != null) {
                 if (MainActivity.musicService.getMusicIndex() >= 0) {
                     if (song.getId() == MainActivity.musicService.getMusicList().get(MainActivity.musicService.getMusicIndex()).getId()){
@@ -172,7 +173,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return list == null ? 0 : list.size();
     }
 
 
@@ -199,6 +200,10 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
     public void setList(List<Song> list) {
         this.list = list;
+    }
+
+    public List<Song> getList() {
+        return list;
     }
 
     /**
@@ -238,6 +243,8 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
                 List<Song> favoriteList = MusicUtils.getFavoriteList();
                 favoriteList.add(song);
+
+                notifyDataSetChanged();
 
                 Intent intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
                 context.sendBroadcast(intent);
@@ -307,8 +314,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                     }
                 }
 
-                MainActivity.musicService.setMusicList(favoriteList);
-
                 Intent intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
                 context.sendBroadcast(intent);
 
@@ -358,18 +363,73 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             @Override
             public void onClick(View view) {
                 Song song = list.get(longClickPos);
-                LitePal.delete(Song.class,song.getId());
                 if (checkBox.isChecked()) {
                     //从设备中删除
-                    File file = new File(song.getPath());
+                    /*File file = new File(song.getPath());
                     if (file.exists()) {
                         file.delete();
+                    }*/
+                    context.getContentResolver().delete(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            MediaStore.Audio.Media.DATA+ " = '" + song.getPath() + "'", null);
+                }
+
+                //-------------------更新list------------------
+                List<Song> favoriteList = MusicUtils.getFavoriteList();
+                for (int i = 0; i < favoriteList.size(); i++) {
+                    if (favoriteList.get(i).getSongId().equals(song.getSongId())) {
+                        favoriteList.remove(i);
+                        break;
                     }
                 }
 
-                MusicUtils.setMusicList(LitePal.findAll(Song.class));
+                List<Song> musicList = MusicUtils.getMusicList();
+                for (int i = 0; i < musicList.size(); i++) {
+                    if (musicList.get(i).getSongId().equals(song.getSongId())) {
+                        musicList.remove(i);
+                        break;
+                    }
+                }
+
+                List<Artist> artistList = MusicUtils.getArtistList();
+                for (int i = 0; i < artistList.size(); i++) {
+                    if (artistList.get(i).getSinger().equals(song.getSinger())) {
+                        if (artistList.get(i).getSongList().size() == 1) {
+                            artistList.remove(i);
+                        }else {
+                            for (int j = 0; j < artistList.get(i).getSongList().size(); j++) {
+                                if (artistList.get(i).getSongList().get(j).getSongId().equals(song.getSongId())) {
+                                    artistList.get(i).getSongList().remove(j);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                List<Album> albumList = MusicUtils.getAlbumList();
+                for (int i = 0; i < albumList.size(); i++) {
+                    if (albumList.get(i).getSinger().equals(song.getSinger())) {
+                        if (albumList.get(i).getSongList().size() == 1) {
+                            albumList.remove(i);
+                        }else {
+                            for (int j = 0; j < albumList.get(j).getSongList().size(); j++) {
+                                if (albumList.get(i).getSongList().get(j).getSongId().equals(song.getSongId())) {
+                                    albumList.get(i).getSongList().remove(j);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+                //-------------------------
+
+                LitePal.delete(Song.class,song.getId());
 
                 Intent intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
+                intent.putExtra("songId",song.getSongId());
                 context.sendBroadcast(intent);
                 dialog.dismiss();
                 ToastUtils.showToast(context,context.getResources().getString(R.string.delete_success));

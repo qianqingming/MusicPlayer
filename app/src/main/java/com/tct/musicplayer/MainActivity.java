@@ -1,6 +1,5 @@
 package com.tct.musicplayer;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -19,6 +18,7 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
@@ -35,10 +35,12 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.tct.musicplayer.adapter.MyFragmentPagerAdapter;
@@ -49,13 +51,10 @@ import com.tct.musicplayer.fragment.FavoriteFragment;
 import com.tct.musicplayer.fragment.SongsFragment;
 import com.tct.musicplayer.service.MusicService;
 import com.tct.musicplayer.utils.BroadcastUtils;
-import com.tct.musicplayer.utils.GlideUtils;
 import com.tct.musicplayer.utils.MusicUtils;
-import com.tct.musicplayer.utils.NotificationUtils;
 import com.tct.musicplayer.utils.ToastUtils;
 
 import org.litepal.LitePal;
-import org.litepal.crud.callback.FindMultiCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,11 +77,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView lastMusicImg,playMusicImg,pauseMusicImg,nextMusicImg;//底部上一曲、播放、暂停、下一曲
     private ProgressBar progressBar;
     private LinearLayout bottomTextLayout;
+    private RelativeLayout titleLayout;
 
     private ImageView bottomMusicBg;//底部图片
-    private TextView bottomDefaultText,bottomMusicName,bottomMusicSinger;//底部默认文字、歌曲名字、歌手
+    private TextView bottomMusicName,bottomMusicSinger;//底部默认文字、歌曲名字、歌手
 
-    public static List<Song> musicList;
+    private TextView remainTime;//定时器剩余时间
 
     private MusicStateReceiver musicStateReceiver;
     private ObjectAnimator objectAnimator;
@@ -96,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Timer timer;
 
     private int closeTime = -1;//定时停止播放的时间
+    private CountDownTimer countDownTimer = null;
+    private CountDownTimer afterPlayCompleteCountTimer = null;
 
 
     public static MusicService musicService;
@@ -145,16 +147,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //绑定TabLayout与ViewPager
         init();
 
+        loadData();
+
+        bindService(new Intent(this,MusicService.class),serviceConnection,BIND_AUTO_CREATE);
+
+        registerBroadcast();
+
+        initNavigationView();
+
+        initAnimation();
+    }
+
+    private void loadData() {
         boolean first = MusicUtils.isFirst(this);
         if (first) {
-            //MusicUtils.loadMusicList(this);
             MyTask myTask = new MyTask();
             myTask.execute();
         }else {
-            musicList = LitePal.findAll(Song.class);
-            MusicUtils.setMusicList(musicList);
-            notifyData();
+            MusicUtils.setMusicList(LitePal.findAll(Song.class));
+            new AsyncTask<Void,Void,Void>(){
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    MusicUtils.loadFavoriteList();
+                    MusicUtils.loadArtistList();
+                    MusicUtils.loadAlbumList();
+                    return null;
+                }
 
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    notifyData();
+                }
+            }.execute();
             /*LitePal.findAllAsync(Song.class).listen(new FindMultiCallback<Song>() {
                 @Override
                 public void onFinish(List<Song> list) {
@@ -165,14 +190,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });*/
         }
-
-        bindService(new Intent(this,MusicService.class),serviceConnection,BIND_AUTO_CREATE);
-
-        registerBroadcast();
-
-        initNavigationView();
-
-        initAnimation();
     }
 
 
@@ -188,13 +205,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pauseMusicImg = findViewById(R.id.pause_music_image_view);
         nextMusicImg = findViewById(R.id.next_music_image_view);
         progressBar = findViewById(R.id.progress_bar_music);
+        titleLayout = findViewById(R.id.title_bar);
 
         bottomMusicBg = findViewById(R.id.music_bg_image_view);
-        bottomDefaultText = findViewById(R.id.default_bottom_music_text);
         bottomMusicName = findViewById(R.id.bottom_music_name);
         bottomMusicSinger = findViewById(R.id.bottom_music_singer);
         bottomTextLayout = findViewById(R.id.bottom_music_singer_layout);
-
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
@@ -207,9 +223,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pauseMusicImg.setOnClickListener(this);
         nextMusicImg.setOnClickListener(this);
         bottomMusicBg.setOnClickListener(this);
-        bottomDefaultText.setOnClickListener(this);
-        bottomMusicName.setOnClickListener(this);
-        bottomMusicSinger.setOnClickListener(this);
+        bottomTextLayout.setOnClickListener(this);
+
+        titleLayout.setOnClickListener(new DoubleClickListener() {
+            @Override
+            public void onDoubleClick(View v) {
+                int currentItem = viewPager.getCurrentItem();
+                switch (currentItem) {
+                    case 0:
+                        favoriteFragment.smoothScrollToTop();
+                        break;
+                    case 1:
+                        songsFragment.smoothScrollToTop();
+                        break;
+                    case 2:
+                        artistFragment.smoothScrollToTop();
+                        break;
+                    case 3:
+                        albumFragment.smoothScrollToTop();
+                        break;
+                }
+                Toast.makeText(MainActivity.this,getResources().getString(R.string.back_to_top),Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void registerBroadcast() {
@@ -238,7 +274,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initNavigationView() {
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        navigationView.inflateHeaderView(R.layout.navigation_view_header);
+        View view = navigationView.getHeaderView(0);
+        remainTime = view.findViewById(R.id.remain_time);//剩余时间
+        view.findViewById(R.id.scan_music).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.closeDrawers();
+                Intent intent = new Intent(MainActivity.this,ScanActivity.class);
+                startActivity(intent);
+            }
+        });
+        view.findViewById(R.id.clock_stop_music).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.closeDrawers();
+                initTimerDialog();
+            }
+        });
+        view.findViewById(R.id.exit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        /*navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -260,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //drawerLayout.closeDrawers();
                 return true;
             }
-        });
+        });*/
     }
 
     private void initTimerDialog() {
@@ -280,6 +341,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 getResources().getString(R.string.timer_time_4), getResources().getString(R.string.timer_time_5),
                 getResources().getString(R.string.timer_time_customer)
         };
+
+        closeTime = -1;//初始化停止时间
         final ListView listView = view.findViewById(R.id.timer_single_choice);
         listView.setAdapter(new ArrayAdapter<String>(this,R.layout.item_single_choice,timerList));
         listView.setItemsCanFocus(false);
@@ -292,6 +355,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switch (i) {
                     case 0:
                         closeTime = -1;
+                        remainTime.setText("");
                         break;
                     case 1:
                         closeTime = 10;
@@ -388,35 +452,96 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         view.findViewById(R.id.sure).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (closeTime != -1) {
+                if (countDownTimer != null) {
+                    countDownTimer.cancel();
+                }
+                if (afterPlayCompleteCountTimer != null) {
+                    afterPlayCompleteCountTimer.cancel();
+                }
+                if (closeTime == -1) {
+                    //不开启
+                    remainTime.setText("");
+                }else {
                     ToastUtils.showToast(MainActivity.this,"设置成功，"+closeTime+"分钟后将自动关闭");
-                    Timer timer = new Timer();
-                    TimerTask timerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            Log.d(TAG,"close");
-                            if (switchUntilEnd.isChecked() && musicService.isPlaying()) {
-                                int t = musicService.getDuration() - musicService.getCurrPosition();
-                                Timer timer1 = new Timer();
-                                TimerTask timerTask1 = new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        Intent intent = new Intent(BroadcastUtils.ACTION_CLOSE);
-                                        sendOrderedBroadcast(intent,null);
-                                    }
-                                };
-                                timer1.schedule(timerTask1,t);
-                            }else {
-                                Intent intent = new Intent(BroadcastUtils.ACTION_CLOSE);
-                                sendOrderedBroadcast(intent,null);
-                            }
-                        }
-                    };
-                    timer.schedule(timerTask,closeTime*60*1000);
+                    countDownTimer = getCountDownTimer(closeTime * 60 * 1000,switchUntilEnd.isChecked());
                 }
                 dialog.dismiss();
             }
         });
+    }
+
+    private CountDownTimer getCountDownTimer(long closeMillis, final boolean isSwitchChecked) {
+        CountDownTimer cdTimer = new CountDownTimer(closeMillis, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                remainTime.setText(formatTime(millisUntilFinished));
+            }
+
+            @Override
+            public void onFinish() {
+                remainTime.setText("");
+                if (isSwitchChecked && musicService.isPlaying()) {
+                    //是否选中了倒计时结束后播放完当前歌曲再停止
+                    int t = musicService.getDuration() - musicService.getCurrPosition();
+                    afterPlayCompleteCountTimer = new CountDownTimer(t, 1000) {
+                        @Override
+                        public void onTick(long l) {
+                            remainTime.setText(formatTime(l));
+                        }
+                        @Override
+                        public void onFinish() {
+                            remainTime.setText("");
+                            Intent intent = new Intent(BroadcastUtils.ACTION_CLOSE);
+                            sendOrderedBroadcast(intent,null);
+                        }
+                    }.start();
+                }else {
+                    Intent intent = new Intent(BroadcastUtils.ACTION_CLOSE);
+                    sendOrderedBroadcast(intent,null);
+                }
+            }
+        };
+        cdTimer.start();
+        return cdTimer;
+    }
+
+    private String formatTime(long millisUntilFinished) {
+        String formatTime;
+        if (millisUntilFinished / 1000 / 60 > 60) {
+            long hour = millisUntilFinished / 1000 / 60 / 60;
+            long temp = (millisUntilFinished - hour * 60 * 60 *1000) / 1000;
+            long min = temp / 60;
+            long sec =  temp % 60;
+            if (hour < 10) {
+                formatTime = "0" + hour + ":";
+            }else {
+                formatTime = hour + ":";
+            }
+            if (min < 10) {
+                formatTime = formatTime +  "0" + min + ":";
+            }else {
+                formatTime = formatTime + min + ":";
+            }
+            if (sec < 10) {
+                formatTime = formatTime +  "0" + sec;
+            }else {
+                formatTime = formatTime + sec + "";
+            }
+        }else {
+            long min = millisUntilFinished / 1000 / 60;
+            long sec =  millisUntilFinished / 1000 % 60;
+            if (min < 10) {
+                formatTime = "0" + min + ":";
+            }else {
+                formatTime = min + ":";
+            }
+            if (sec < 10) {
+                formatTime = formatTime +  "0" + sec;
+            }else {
+                formatTime = formatTime + sec + "";
+            }
+        }
+        return formatTime;
     }
 
     @Override
@@ -515,29 +640,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 initPopMenu();
                 break;
             case R.id.music_bg_image_view:
-            case R.id.default_bottom_music_text:
-            case R.id.bottom_music_name:
-            case R.id.bottom_music_singer:
+            case R.id.bottom_music_singer_layout:
                 intent = new Intent(this, MusicPlayActivity.class);
                 startActivity(intent);
                 break;
             case R.id.play_music_image_view:
-                //playMusic();
                 intent = new Intent(BroadcastUtils.ACTION_PLAY_MUSIC);
                 sendOrderedBroadcast(intent,null);
                 break;
             case R.id.pause_music_image_view:
-                //pauseMusic();
                 intent = new Intent(BroadcastUtils.ACTION_PAUSE_MUSIC);
                 sendOrderedBroadcast(intent,null);
                 break;
             case R.id.last_music_image_view:
-                //playLastMusic();
                 intent = new Intent(BroadcastUtils.ACTION_LAST_MUSIC);
                 sendOrderedBroadcast(intent,null);
                 break;
             case R.id.next_music_image_view:
-                //playNextMusic();
                 intent = new Intent(BroadcastUtils.ACTION_NEXT_MUSIC);
                 sendOrderedBroadcast(intent,null);
                 //sendBroadcast(intent);
@@ -548,27 +667,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void playMusic() {
-        //musicService.playMusic();
-        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
+        Song song = musicService.getMusicList().get(musicService.getMusicIndex());
+        Glide.with(this).load(song.getAlbumPath()).error(R.drawable.ic_default_music).into(bottomMusicBg);
+        bottomMusicName.setText(song.getName());
+        bottomMusicSinger.setText(song.getSinger());
+        playMusicImg.setVisibility(View.GONE);
+        pauseMusicImg.setVisibility(View.VISIBLE);
         if (hasPlayedMusic){
             objectAnimator.resume();
         }else {
             objectAnimator.start();
-            hasPlayedMusic = true;
         }
+        hasPlayedMusic = true;
     }
 
     private void pauseMusic() {
-        //musicService.pauseMusic();
-        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
-        //songsFragment.setSelectedPos(musicService.getMusicIndex());
+        pauseMusicImg.setVisibility(View.GONE);
+        playMusicImg.setVisibility(View.VISIBLE);
         objectAnimator.pause();
     }
 
 
     private void playLastMusic() {
-        //musicService.playLastMusic();
-        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
+        Song song = musicService.getMusicList().get(musicService.getMusicIndex());
+        Glide.with(this).load(song.getAlbumPath()).error(R.drawable.ic_default_music).into(bottomMusicBg);
+        bottomMusicName.setText(song.getName());
+        bottomMusicSinger.setText(song.getSinger());
+        playMusicImg.setVisibility(View.GONE);
+        pauseMusicImg.setVisibility(View.VISIBLE);
+
         songsFragment.scrollToPosition(musicService.getMusicIndex());
         favoriteFragment.notifyDataSetChanged();
         objectAnimator.start();
@@ -576,17 +703,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void playNextMusic() {
-        //musicService.playNextMusic();
-        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
-        songsFragment.scrollToPosition(musicService.getMusicIndex());
-        favoriteFragment.notifyDataSetChanged();
+        Song song = musicService.getMusicList().get(musicService.getMusicIndex());
+        Glide.with(this).load(song.getAlbumPath())
+                .error(R.drawable.ic_default_music)
+                .placeholder(R.drawable.ic_default_music)
+                .into(bottomMusicBg);
+        bottomMusicName.setText(song.getName());
+        bottomMusicSinger.setText(song.getSinger());
+        playMusicImg.setVisibility(View.GONE);
+        pauseMusicImg.setVisibility(View.VISIBLE);
+        switch (viewPager.getCurrentItem()) {
+            case 0:
+                favoriteFragment.notifyDataSetChanged();
+                break;
+            case 1:
+                songsFragment.scrollToPosition(musicService.getMusicIndex());
+                break;
+        }
         objectAnimator.start();
         hasPlayedMusic = true;
     }
 
     private void playSelectedMusic(int index) {
-        //musicService.playSelectedMusic(index);
-        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
+        Song song = musicService.getMusicList().get(musicService.getMusicIndex());
+        Glide.with(this).load(song.getAlbumPath()).error(R.drawable.ic_default_music).into(bottomMusicBg);
+        bottomMusicName.setText(song.getName());
+        bottomMusicSinger.setText(song.getSinger());
+        playMusicImg.setVisibility(View.GONE);
+        pauseMusicImg.setVisibility(View.VISIBLE);
+
         objectAnimator.start();
         favoriteFragment.notifyDataSetChanged();
         songsFragment.scrollToPosition(index);
@@ -594,7 +739,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void playCompleted() {
-        updateViews(musicService.getMusicList(),musicService.getMusicIndex());
+        Song song = musicService.getMusicList().get(musicService.getMusicIndex());
+        Glide.with(this).load(song.getAlbumPath()).error(R.drawable.ic_default_music).into(bottomMusicBg);
+        bottomMusicName.setText(song.getName());
+        bottomMusicSinger.setText(song.getSinger());
+
         songsFragment.scrollToPosition(musicService.getMusicIndex());
         objectAnimator.start();
         hasPlayedMusic = true;
@@ -602,34 +751,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void stopMusic() {
         bottomMusicBg.setImageResource(R.drawable.ic_default_music);
-        bottomDefaultText.setVisibility(View.VISIBLE);
-        //bottomMusicName.setVisibility(View.GONE);
-        //bottomMusicSinger.setVisibility(View.GONE);
-        bottomTextLayout.setVisibility(View.GONE);
+        bottomMusicName.setText(getResources().getString(R.string.bottom_music_default_text));
+        bottomMusicSinger.setText("");
         pauseMusicImg.setVisibility(View.GONE);
         playMusicImg.setVisibility(View.VISIBLE);
         objectAnimator.pause();
         progressBar.setProgress(0);
         hasPlayedMusic = false;
-    }
-
-    private void updateViews(List<Song> musicList, int musicIndex) {
-        Song song = musicList.get(musicIndex);
-        GlideUtils.setImg(this,song.getAlbumPath(),bottomMusicBg);
-        bottomDefaultText.setVisibility(View.GONE);
-        //bottomMusicName.setVisibility(View.VISIBLE);
-        //bottomMusicSinger.setVisibility(View.VISIBLE);
-        bottomTextLayout.setVisibility(View.VISIBLE);
-        bottomMusicName.setText(song.getName());
-        bottomMusicSinger.setText(song.getSinger());
-        if (musicService.isPlaying()) {
-            playMusicImg.setVisibility(View.GONE);
-            pauseMusicImg.setVisibility(View.VISIBLE);
-        }else {
-            pauseMusicImg.setVisibility(View.GONE);
-            playMusicImg.setVisibility(View.VISIBLE);
+        //如果倒计时已经开启，关闭
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
         }
-        NotificationUtils.updateRemoteViews(musicList,musicIndex,musicService.isPlaying());
+        if (afterPlayCompleteCountTimer != null) {
+            afterPlayCompleteCountTimer.cancel();
+        }
+        remainTime.setText("");
     }
 
     private void initPopMenu() {
@@ -711,15 +847,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         protected Void doInBackground(Void... voids) {
-            //musicList = MusicUtils.getMusicList(MainActivity.this);
-            musicList = MusicUtils.loadMusicList(MainActivity.this);
+            MusicUtils.loadMusicList(MainActivity.this);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            notifyData();
+            //notifyData();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    MusicUtils.loadFavoriteList();
+                    MusicUtils.loadArtistList();
+                    MusicUtils.loadAlbumList();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyData();
+                        }
+                    });
+                }
+            }).start();
         }
     }
 }

@@ -7,12 +7,18 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.tct.musicplayer.MainActivity;
 import com.tct.musicplayer.R;
 import com.tct.musicplayer.entity.Song;
@@ -120,8 +126,19 @@ public class NotificationUtils {
         normalRemoteViews.setOnClickPendingIntent(R.id.notification_next_music,nextPi);
     }
 
-    public static void updateRemoteViews(List<Song> musicList,int musicIndex,boolean isPlaying) {
-        Song song = musicList.get(musicIndex);
+    public static void updateRemoteViews(Context context,Song song,boolean isPlaying) {
+        /*Glide.with(context).asBitmap().load(song.getAlbumPath()).error(R.drawable.ic_default_music).into(new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                bigRemoteViews.setImageViewBitmap(R.id.notification_music_img,resource);
+                normalRemoteViews.setImageViewBitmap(R.id.notification_music_img, resource);
+            }
+        });*/
+
+        /*Bitmap bitmap = MusicUtils.getArtwork(context, song.getId(), song.getAlbumId());
+        bigRemoteViews.setImageViewBitmap(R.id.notification_music_img, bitmap);
+        normalRemoteViews.setImageViewBitmap(R.id.notification_music_img, bitmap);*/
+
         if (song.getAlbumPath() != null) {
             File file = new File(song.getAlbumPath());
             if (file.exists()) {
@@ -135,7 +152,6 @@ public class NotificationUtils {
             bigRemoteViews.setImageViewResource(R.id.notification_music_img, R.drawable.ic_default_music);
             normalRemoteViews.setImageViewResource(R.id.notification_music_img, R.drawable.ic_default_music);
         }
-        //bigRemoteViews.setImageViewBitmap(R.id.notification_music_img,song.getAlbumBmp());
         bigRemoteViews.setTextViewText(R.id.notification_music_name,song.getName());
         normalRemoteViews.setTextViewText(R.id.notification_music_name,song.getName());
         bigRemoteViews.setTextViewText(R.id.notification_music_singer,song.getSinger());
@@ -151,13 +167,6 @@ public class NotificationUtils {
             bigRemoteViews.setViewVisibility(R.id.notification_play_music, View.VISIBLE);
             normalRemoteViews.setViewVisibility(R.id.notification_play_music, View.VISIBLE);
         }
-        /*if (song.getFavorite() == 1) {
-            bigRemoteViews.setViewVisibility(R.id.add_favorite, View.GONE);
-            bigRemoteViews.setViewVisibility(R.id.remove_favorite, View.VISIBLE);
-        }else {
-            bigRemoteViews.setViewVisibility(R.id.remove_favorite, View.GONE);
-            bigRemoteViews.setViewVisibility(R.id.add_favorite, View.VISIBLE);
-        }*/
         manager.notify(1,notification);
     }
 

@@ -35,9 +35,9 @@
         android:layout_width="@dimen/navigation_bar_hint_text_width_height"
         android:layout_height="@dimen/navigation_bar_hint_text_width_height"
         android:layout_centerInParent="true"
-        android:background="@color/navigation_bar_hint_text_bg"
+        android:background="@color/gray"
         android:gravity="center"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="@dimen/big_text_size"
         android:visibility="gone" />
 

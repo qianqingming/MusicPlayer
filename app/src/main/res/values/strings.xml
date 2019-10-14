@@ -53,4 +53,7 @@
     <string name="play_list">播放列表</string>
     <string name="hour">小时</string>
     <string name="min">分钟</string>
+    <string name="back_to_top">已回到顶部</string>
+    <string name="scroll_to_curr_pos">已定位到当前播放歌曲</string>
+    <string name="scan_success">扫描成功</string>
 </resources>

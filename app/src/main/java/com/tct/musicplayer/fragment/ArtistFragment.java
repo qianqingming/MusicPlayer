@@ -95,7 +95,7 @@ public class ArtistFragment extends Fragment {
 
     public void notifyData() {
         if (artistAdapter != null) {
-            singerList = MusicUtils.getSortedSingerList();
+            singerList = MusicUtils.getArtistList();
             if (singerList == null || singerList.size() == 0) {
                 loadText.setText("没有歌曲文件");
             } else {
@@ -105,6 +105,19 @@ public class ArtistFragment extends Fragment {
                 artistAdapter.setSingerList(singerList);
                 artistAdapter.notifyDataSetChanged();
             }
+        }
+    }
+
+    public void scrollToPosition(int position) {
+        if (recyclerView != null) {
+            recyclerView.scrollToPosition(position);
+            //adapter.notifyDataSetChanged();
+        }
+    }
+
+    public void smoothScrollToTop() {
+        if (recyclerView != null) {
+            recyclerView.smoothScrollToPosition(0);
         }
     }
 }

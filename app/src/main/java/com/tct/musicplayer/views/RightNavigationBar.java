@@ -64,7 +64,7 @@ public class RightNavigationBar extends View {
             initPaint();
             //高亮字母颜色
             if (choose == i) {
-                textPaint.setColor(Color.RED);
+                //textPaint.setColor(Color.RED);
             }
             //计算每个字母的坐标
             float x = (width - textPaint.measureText(letter[i])) / 2;
@@ -86,7 +86,7 @@ public class RightNavigationBar extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
-                setBackgroundColor(Color.GRAY);
+                //setBackgroundColor(Color.GRAY);
                 choose = index;
                 if (textView != null) {
                     textView.setVisibility(VISIBLE);
@@ -98,7 +98,7 @@ public class RightNavigationBar extends View {
                 invalidate();
                 break;
             default:
-                setBackgroundColor(Color.TRANSPARENT);
+                //setBackgroundColor(Color.TRANSPARENT);
                 if (textView != null) {
                     textView.setVisibility(GONE);
                 }

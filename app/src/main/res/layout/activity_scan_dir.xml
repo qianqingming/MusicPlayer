@@ -2,16 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp">
+    android:padding="@dimen/padding_10">
     <RelativeLayout
         android:id="@+id/top_layout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/dp_50"
         android:layout_alignParentStart="true">
         <ImageView
             android:id="@+id/back"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="@dimen/dp_25"
+            android:layout_height="@dimen/dp_25"
             android:layout_centerVertical="true"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_back"/>
@@ -20,10 +20,10 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:textStyle="bold"
-            android:textSize="20sp"
+            android:textSize="@dimen/most_big_text_size"
             android:textColor="@color/black"
             android:layout_toEndOf="@id/back"
-            android:layout_marginStart="25dp"
+            android:layout_marginStart="@dimen/dp_25"
             android:text="@string/scan_dir"/>
         <TextView
             android:id="@+id/tv_sure"
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:textStyle="bold"
-            android:textSize="20sp"
+            android:textSize="@dimen/most_big_text_size"
             android:textColor="@color/black"
             android:layout_alignParentEnd="true"
             android:background="?android:attr/selectableItemBackground"

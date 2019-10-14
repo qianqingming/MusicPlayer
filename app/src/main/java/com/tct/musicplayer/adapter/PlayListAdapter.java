@@ -53,7 +53,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
                 //更新播放的列表
                 MainActivity.musicService.setMusicIndex(holder.getAdapterPosition());
                 MainActivity.musicService.setMusicList(list);
-                MainActivity.musicList = list;
+                //MainActivity.musicList = list;
                 //跳转Activity
                 Intent intent1 = new Intent(context, MusicPlayActivity.class);
                 context.startActivity(intent1);

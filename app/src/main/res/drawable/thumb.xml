@@ -3,13 +3,13 @@
     android:shape="rectangle">
 
     <corners
-        android:topLeftRadius="44dp"
-        android:topRightRadius="44dp"
-        android:bottomLeftRadius="44dp" />
+        android:topLeftRadius="@dimen/radius_thumb"
+        android:topRightRadius="@dimen/radius_thumb"
+        android:bottomLeftRadius="@dimen/radius_thumb" />
 
     <padding
-        android:paddingLeft="22dp"
-        android:paddingRight="22dp" />
+        android:paddingLeft="@dimen/padding_22"
+        android:paddingRight="@dimen/padding_22" />
 
     <solid android:color="@color/colorSelected" />
 

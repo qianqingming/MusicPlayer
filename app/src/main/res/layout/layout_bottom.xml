@@ -24,24 +24,19 @@
             android:layout_height="@dimen/bottom_image_width_height"
             android:layout_weight="1"
             android:src="@drawable/ic_default_music"/>
-        <TextView
-            android:id="@+id/default_bottom_music_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/bottom_music_default_text"/>
         <LinearLayout
             android:id="@+id/bottom_music_singer_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:visibility="gone"
             android:orientation="vertical">
             <com.tct.musicplayer.views.MarqueeTextView
                 android:id="@+id/bottom_music_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
+                android:textSize="@dimen/text_size_14"
+                android:text="@string/bottom_music_default_text"
                 android:textColor="@color/black"/>
             <com.tct.musicplayer.views.MarqueeTextView
                 android:id="@+id/bottom_music_singer"

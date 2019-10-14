@@ -2,7 +2,6 @@ package com.tct.musicplayer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -14,8 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -40,7 +37,6 @@ import com.tct.musicplayer.utils.ToastUtils;
 
 import org.litepal.LitePal;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -349,24 +345,26 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 sendOrderedBroadcast(intent,null);
                 break;
             case R.id.add_favorite:
-                addFavorite.setVisibility(View.GONE);
-                removeFavorite.setVisibility(View.VISIBLE);
+                if (musicService.getMusicIndex() != -1) {
+                    addFavorite.setVisibility(View.GONE);
+                    removeFavorite.setVisibility(View.VISIBLE);
 
-                Song song = musicService.getMusicList().get(musicService.getMusicIndex());
-                List<Song> favoriteList = MusicUtils.getFavoriteList();
+                    Song song = musicService.getMusicList().get(musicService.getMusicIndex());
+                    List<Song> favoriteList = MusicUtils.getFavoriteList();
 
-                song.setFavorite(1);
+                    song.setFavorite(1);
 
-                ContentValues contentValues = new ContentValues();
-                contentValues.put("favorite",1);
-                LitePal.update(Song.class,contentValues,song.getId());
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put("favorite",1);
+                    LitePal.update(Song.class,contentValues,song.getId());
 
-                favoriteList.add(song);
+                    favoriteList.add(song);
 
-                intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
-                sendBroadcast(intent);
+                    intent = new Intent(BroadcastUtils.ACTION_NOTIFY_DATA);
+                    sendBroadcast(intent);
 
-                ToastUtils.showToast(this,this.getResources().getString(R.string.add_favorite_success));
+                    ToastUtils.showToast(this,this.getResources().getString(R.string.add_favorite_success));
+                }
                 break;
             case R.id.remove_favorite:
                 removeFavorite.setVisibility(View.GONE);
@@ -379,6 +377,10 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
                 ContentValues contentValues1 = new ContentValues();
                 contentValues1.put("favorite",0);
                 LitePal.update(Song.class,contentValues1,song1.getId());
+
+                if (MainActivity.musicService.getMusicIndex() == favoriteList1.size() - 1) {
+                    MainActivity.musicService.setMusicIndex(favoriteList1.size() - 2 > 0 ? favoriteList1.size() - 2 : 0);
+                }
 
                 for (int i = 0; i < favoriteList1.size(); i++) {
                     if (favoriteList1.get(i).getSongId().equals(song1.getSongId())) {
@@ -444,25 +446,26 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         view.findViewById(R.id.weixin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                dialog.dismiss();
+                ShareUtils.shareTo(MusicPlayActivity.this,"com.tencent.mm","com.tencent.mm.ui.tools.ShareImgUI");
             }
         });
         view.findViewById(R.id.weixin_pengyouquan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ShareUtils.shareTo(MusicPlayActivity.this,"com.tencent.mm","com.tencent.mm.ui.tools.ShareToTimeLineUI");
             }
         });
         view.findViewById(R.id.qq).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ShareUtils.shareTo(MusicPlayActivity.this,"com.tencent.mobileqq","com.tencent.mobileqq.activity.JumpActivity");
             }
         });
         view.findViewById(R.id.qq_zone).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ShareUtils.shareTo(MusicPlayActivity.this,"com.tencent.mobileqq","com.tencent.mobileqq.activity.JumpActivity");
             }
         });
         view.findViewById(R.id.more).setOnClickListener(new View.OnClickListener() {
@@ -526,9 +529,8 @@ public class MusicPlayActivity extends AppCompatActivity implements View.OnClick
         musicSinger.setText(song.getSinger());
         totalTime.setText(MusicUtils.formatTime(song.getDuration()));
         seekBar.setMax(song.getDuration());
-        musicPlayFragment.startNeedleImgPlayAnim();
         musicPlayFragment.startObjectAnimator();
-
+        musicPlayFragment.startNeedleImgPlayAnim();
         playListFragment.scrollToPosition(MainActivity.musicService.getMusicIndex());
         playListFragment.notifyData();
     }

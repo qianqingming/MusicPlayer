@@ -1,12 +1,16 @@
 package com.tct.musicplayer.fragment;
 
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +21,6 @@ import com.tct.musicplayer.R;
 import com.tct.musicplayer.adapter.AlbumAdapter;
 import com.tct.musicplayer.adapter.AlbumTitleDecoration;
 import com.tct.musicplayer.entity.Album;
-import com.tct.musicplayer.utils.CharacterUtils;
 import com.tct.musicplayer.utils.MusicUtils;
 import com.tct.musicplayer.views.RightNavigationBar;
 
@@ -29,6 +32,8 @@ import java.util.Map;
  * 专辑
  */
 public class AlbumFragment extends Fragment {
+
+    private static final String TAG = "qianqingming";
 
     private RecyclerView recyclerView;
     private ImageView loadImg;
@@ -43,11 +48,20 @@ public class AlbumFragment extends Fragment {
 
     public AlbumFragment() {
         // Required empty public constructor
+        Log.d(TAG, "AlbumFragment: construct");
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: ");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: ");
+
         View view = inflater.inflate(R.layout.fragment_album, container, false);
         recyclerView = view.findViewById(R.id.recycler_view_album);
         TextView textView = view.findViewById(R.id.tv_letter);
@@ -146,12 +160,32 @@ public class AlbumFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume: ");
         notifyData();
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach: ");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart: ");
+    }
+
+
     public void notifyData() {
         if (albumAdapter != null) {
-            albumList = MusicUtils.getSortedAlbumList();
+            albumList = MusicUtils.getAlbumList();
             if (albumList == null || albumList.size() == 0) {
                 loadText.setText("没有歌曲文件");
             }else {
@@ -175,6 +209,19 @@ public class AlbumFragment extends Fragment {
             }else {
                 map.put(key,1);
             }
+        }
+    }
+
+    public void scrollToPosition(int position) {
+        if (recyclerView != null) {
+            recyclerView.scrollToPosition(position);
+            //adapter.notifyDataSetChanged();
+        }
+    }
+
+    public void smoothScrollToTop() {
+        if (recyclerView != null) {
+            recyclerView.smoothScrollToPosition(0);
         }
     }
 

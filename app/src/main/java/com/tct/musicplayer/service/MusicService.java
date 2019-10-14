@@ -32,6 +32,8 @@ public class MusicService extends Service {
 
     private MusicStateReceiver musicStateReceiver;
 
+    private MusicBinder musicBinder;
+
     public MusicService() {
 
     }
@@ -81,6 +83,12 @@ public class MusicService extends Service {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    NotificationUtils.updateRemoteViews(MusicService.this,musicList.get(musicIndex),isPlaying());
+                                }
+                            }).start();
                             break;
                         case MusicUtils.PLAY_MODE_RANDOM:
                             mediaPlayer.stop();
@@ -95,6 +103,12 @@ public class MusicService extends Service {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    NotificationUtils.updateRemoteViews(MusicService.this,musicList.get(musicIndex),isPlaying());
+                                }
+                            }).start();
                             break;
                     }
                     isSetDataSource = true;
@@ -108,7 +122,8 @@ public class MusicService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return new MusicBinder();
+        musicBinder = new MusicBinder();
+        return musicBinder;
     }
 
     public void playMusic() {
@@ -162,34 +177,7 @@ public class MusicService extends Service {
         }
     }*/
 
-    public void playNextMusic() {
-        if (!isStartForeground) {
-            startForeground();
-        }
-        if (mediaPlayer != null && musicIndex < musicList.size()) {
-            mediaPlayer.stop();
-            try {
-                mediaPlayer.reset();
-                if (MusicUtils.playMode == MusicUtils.PLAY_MODE_RANDOM) {
-                    Random random = new Random();
-                    musicIndex = random.nextInt(musicList.size());
-                }else {
-                    if (musicIndex == musicList.size() - 1) {
-                        //如果已经是最后一首，则跳转到第一首播放
-                        musicIndex = 0;
-                    }else {
-                        musicIndex += 1;
-                    }
-                }
-                mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-                isSetDataSource = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+
 
     public void playLastMusic() {
         if (!isStartForeground) {
@@ -199,7 +187,7 @@ public class MusicService extends Service {
             musicIndex = 0;
         }
         if (mediaPlayer != null && musicIndex > 0) {
-            mediaPlayer.stop();
+            //mediaPlayer.stop();
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(musicList.get(--musicIndex).getPath());
@@ -320,29 +308,92 @@ public class MusicService extends Service {
         public MusicService getMusicService() {
             return MusicService.this;
         }
+        public void playNextMusic() {
+            if (!isStartForeground) {
+                startForeground();
+            }
+            if (mediaPlayer != null && musicIndex < musicList.size()) {
+                //mediaPlayer.stop();
+                try {
+                    mediaPlayer.reset();
+                    if (MusicUtils.playMode == MusicUtils.PLAY_MODE_RANDOM) {
+                        Random random = new Random();
+                        musicIndex = random.nextInt(musicList.size());
+                    }else {
+                        if (musicIndex == musicList.size() - 1) {
+                            //如果已经是最后一首，则跳转到第一首播放
+                            musicIndex = 0;
+                        }else {
+                            musicIndex += 1;
+                        }
+                    }
+                    mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                    isSetDataSource = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     class MusicStateReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, Intent intent) {
             String action = intent.getAction();
             Log.d("qianqingming", "MusicService-----:" + action);
             switch (action) {
                 case BroadcastUtils.ACTION_PLAY_MUSIC:
                     playMusic();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
+                        }
+                    }).start();
+                    //NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
                     break;
                 case BroadcastUtils.ACTION_PAUSE_MUSIC:
                     pauseMusic();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
+                        }
+                    }).start();
+                    //NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
                     break;
                 case BroadcastUtils.ACTION_LAST_MUSIC:
                     playLastMusic();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
+                        }
+                    }).start();
+                    //NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
                     break;
                 case BroadcastUtils.ACTION_NEXT_MUSIC:
-                    playNextMusic();
+                    musicBinder.playNextMusic();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
+                        }
+                    }).start();
+                    //NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
                     break;
                 case BroadcastUtils.ACTION_PLAY_SELECTED_MUSIC:
                     int index = intent.getIntExtra("position",0);
                     playSelectedMusic(index);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
+                        }
+                    }).start();
+                    //NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
                     break;
                 case BroadcastUtils.ACTION_CLOSE:
                     stopForeground();

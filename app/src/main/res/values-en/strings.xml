@@ -53,4 +53,7 @@
     <string name="play_list">Playlist</string>
     <string name="hour">hours</string>
     <string name="min">minutes</string>
+    <string name="back_to_top">back to the top success</string>
+    <string name="scroll_to_curr_pos">Navigate to the currently playing song</string>
+    <string name="scan_success">scan success</string>
 </resources>

@@ -2,17 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp">
+    android:padding="@dimen/padding_10">
     <LinearLayout
         android:id="@+id/top_layout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/dp_50"
         android:layout_alignParentStart="true"
         android:orientation="horizontal">
         <ImageView
             android:id="@+id/back"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="@dimen/dp_25"
+            android:layout_height="@dimen/dp_25"
             android:layout_gravity="center"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_back"/>
@@ -21,9 +21,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textStyle="bold"
-            android:textSize="20sp"
+            android:textSize="@dimen/most_big_text_size"
             android:textColor="@color/black"
-            android:layout_marginStart="25dp"
+            android:layout_marginStart="@dimen/dp_25"
             android:text="@string/scan_music"/>
     </LinearLayout>
 
@@ -37,42 +37,46 @@
     <RelativeLayout
         android:id="@+id/less_60_layout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/title_height"
         android:layout_below="@id/filter_size">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="@dimen/big_text_size"
             android:layout_centerVertical="true"
             android:text="@string/scan_filter_less_60s"/>
         <Switch
+            android:id="@+id/switch_60"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:theme="@style/MySwitch"
+            android:thumb="@drawable/switch_custom_thumb_selector"
+            android:track="@drawable/switch_custom_track_selector"
             android:checked="true"/>
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/less_500_layout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/title_height"
         android:layout_below="@id/less_60_layout">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="@dimen/big_text_size"
             android:layout_centerVertical="true"
             android:text="@string/scan_filter_less_500k"/>
         <Switch
+            android:id="@+id/switch_500"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:theme="@style/MySwitch"
+            android:thumb="@drawable/switch_custom_thumb_selector"
+            android:track="@drawable/switch_custom_track_selector"
             android:checked="true"/>
     </RelativeLayout>
 
@@ -81,24 +85,26 @@
         android:layout_below="@id/less_500_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:text="@string/scan_filter_dir"/>
 
     <RelativeLayout
+        android:visibility="gone"
         android:layout_below="@id/filter_dir_tv"
         android:id="@+id/layout_scan_dir"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/title_height"
         android:background="?android:attr/selectableItemBackground">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="@dimen/big_text_size"
             android:layout_centerVertical="true"
             android:text="@string/scan_dir"/>
         <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="@dimen/dp_25"
+            android:layout_height="@dimen/dp_25"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
             android:src="@drawable/ic_go"/>
@@ -107,11 +113,15 @@
     <Button
         android:id="@+id/btn_scan"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="@dimen/dp_40"
         android:text="@string/scan"
         android:textColor="@color/white"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_50"
+        android:layout_below="@id/less_500_layout"
         android:background="@drawable/bg_button"/>
+
+
+
 </RelativeLayout>
