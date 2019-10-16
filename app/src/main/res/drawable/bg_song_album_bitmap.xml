@@ -7,10 +7,10 @@
         android:color="#8B8A8A"/>
 
     <stroke
-        android:width="10dp"
+        android:width="@dimen/dp_10"
         android:color="#8B8A8A"/>
 
     <size
-        android:width="60dp"
-        android:height="60dp"/>
+        android:width="@dimen/dp_60"
+        android:height="@dimen/dp_60"/>
 </shape>

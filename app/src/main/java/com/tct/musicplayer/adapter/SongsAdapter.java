@@ -338,7 +338,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_delete,null);
         final AlertDialog dialog = new AlertDialog.Builder(context).setView(view).create();
         dialog.setCanceledOnTouchOutside(false);//点击外部不消失，按返回键消失
-        ((TextView)view.findViewById(R.id.title)).setText("删除\""+title+"\"吗？");
+        ((TextView)view.findViewById(R.id.title)).setText(context.getResources().getString(R.string.delete_music) + "\""+title+"\"？");
         final CheckBox checkBox = view.findViewById(R.id.delete_from_device);
         TextView delText = view.findViewById(R.id.delete_from_device_text);
 

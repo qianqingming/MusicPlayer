@@ -153,32 +153,6 @@ public class MusicService extends Service {
         }
     }
 
-    /*public void playNextMusic() {
-        if (!isStartForeground) {
-            startForeground();
-        }
-        if (mediaPlayer != null && musicIndex < musicList.size()) {
-            mediaPlayer.stop();
-            try {
-                mediaPlayer.reset();
-                if (musicIndex == musicList.size() - 1) {
-                    //如果已经是最后一首，则跳转到第一首播放
-                    musicIndex = 0;
-                    mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
-                }else {
-                    mediaPlayer.setDataSource(musicList.get(++musicIndex).getPath());
-                }
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-                isSetDataSource = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }*/
-
-
-
     public void playLastMusic() {
         if (!isStartForeground) {
             startForeground();
@@ -191,6 +165,35 @@ public class MusicService extends Service {
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(musicList.get(--musicIndex).getPath());
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                isSetDataSource = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void playNextMusic() {
+        if (!isStartForeground) {
+            startForeground();
+        }
+        if (mediaPlayer != null && musicIndex < musicList.size()) {
+            //mediaPlayer.stop();
+            try {
+                mediaPlayer.reset();
+                if (MusicUtils.playMode == MusicUtils.PLAY_MODE_RANDOM) {
+                    Random random = new Random();
+                    musicIndex = random.nextInt(musicList.size());
+                }else {
+                    if (musicIndex == musicList.size() - 1) {
+                        //如果已经是最后一首，则跳转到第一首播放
+                        musicIndex = 0;
+                    }else {
+                        musicIndex += 1;
+                    }
+                }
+                mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
                 mediaPlayer.prepare();
                 mediaPlayer.start();
                 isSetDataSource = true;
@@ -308,34 +311,6 @@ public class MusicService extends Service {
         public MusicService getMusicService() {
             return MusicService.this;
         }
-        public void playNextMusic() {
-            if (!isStartForeground) {
-                startForeground();
-            }
-            if (mediaPlayer != null && musicIndex < musicList.size()) {
-                //mediaPlayer.stop();
-                try {
-                    mediaPlayer.reset();
-                    if (MusicUtils.playMode == MusicUtils.PLAY_MODE_RANDOM) {
-                        Random random = new Random();
-                        musicIndex = random.nextInt(musicList.size());
-                    }else {
-                        if (musicIndex == musicList.size() - 1) {
-                            //如果已经是最后一首，则跳转到第一首播放
-                            musicIndex = 0;
-                        }else {
-                            musicIndex += 1;
-                        }
-                    }
-                    mediaPlayer.setDataSource(musicList.get(musicIndex).getPath());
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    isSetDataSource = true;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     class MusicStateReceiver extends BroadcastReceiver {
@@ -375,7 +350,7 @@ public class MusicService extends Service {
                     //NotificationUtils.updateRemoteViews(context,musicList.get(musicIndex),isPlaying());
                     break;
                 case BroadcastUtils.ACTION_NEXT_MUSIC:
-                    musicBinder.playNextMusic();
+                    playNextMusic();
                     new Thread(new Runnable() {
                         @Override
                         public void run() {

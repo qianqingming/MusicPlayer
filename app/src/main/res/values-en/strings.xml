@@ -56,4 +56,10 @@
     <string name="back_to_top">back to the top success</string>
     <string name="scroll_to_curr_pos">Navigate to the currently playing song</string>
     <string name="scan_success">scan success</string>
+    <string name="no_match_result">No results matched</string>
+    <string name="history">history</string>
+    <string name="clear_all">clear all</string>
+    <string name="timer_set_success">set success</string>
+    <string name="timer_close_after_mins">minutes later the player will be stop</string>
+    <string name="delete_music">delete</string>
 </resources>

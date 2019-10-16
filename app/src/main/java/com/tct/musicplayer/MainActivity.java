@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private NavigationView navigationView;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private ImageView searchImg,settingsImg,moreImg;//顶部搜索、设置、更多
+    private ImageView searchImg,settingsImg;//顶部搜索、设置
     private ImageView lastMusicImg,playMusicImg,pauseMusicImg,nextMusicImg;//底部上一曲、播放、暂停、下一曲
     private ProgressBar progressBar;
     private LinearLayout bottomTextLayout;
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         settingsImg = findViewById(R.id.menu_image_view);
         searchImg = findViewById(R.id.search_image_view);
-        moreImg = findViewById(R.id.more_image_view);
+        //moreImg = findViewById(R.id.more_image_view);
         lastMusicImg = findViewById(R.id.last_music_image_view);
         playMusicImg = findViewById(R.id.play_music_image_view);
         pauseMusicImg = findViewById(R.id.pause_music_image_view);
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         settingsImg.setOnClickListener(this);
         searchImg.setOnClickListener(this);
-        moreImg.setOnClickListener(this);
+        //moreImg.setOnClickListener(this);
         lastMusicImg.setOnClickListener(this);
         playMusicImg.setOnClickListener(this);
         pauseMusicImg.setOnClickListener(this);
@@ -462,7 +462,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //不开启
                     remainTime.setText("");
                 }else {
-                    ToastUtils.showToast(MainActivity.this,"设置成功，"+closeTime+"分钟后将自动关闭");
+                    ToastUtils.showToast(MainActivity.this,getResources().getString(R.string.timer_set_success) + "，"+closeTime+getResources().getString(R.string.timer_close_after_mins));
                     countDownTimer = getCountDownTimer(closeTime * 60 * 1000,switchUntilEnd.isChecked());
                 }
                 dialog.dismiss();
@@ -606,7 +606,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         viewPager.setCurrentItem(1);
 
         //监听切换
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        /*tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getText().equals(tab_title_list.get(2)) || tab.getText().equals(tab_title_list.get(3))){
@@ -624,7 +624,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
             }
-        });
+        });*/
     }
 
     @Override
@@ -635,10 +635,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 drawerLayout.openDrawer(GravityCompat.START);
                 break;
             case R.id.search_image_view:
+                intent = new Intent(this,SearchActivity.class);
+                startActivity(intent);
                 break;
-            case R.id.more_image_view:
+            /*case R.id.more_image_view:
                 initPopMenu();
-                break;
+                break;*/
             case R.id.music_bg_image_view:
             case R.id.bottom_music_singer_layout:
                 intent = new Intent(this, MusicPlayActivity.class);
@@ -768,7 +770,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         remainTime.setText("");
     }
 
-    private void initPopMenu() {
+    /*private void initPopMenu() {
         PopupMenu popupMenu = new PopupMenu(MainActivity.this,moreImg);
         popupMenu.getMenuInflater().inflate(R.menu.pop_menu,popupMenu.getMenu());
         popupMenu.show();
@@ -790,7 +792,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return false;
             }
         });
-    }
+    }*/
 
 
     public class MusicStateReceiver extends BroadcastReceiver {

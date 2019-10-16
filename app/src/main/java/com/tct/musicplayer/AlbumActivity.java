@@ -251,8 +251,6 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
             case R.id.back_image_view:
                 finish();
                 break;
-            case R.id.more_image_view:
-                break;
             case R.id.music_bg_image_view:
             case R.id.bottom_music_singer_layout:
                 intent = new Intent(this, MusicPlayActivity.class);

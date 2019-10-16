@@ -77,4 +77,9 @@
 	<dimen name="dp_50">37.5000dp</dimen>
 	<dimen name="dp_40">30.0000dp</dimen>
 	<dimen name="dp_200">150.0000dp</dimen>
+	<dimen name="dp_15">11.2500dp</dimen>
+	<dimen name="dp_10">11.2500dp</dimen>
+	<dimen name="dp_60">45.0000dp</dimen>
+	<dimen name="dp_220">165.0000dp</dimen>
+	<dimen name="dp_2">1.5000dp</dimen>
 </resources>

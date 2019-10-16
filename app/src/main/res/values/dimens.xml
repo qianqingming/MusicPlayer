@@ -77,4 +77,9 @@
     <dimen name="dp_50">50dp</dimen>
     <dimen name="dp_40">40dp</dimen>
     <dimen name="dp_200">200dp</dimen>
+    <dimen name="dp_15">15dp</dimen>
+    <dimen name="dp_10">15dp</dimen>
+    <dimen name="dp_60">60dp</dimen>
+    <dimen name="dp_220">220dp</dimen>
+    <dimen name="dp_2">2dp</dimen>
 </resources>

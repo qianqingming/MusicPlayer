@@ -56,4 +56,10 @@
     <string name="back_to_top">已回到顶部</string>
     <string name="scroll_to_curr_pos">已定位到当前播放歌曲</string>
     <string name="scan_success">扫描成功</string>
+    <string name="no_match_result">没有匹配结果</string>
+    <string name="history">历史</string>
+    <string name="clear_all">清除全部</string>
+    <string name="timer_set_success">设置成功</string>
+    <string name="timer_close_after_mins">分钟后将自动关闭</string>
+    <string name="delete_music">删除</string>
 </resources>

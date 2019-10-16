@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:src="@drawable/ic_no_favorite"/>
+        android:src="@drawable/ic_no_file"/>
 
     <TextView
         android:id="@+id/loading_text"

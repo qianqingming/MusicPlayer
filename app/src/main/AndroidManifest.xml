@@ -11,17 +11,20 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_default_music"
         android:label="@string/app_name"
+        android:resizeableActivity="false"
         android:roundIcon="@drawable/ic_default_music"
         android:supportsRtl="true"
-        android:resizeableActivity="false"
         android:theme="@style/AppTheme">
-        <activity android:name=".ScanDirActivity"
-            android:theme="@style/WhiteTheme"
-            android:screenOrientation="portrait"/>
+        <activity android:name=".SearchActivity"
+            android:theme="@style/WhiteTheme"/>
+        <activity
+            android:name=".ScanDirActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/WhiteTheme" />
         <activity
             android:name=".ScanActivity"
-            android:theme="@style/WhiteTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/WhiteTheme" />
         <activity android:name=".PermissionActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,22 +34,21 @@
         </activity>
         <activity
             android:name=".ArtistActivity"
-            android:theme="@style/WhiteTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/WhiteTheme" />
         <activity
             android:name=".AlbumActivity"
-            android:theme="@style/WhiteTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/WhiteTheme" />
         <activity
             android:name=".MusicPlayActivity"
             android:launchMode="singleTask"
-            android:theme="@style/GrayTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/GrayTheme" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"
-            android:theme="@style/WhiteTheme"
-            />
+            android:theme="@style/WhiteTheme" />
 
         <service
             android:name=".service.MusicService"

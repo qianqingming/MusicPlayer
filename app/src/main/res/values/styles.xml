@@ -58,4 +58,9 @@
         <item name="android:textSize">@dimen/middle_text_size</item>
     </style>
 
+    <style name="SearchViewTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorSelected</item>
+    </style>
 </resources>
